@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build output
+build/
+**/build/
+dist/
+
+# Mac
+.DS_Store
+**/.DS_Store
+
+# Editors
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# Large reference PDFs (kept locally, not committed)
+*.pdf
+Research/*.pdf
+
+# Backend stub (unused)
+backend/.venv/
+backend/__pycache__/
+backend/**/__pycache__/
+
+# Workspace (scratch)
+Workspace/
