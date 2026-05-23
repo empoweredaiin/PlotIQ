@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Check, X, AlertTriangle, Plus, Trash2, ChevronDown, Printer, Eye, EyeOff, MapPin } from 'lucide-react';
 
 // ============================================================================
@@ -301,7 +301,7 @@ function analyseEligibility(input) {
     issues.push({
       level: 'warn',
       title: `Building age is ${buildingAge} years — below 30 for 33(7)(B) incentive`,
-      detail: `Reg 33(7)(B) requires the building to be 30 years old or more to access the 15% incentive BUA. You'd need to wait ${30 - buildingAge} more years for that scheme. Until then, the calculator falls back to standard Reg 30 / Table 12 FSI — no incentive, but redevelopment is still possible. If your building is structurally distressed, a structural audit could trigger 33(7)(A) (out of MVP scope; consult an architect).`,
+      detail: `Reg 33(7)(B) requires the building to be 30 years old or more to access the 15% incentive BUA. You'd need to wait ${30 - buildingAge} more years for that scheme. Until then, the platform falls back to standard Reg 30 / Table 12 FSI — no incentive, but redevelopment is still possible. If your building is structurally distressed, a structural audit could trigger 33(7)(A) (out of MVP scope; consult an architect).`,
       ref: 'Reg 33(7)(B)',
     });
   } else {
@@ -312,14 +312,14 @@ function analyseEligibility(input) {
     issues.push({
       level: 'fail',
       title: 'Cessed building — falls under Reg 33(7), not 33(7)(B)',
-      detail: 'A building paying cess to MHADA (typically Island City buildings pre-1969) is governed by Reg 33(7), which has different — usually more generous — incentive provisions. This calculator does not cover 33(7).',
+      detail: 'A building paying cess to MHADA (typically Island City buildings pre-1969) is governed by Reg 33(7), which has different — usually more generous — incentive provisions. This platform does not cover 33(7).',
       ref: 'Reg 33(7)(B) opening',
     });
   } else if (buildingType === 'tenanted') {
     issues.push({
       level: 'fail',
       title: 'Tenanted building — falls under Reg 33(7)(A)',
-      detail: 'If your building has tenants (not member-owners), and is dilapidated or unsafe, the applicable regulation is 33(7)(A). This calculator does not cover 33(7)(A).',
+      detail: 'If your building has tenants (not member-owners), and is dilapidated or unsafe, the applicable regulation is 33(7)(A). This platform does not cover 33(7)(A).',
       ref: 'Reg 33(7)(B) opening',
     });
   } else {
@@ -366,7 +366,7 @@ function analyseEligibility(input) {
     issues.push({
       level: 'warn',
       title: 'Mixed-tenancy plot — proportional split required',
-      detail: 'If your plot has both tenanted buildings and member-owned cooperative buildings, Reg 33(7)(B) clause 8 requires the plot to be split into proportional notional plots — the tenanted portion redevelops under 33(7)(A), the society portion under 33(7)(B). This calculator does not currently compute the split. Engage a Licensed Architect to handle the proportional development.',
+      detail: 'If your plot has both tenanted buildings and member-owned cooperative buildings, Reg 33(7)(B) clause 8 requires the plot to be split into proportional notional plots — the tenanted portion redevelops under 33(7)(A), the society portion under 33(7)(B). This platform does not currently compute the split. Engage a Licensed Architect to handle the proportional development.',
       ref: 'Reg 33(7)(B), Clause 8',
     });
   }
@@ -1104,6 +1104,16 @@ function verifyDelta(calc, expected) {
   return ((c - e) / e) * 100;
 }
 
+const WORKSPACE_PAGES = [
+  { id: 'overview', label: 'Overview', title: 'Site discovery & entitlement snapshot', description: 'A concise workspace for plot context, scheme selection and eligibility clarity.' },
+  { id: 'intelligence', label: 'Spatial Intelligence', title: 'Parcel and location intelligence', description: 'Translate plot, ward and zoning context into clear site metrics and spatial insight.' },
+  { id: 'regulations', label: 'Regulatory Intelligence', title: 'Applicable regulations and entitlement clarity', description: 'Show what the system understands: entitlement, constraints and scheme implications.' },
+  { id: 'buildability', label: 'Buildability', title: 'Buildable envelope and spatial feasibility', description: 'Turn entitlement into buildability insight with an emphasis on what fits and why.' },
+  { id: 'feasibility', label: 'Feasibility', title: 'Cost, parking and offer analysis', description: 'Translate regulatory outcomes into financial and parking feasibility for advisory review.' },
+  { id: 'ai', label: 'AI Insights', title: 'Strategic recommendations', description: 'Generate high-level opportunity, constraint and next-step guidance from the assessment.' },
+  { id: 'reports', label: 'Reports', title: 'Institutional reporting', description: 'Produce a review-ready advisory snapshot designed for committees, architects and lenders.' },
+];
+
 // ============================================================================
 // MAIN APP COMPONENT
 // ============================================================================
@@ -1163,11 +1173,15 @@ export default function App() {
     clusterApartments: 0,
     // Slum (33(10)) flag
     slumOnPlot: false,
+    // Report scope controls which optional fields are shown
+    reportScope: 'entitlement',
   });
 
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [wardDetect, setWardDetect] = useState({ status: 'idle', ward: null, error: null });
+  const [workspacePage, setWorkspacePage] = useState('overview');
+  const [page, setPage] = useState('landing');
 
   const update = (k, v) => setInput(prev => ({ ...prev, [k]: v }));
   const updateFlat = (idx, k, v) =>
@@ -1181,6 +1195,13 @@ export default function App() {
   const schemes = useMemo(() => detectApplicableSchemes(input), [input]);
   const primarySchemeId = useMemo(() => pickPrimaryScheme(schemes, input), [schemes, input]);
   const activeSchemeId = input.selectedScheme || primarySchemeId;
+  const showCostReport = input.reportScope !== 'entitlement';
+
+  useEffect(() => {
+    if (activeTab === 'costs' && !showCostReport) {
+      setActiveTab('overview');
+    }
+  }, [activeTab, showCostReport]);
 
   // Compute the active scheme + the auto-detected primary (for comparison)
   const result = useMemo(() => computeBuildable({ ...input, selectedScheme: activeSchemeId }), [input, activeSchemeId]);
@@ -1193,17 +1214,124 @@ export default function App() {
     return s?.eligible ? computeBuildable({ ...input, selectedScheme: 'reg33_9' }) : null;
   }, [input, schemes]);
 
+  const currentWorkspace = WORKSPACE_PAGES.find(p => p.id === workspacePage) || WORKSPACE_PAGES[0];
+
+  const renderWorkspaceContent = () => {
+    switch (workspacePage) {
+      case 'intelligence':
+        return (
+          <SiteIntelligencePage input={input} wardDetect={wardDetect} result={result} />
+        );
+      case 'regulations':
+        return (
+          <>
+            <SchemePicker
+              schemes={schemes}
+              activeSchemeId={activeSchemeId}
+              primarySchemeId={primarySchemeId}
+              onSelect={(id) => update('selectedScheme', id)}
+              input={input}
+              update={update}
+            />
+            <SpecialLocationWarning specialLocation={input.specialLocation} />
+            {eligibility.issues.length > 0 && <EligibilityPanel eligibility={eligibility} input={input} />}
+            {input.slumOnPlot && <SlumFlag />}
+            <AreaStatement result={result} input={input} update={update} schemeId={activeSchemeId} />
+          </>
+        );
+      case 'buildability':
+        return (
+          <>
+            <InteractiveResult result={result} input={input} update={update} schemeId={activeSchemeId} />
+            {result_33_7B && result_33_9 && <SchemeComparison r1={result_33_7B} r2={result_33_9} />}
+            <WatchOutFor result={result} />
+          </>
+        );
+      case 'feasibility':
+        return (
+          <>
+            <CompareOffer result={result} input={input} update={update} />
+            <PremiumRecoveryPanel result={result} input={input} />
+            <ParkingPanel result={result} input={input} />
+            {result.flatBreakdown && result.flatBreakdown.length > 0 ? (
+              <MemberEntitlement breakdown={result.flatBreakdown} input={input} update={update} />
+            ) : (
+              <div style={{ padding: 28, border: '1px solid var(--border)', borderRadius: 10, background: '#fffefb', color: 'var(--ink-soft)' }}>
+                Switch to "By flat type" input mode to review member entitlement detail.
+              </div>
+            )}
+          </>
+        );
+      case 'ai':
+        return (
+          <>
+            <NextSteps />
+            <Explainers />
+          </>
+        );
+      case 'reports':
+        return (
+          <>
+            <div style={{ marginBottom: 24, padding: 24, background: '#fffefb', border: '1px solid var(--border)', borderRadius: 12 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--rust)', marginBottom: 10 }}>Report workspace</div>
+              <div style={{ color: 'var(--ink-soft)', lineHeight: 1.7 }}>
+                This module is the final review artifact environment. Use it to print or save an institutional-grade advisory summary for committee review, architect validation and lender pre-check.
+              </div>
+            </div>
+            <PrintBar />
+          </>
+        );
+      default:
+        return (
+          <>
+            <SchemePicker
+              schemes={schemes}
+              activeSchemeId={activeSchemeId}
+              primarySchemeId={primarySchemeId}
+              onSelect={(id) => update('selectedScheme', id)}
+              input={input}
+              update={update}
+            />
+            <SpecialLocationWarning specialLocation={input.specialLocation} />
+            {eligibility.issues.length > 0 && <EligibilityPanel eligibility={eligibility} input={input} />}
+            {input.slumOnPlot && <SlumFlag />}
+            {activeSchemeId === 'reg33_9'
+              ? <ClusterResult result={result} input={input} />
+              : <>
+                  <InteractiveResult result={result} input={input} update={update} schemeId={activeSchemeId} />
+                  {result_33_7B && result_33_9 && <SchemeComparison r1={result_33_7B} r2={result_33_9} />}
+                  <WatchOutFor result={result} />
+                </>
+            }
+          </>
+        );
+    }
+  };
+
+  if (page === 'landing') {
+    return (
+      <div className="redev-app">
+        <Styles />
+        <Header />
+        <LandingPage onStart={() => setPage('tool')} />
+      </div>
+    );
+  }
+
   return (
     <div className="redev-app">
       <Styles />
       <Header />
+      <WorkspaceContextBar currentWorkspace={currentWorkspace} />
 
       <div className="container">
-        <Intro />
-
-        <div className="layout-2col">
-          {/* LEFT: INPUT PANEL */}
-          <aside className="no-print input-panel">
+        <div className="workspace-grid">
+          <aside className="left-rail no-print">
+            <WorkspaceNav
+              pages={WORKSPACE_PAGES}
+              activePage={workspacePage}
+              onSelect={setWorkspacePage}
+            />
             <InputPanel
               input={input}
               update={update}
@@ -1217,87 +1345,10 @@ export default function App() {
             />
           </aside>
 
-          {/* RIGHT: OUTPUT */}
-          <main className="output-panel">
-            {/* Always-visible: scheme + alerts */}
-            <SchemePicker
-              schemes={schemes}
-              activeSchemeId={activeSchemeId}
-              primarySchemeId={primarySchemeId}
-              onSelect={(id) => update('selectedScheme', id)}
-              input={input}
-              update={update}
-            />
-            <SpecialLocationWarning specialLocation={input.specialLocation} />
-            {eligibility.issues.length > 0 && <EligibilityPanel eligibility={eligibility} input={input} />}
-            {input.slumOnPlot && <SlumFlag />}
-
-            {/* Tab bar */}
-            <div className="tab-bar no-print">
-              {[
-                { id: 'overview',   label: 'Overview'        },
-                { id: 'compare',    label: 'Compare Offer'   },
-                { id: 'statement',  label: 'Area Statement'  },
-                { id: 'costs',      label: 'Costs & Parking' },
-                { id: 'members',    label: 'Members'         },
-                { id: 'roadmap',    label: 'Way Ahead'       },
-              ].map(t => (
-                <button key={t.id}
-                  className={`tab-btn${activeTab === t.id ? ' active' : ''}`}
-                  onClick={() => setActiveTab(t.id)}>
-                  {t.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Tab: Overview */}
-            {activeTab === 'overview' && (
-              activeSchemeId === 'reg33_9'
-                ? <ClusterResult result={result} input={input} />
-                : <>
-                    <InteractiveResult result={result} input={input} update={update} schemeId={activeSchemeId} />
-                    {result_33_7B && result_33_9 && <SchemeComparison r1={result_33_7B} r2={result_33_9} />}
-                    <WatchOutFor result={result} />
-                  </>
-            )}
-
-            {/* Tab: Compare Offer */}
-            {activeTab === 'compare' && (
-              <CompareOffer result={result} input={input} update={update} />
-            )}
-
-            {/* Tab: Area Statement */}
-            {activeTab === 'statement' && (
-              <AreaStatement result={result} input={input} update={update} schemeId={activeSchemeId} />
-            )}
-
-            {/* Tab: Costs & Parking */}
-            {activeTab === 'costs' && (
-              <>
-                <PremiumRecoveryPanel result={result} input={input} />
-                <ParkingPanel result={result} input={input} />
-              </>
-            )}
-
-            {/* Tab: Members */}
-            {activeTab === 'members' && result.flatBreakdown && result.flatBreakdown.length > 0 && (
-              <MemberEntitlement breakdown={result.flatBreakdown} input={input} update={update} />
-            )}
-            {activeTab === 'members' && (!result.flatBreakdown || result.flatBreakdown.length === 0) && (
-              <div style={{ padding: 32, textAlign: 'center', color: '#a89c87', fontSize: 13 }}>
-                Switch to "By flat type" input mode to see per-member entitlement breakdown.
-              </div>
-            )}
-
-            {/* Tab: Way Ahead */}
-            {activeTab === 'roadmap' && (
-              <>
-                <NextSteps />
-                <Explainers />
-              </>
-            )}
-
-            <PrintBar />
+          <main className="workspace-main">
+            <WorkspacePageHeader currentWorkspace={currentWorkspace} />
+            {renderWorkspaceContent()}
+            {workspacePage !== 'reports' && <PrintBar />}
           </main>
         </div>
 
@@ -1314,17 +1365,34 @@ const Styles = () => (
   <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
+    :root {
+      --paper: #F5F2EA;
+      --paper-warm: #ECE6DA;
+      --border: #D6CFC4;
+      --ink: #22272D;
+      --ink-soft: #5E6671;
+      --ink-faint: #8F98A3;
+      --rust: #A17A43;
+      --rust-deep: #7F5F37;
+      --signal-bg: #F5EFE6;
+      --success: #3E6650;
+      --display: "Source Serif 4", Georgia, serif;
+      --sans: "Source Sans 3", -apple-system, sans-serif;
+      --mono: "JetBrains Mono", monospace;
+      --radius: 4px;
+    }
+
     .redev-app, .redev-app * { box-sizing: border-box; }
     .redev-app {
       min-height: 100vh;
-      background: #f5f1ea;
-      color: #1a1815;
-      font-family: "Source Sans 3", -apple-system, sans-serif;
-      line-height: 1.5;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.55;
     }
 
-    .redev-app .serif { font-family: "Source Serif 4", Georgia, serif; font-feature-settings: "liga","kern"; }
-    .redev-app .num { font-family: "JetBrains Mono", monospace; font-feature-settings: "tnum"; }
+    .redev-app .serif { font-family: var(--display); font-feature-settings: "liga","kern"; }
+    .redev-app .num { font-family: var(--mono); font-feature-settings: "tnum"; }
 
     .redev-app input[type="text"],
     .redev-app input[type="number"],
@@ -1357,42 +1425,60 @@ const Styles = () => (
 
     .redev-app .field-label {
       display: block;
-      font-size: 11px;
-      font-weight: 600;
+      font-size: 12px;
+      font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: #6b5d47;
-      margin-bottom: 6px;
+      color: var(--ink-soft);
+      margin-bottom: 8px;
     }
     .redev-app .help-text {
-      font-size: 11.5px;
-      color: #6b5d47;
-      margin-top: 5px;
-      line-height: 1.5;
-      font-style: italic;
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-top: 6px;
+      line-height: 1.65;
+      font-style: normal;
     }
     .redev-app .radio-card {
-      padding: 10px 12px;
+      padding: 14px 16px;
       border: 1px solid #d4c9b8;
-      border-radius: 3px;
+      border-radius: 12px;
       cursor: pointer;
-      background: #fffefb;
-      transition: all .12s;
+      background: #fff;
+      transition: border-color .16s, box-shadow .16s, background .16s;
       font-size: 13px;
     }
-    .redev-app .radio-card:hover { border-color: #8b3a2a; }
-    .redev-app .radio-card.active { border-color: #8b3a2a; background: rgba(139, 58, 42, 0.04); }
+    .redev-app .radio-card:hover { border-color: #8b3a2a; box-shadow: 0 12px 32px rgba(26,24,21,0.05); }
+    .redev-app .radio-card.active { border-color: #8b3a2a; background: rgba(139, 58, 42, 0.06); }
 
     .redev-app .container {
-      max-width: 1200px;
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 32px;
+      padding: 32px 24px 48px;
+    }
+
+    .redev-app .workspace-grid {
+      display: grid;
+      grid-template-columns: minmax(320px, 400px) 1fr;
+      gap: 36px;
+      align-items: start;
+    }
+    .redev-app .left-rail {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      display: grid;
+      gap: 24px;
+    }
+    .redev-app .workspace-main {
+      display: grid;
+      gap: 24px;
     }
 
     .redev-app .layout-2col {
       display: grid;
-      grid-template-columns: 420px 1fr;
-      gap: 40px;
+      grid-template-columns: minmax(320px, 420px) 1fr;
+      gap: 36px;
       align-items: start;
     }
     .redev-app .input-panel {
@@ -1401,7 +1487,11 @@ const Styles = () => (
       max-height: calc(100vh - 48px);
       overflow-y: auto;
       overflow-x: hidden;
-      padding-right: 6px;
+      background: #fffefb;
+      border: 1px solid #e7dfd0;
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 20px 48px rgba(26,24,21,0.06);
     }
     .redev-app .input-panel::-webkit-scrollbar { width: 8px; }
     .redev-app .input-panel::-webkit-scrollbar-track { background: transparent; }
@@ -1503,28 +1593,25 @@ const Styles = () => (
 // HEADER / INTRO / FOOTER / SHARED
 // ============================================================================
 const Header = () => (
-  <header style={{ borderBottom: '1px solid #d4c9b8', background: '#f5f1ea', padding: '24px 0' }}>
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px', display: 'flex',
-                  justifyContent: 'space-between', alignItems: 'flex-end', gap: 32, flexWrap: 'wrap' }}>
-      <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 6 }}>
-          <div style={{ width: 36, height: 36, background: '#8b3a2a', borderRadius: 3,
-                        display: 'grid', placeItems: 'center', color: '#f5f1ea',
-                        fontFamily: 'Source Serif 4', fontWeight: 600, fontSize: 18, fontStyle: 'italic' }}>R</div>
-          <div className="serif" style={{ fontSize: 28, fontWeight: 600, lineHeight: 1, letterSpacing: '-0.01em' }}>
+  <header style={{ borderBottom: '1px solid var(--border)', background: 'transparent', padding: '24px 0' }}>
+    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 32, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+        <div style={{ width: 40, height: 40, background: 'var(--rust)', borderRadius: 6, display: 'grid', placeItems: 'center', color: '#fff', fontFamily: 'var(--display)', fontWeight: 700, fontSize: 18, letterSpacing: '-0.03em' }}>P</div>
+        <div>
+          <div className="serif" style={{ fontSize: 28, fontWeight: 700, lineHeight: 1, letterSpacing: '-0.02em' }}>
             PlotIQ
           </div>
-        </div>
-        <div style={{ fontSize: 12, color: '#6b5d47', letterSpacing: '0.04em', marginLeft: 50 }}>
-          Society redevelopment feasibility · Mumbai (MCGM)
+          <div style={{ fontSize: 12, color: 'var(--ink-soft)', letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: 2 }}>
+            Regulatory intelligence infrastructure
+          </div>
         </div>
       </div>
       <div style={{ textAlign: 'right' }}>
-        <div className="num" style={{ fontSize: 11, color: '#6b5d47', letterSpacing: '0.06em' }}>
-          REG 33(7)(B) · DCPR 2034
+        <div className="num" style={{ fontSize: 11, color: 'var(--ink-soft)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+          DCPR 2034 · Reg 33(7)(B)
         </div>
-        <div style={{ fontSize: 11, color: '#a89c87', marginTop: 4 }}>
-          Free preview · For your committee discussion
+        <div style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 4 }}>
+          Institutional assessment for committees and architects
         </div>
       </div>
     </div>
@@ -1533,22 +1620,199 @@ const Header = () => (
 
 const Intro = () => (
   <div style={{ marginBottom: 40, maxWidth: 760 }}>
-    <h1 className="serif" style={{ fontSize: 44, fontWeight: 600, lineHeight: 1.1, margin: 0,
-                                   letterSpacing: '-0.02em', color: '#1a1815' }}>
-      What can your society<br/>actually be redeveloped into?
+    <h1 className="serif" style={{ fontSize: 44, fontWeight: 600, lineHeight: 1.08, margin: 0, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
+      A calm assessment instrument for redevelopment intelligence.
     </h1>
-    <p style={{ fontSize: 16, lineHeight: 1.6, color: '#3d3528', marginTop: 20 }}>
-      For housing societies in MCGM jurisdiction whose buildings are 30+ years old.
-      Tells you the buildable area each member is entitled to, the developer's sale component,
-      and three honest scenarios — conservative, realistic, and maximum — based on Regulation
-      33(7)(B) of the DCPR 2034.
+    <p style={{ fontSize: 17, lineHeight: 1.75, color: 'var(--ink-soft)', marginTop: 20 }}>
+      PlotIQ stages redevelopment intelligence in three purposeful layers: site understanding, entitlement assessment, and optional advisory detail. It is designed to feel like an interpretive report, not a software utility.
     </p>
-    <div style={{ fontSize: 13, lineHeight: 1.6, color: '#6b5d47', marginTop: 16,
-                  padding: '14px 18px', background: 'rgba(139, 58, 42, 0.04)',
-                  borderLeft: '3px solid #8b3a2a', borderRadius: 2 }}>
-      <strong>This is preliminary.</strong> The output is for your committee meetings, not for sanctioning.
-      A Licensed Architect should verify on your specific drawings before any agreement with a developer.
+    <div style={{ display: 'grid', gap: 12, marginTop: 28 }}>
+      {[
+        'Establish plot location, ward and land-use context first.',
+        'Review entitlement, scheme eligibility and regulatory certainty next.',
+        'Add premium, construction and parking detail only when you need a full advisory artifact.',
+      ].map((item, idx) => (
+        <div key={idx} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+          <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--rust)', color: '#fff', display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
+            {idx + 1}
+          </div>
+          <div style={{ fontSize: 15, color: 'var(--ink-soft)', lineHeight: 1.7 }}>{item}</div>
+        </div>
+      ))}
     </div>
+
+    <div style={{ fontSize: 13, lineHeight: 1.7, color: 'var(--ink-faint)', marginTop: 24, padding: '16px 18px', background: 'var(--signal-bg)', borderLeft: '3px solid var(--rust)', borderRadius: 6 }}>
+      <strong style={{ color: 'var(--ink)' }}>Report note.</strong> This is a structured advisory observation for committee and architect review. It is not a sanctioned MCGM approval document.
+    </div>
+  </div>
+);
+
+const LandingPage = ({ onStart }) => (
+  <main style={{ minHeight: 'calc(100vh - 120px)', padding: '72px 24px 40px', background: 'var(--paper)', color: 'var(--ink)' }}>
+    <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+      <section style={{ display: 'grid', gap: 28, textAlign: 'center', padding: '18px 0 28px' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, padding: '10px 18px', background: 'rgba(255,255,255,0.9)', borderRadius: 999, border: '1px solid var(--border)', margin: '0 auto', maxWidth: 500 }}>
+          <span style={{ fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--ink-faint)' }}>
+            Regulatory intelligence infrastructure
+          </span>
+        </div>
+
+        <div style={{ padding: '42px 28px 28px', background: 'rgba(255,255,255,0.95)', borderRadius: 18, border: '1px solid var(--border)', boxShadow: '0 24px 64px rgba(0,0,0,0.06)' }}>
+          <div className="serif" style={{ fontSize: 58, fontWeight: 700, lineHeight: 1.05, letterSpacing: '-0.04em', color: 'var(--ink)' }}>
+            Plot<span style={{ color: 'var(--rust)' }}>IQ</span>
+          </div>
+          <p style={{ margin: '24px auto 0', maxWidth: 760, fontSize: 20, lineHeight: 1.75, color: 'var(--ink-soft)' }}>
+            PlotIQ is a regulatory intelligence environment. It is built to structure redevelopment decision-making through layered assessment, not to surface every internal calculation.
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>
+            <button onClick={onStart}
+                    style={{ padding: '18px 34px', fontSize: 16, fontWeight: 700, background: 'var(--rust)', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', minWidth: 260, boxShadow: '0 18px 40px rgba(161,122,67,0.18)' }}>
+              Open the intelligence workspace
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section style={{ marginTop: 24, display: 'grid', gap: 14, justifyItems: 'center' }}>
+        {[
+          'Capture plot, ward and site context clearly.',
+          'Review entitlement, scheme eligibility and regulatory certainty.',
+          'Use costs only when you need a review-ready advisory artifact.',
+        ].map((label, index) => (
+          <div key={index} style={{ maxWidth: 560, padding: '18px 22px', background: '#fff', borderRadius: 14, border: '1px solid var(--border)', color: 'var(--ink-soft)', fontSize: 15, lineHeight: 1.75, textAlign: 'left' }}>
+            <div style={{ fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--rust)', fontWeight: 700, marginBottom: 10 }}>Step {index + 1}</div>
+            <div>{label}</div>
+          </div>
+        ))}
+      </section>
+
+      <section style={{ marginTop: 42, padding: 28, borderRadius: 14, background: '#fff', border: '1px solid var(--border)' }}>
+        <div style={{ display: 'grid', gap: 20, gridTemplateColumns: '1fr 1fr' }}>
+          <div>
+            <div style={{ fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--rust)', fontWeight: 700, marginBottom: 14 }}>Proof of authority</div>
+            <p style={{ margin: 0, fontSize: 15, lineHeight: 1.8, color: 'var(--ink-soft)' }}>
+              This platform is the analytical engine behind a formal feasibility assessment. It uses the same clause-led logic and traceability set expected by architects, developers and society committees.
+            </p>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--rust)', fontWeight: 700, marginBottom: 14 }}>Why this matters</div>
+            <p style={{ margin: 0, fontSize: 15, lineHeight: 1.8, color: 'var(--ink-soft)' }}>
+              Redevelopment is a regulatory process. The UI should support calm, procedural decisions and surface assumptions clearly, not push flashy product language.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section style={{ marginTop: 42, padding: 24, borderRadius: 14, background: 'var(--signal-bg)', border: '1px solid var(--border)' }}>
+        <div style={{ fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink-faint)', fontWeight: 700, marginBottom: 10 }}>Positioning note</div>
+        <p style={{ margin: 0, fontSize: 15, lineHeight: 1.8, color: 'var(--ink-soft)' }}>
+          PlotIQ is a regulatory intelligence layer for redevelopment. It is not a lead-generation interface or a flashy app. It is a report-like tool for committees, architects and regulatory review.
+        </p>
+      </section>
+    </div>
+  </main>
+);
+
+const WorkspaceContextBar = ({ currentWorkspace }) => (
+  <div style={{ borderBottom: '1px solid var(--border)', background: '#fffefb', padding: '16px 0' }}>
+    <div style={{ maxWidth: 1180, margin: '0 auto', padding: '0 32px', display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+      <div>
+        <div className="serif" style={{ fontSize: 18, fontWeight: 600, marginBottom: 4, color: 'var(--ink)' }}>{currentWorkspace.label}</div>
+        <div style={{ fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.6 }}>{currentWorkspace.title}</div>
+      </div>
+      <div style={{ fontSize: 12, color: 'var(--ink-faint)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+        Modular intelligence workspace
+      </div>
+    </div>
+  </div>
+);
+
+const WorkspaceNav = ({ pages, activePage, onSelect }) => (
+  <div style={{ marginBottom: 24, padding: 20, background: '#fffefb', border: '1px solid var(--border)', borderRadius: 14 }}>
+    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--rust)', marginBottom: 16 }}>Workspace modules</div>
+    <div style={{ display: 'grid', gap: 8 }}>
+      {pages.map(page => (
+        <button key={page.id}
+          type="button"
+          onClick={() => onSelect(page.id)}
+          style={{
+            width: '100%',
+            textAlign: 'left',
+            padding: '12px 14px',
+            borderRadius: 10,
+            border: activePage === page.id ? '1px solid var(--rust)' : '1px solid #d4c9b8',
+            background: activePage === page.id ? 'rgba(161,122,67,0.12)' : '#fffefb',
+            color: activePage === page.id ? 'var(--ink)' : 'var(--ink-soft)',
+            cursor: 'pointer',
+            fontSize: 14,
+            fontWeight: 600,
+          }}>
+          {page.label}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
+const WorkspacePageHeader = ({ currentWorkspace }) => (
+  <div style={{ marginBottom: 24, padding: 22, background: '#fffefb', border: '1px solid var(--border)', borderRadius: 14 }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
+      <div>
+        <div className="serif" style={{ fontSize: 28, fontWeight: 600, marginBottom: 8, color: 'var(--ink)' }}>{currentWorkspace.label}</div>
+        <div style={{ fontSize: 14, color: 'var(--ink-soft)', lineHeight: 1.75 }}>{currentWorkspace.description}</div>
+      </div>
+      <div style={{ minWidth: 220, padding: '14px 18px', background: '#f5f1ea', borderRadius: 12, border: '1px solid #e7dfd0' }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--rust)', textTransform: 'uppercase', letterSpacing: '0.11em', marginBottom: 8 }}>Workspace guidance</div>
+        <div style={{ fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.65 }}>
+          Each module should answer: what is this, why it matters, and what to do next.
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const SiteIntelligencePage = ({ input, wardDetect, result }) => (
+  <> 
+    <div style={{ display: 'grid', gap: 18, marginBottom: 18, gridTemplateColumns: '1fr 1fr' }}>
+      <div style={{ padding: 22, background: '#fffefb', border: '1px solid var(--border)', borderRadius: 14 }}>
+        <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 700, color: 'var(--rust)', marginBottom: 12 }}>Site metrics</div>
+        <div style={{ display: 'grid', gap: 14 }}>
+          <StatLine label="Plot area" value={`${input.plotArea || 0} sqm`} />
+          <StatLine label="DP road width" value={`${input.roadWidth || 0} m`} />
+          <StatLine label="Zone / land use" value={input.zone} />
+          <StatLine label="Building age" value={`${input.buildingAge || 0} yrs`} />
+          <StatLine label="Primary entitlement" value={result.fsiSlab ? `${result.fsiSlab.basic.toFixed(2)} FSI` : 'n/a'} />
+        </div>
+      </div>
+      <div style={{ padding: 22, background: '#fffefb', border: '1px solid var(--border)', borderRadius: 14 }}>
+        <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 700, color: 'var(--rust)', marginBottom: 12 }}>Location detection</div>
+        <div style={{ display: 'grid', gap: 10 }}>
+          <div style={{ fontSize: 13, color: 'var(--ink)' }}>{wardDetect.ward ? `Ward ${wardDetect.ward}` : 'Not detected yet'}</div>
+          <div style={{ fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.7 }}>
+            {wardDetect.status === 'found' && wardDetect.info ? wardDetect.info.localities : wardDetect.status === 'loading' ? 'Detecting your plot…' : wardDetect.status === 'error' ? wardDetect.error : 'Paste a Google Maps link in the input panel to identify your ward and site context.'}
+          </div>
+          <div style={{ padding: '12px 14px', background: 'rgba(232,220,192,0.24)', borderRadius: 10, color: 'var(--ink-soft)', fontSize: 12 }}>
+            Site intelligence is the first module in a modular workflow. Start with location and plot context, then move to entitlement and feasibility.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style={{ padding: 22, background: '#fffefb', border: '1px solid var(--border)', borderRadius: 14 }}>
+      <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 700, color: 'var(--rust)', marginBottom: 12 }}>Spatial view</div>
+      <div style={{ minHeight: 220, display: 'grid', placeItems: 'center', borderRadius: 12, background: '#f5f1ea', color: 'var(--ink-soft)' }}>
+        <div style={{ textAlign: 'center', maxWidth: 320 }}>
+          <div style={{ fontWeight: 700, marginBottom: 10 }}>Spatial preview placeholder</div>
+          <div style={{ fontSize: 13, lineHeight: 1.7 }}>A map / parcel overlay belongs here. In this modular architecture, spatial intelligence is its own layer, not buried under forms.</div>
+        </div>
+      </div>
+    </div>
+  </>
+);
+
+const StatLine = ({ label, value }) => (
+  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14, alignItems: 'baseline' }}>
+    <div style={{ fontSize: 12, color: 'var(--ink-soft)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</div>
+    <div className="num" style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink)' }}>{value}</div>
   </div>
 );
 
@@ -1570,8 +1834,7 @@ const PrintBar = () => (
                                      display: 'flex', justifyContent: 'space-between',
                                      alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
     <div style={{ fontSize: 12, color: '#6b5d47', maxWidth: 480 }}>
-      Forward this analysis to your committee. For a Licensed Architect's stamped report —
-      needed for bank/lender or formal society resolution — see the next-steps section.
+      This screen is a working advisory assessment. Print it to create a review-ready artifact for committee discussion, architect validation, and lender or bank pre-check.
     </div>
     <button onClick={() => window.print()}
             style={{ padding: '11px 18px', fontSize: 13, fontWeight: 600,
@@ -1643,8 +1906,8 @@ const Row = ({ label, value, sub, highlight, muted }) => (
 function SpecialLocationWarning({ specialLocation }) {
   if (!specialLocation || specialLocation === 'none') return null;
   const msgs = {
-    barc: { label: 'BARC Area — M Ward', detail: 'This micro-location within M Ward is adjacent to BARC and carries a reduced basic FSI of 0.75 (not the standard 1.00 for Suburbs). The calculator is using the standard Suburbs Table 12 slab. Instruct your Licensed Architect to verify the applicable FSI slab for your specific plot before relying on this output.' },
-    crz: { label: 'CRZ-affected — Aksa / Marve / Erangal (P/N Ward)', detail: 'Plots in these coastal locations may carry a reduced basic FSI of 0.50 under CRZ regulations. The calculator is using the standard Suburbs Table 12 slab. Your Licensed Architect must verify the applicable CRZ category and permissible FSI for your specific plot.' },
+    barc: { label: 'BARC Area — M Ward', detail: 'This micro-location within M Ward is adjacent to BARC and carries a reduced basic FSI of 0.75 (not the standard 1.00 for Suburbs). The platform is using the standard Suburbs Table 12 slab. Instruct your Licensed Architect to verify the applicable FSI slab for your specific plot before relying on this output.' },
+    crz: { label: 'CRZ-affected — Aksa / Marve / Erangal (P/N Ward)', detail: 'Plots in these coastal locations may carry a reduced basic FSI of 0.50 under CRZ regulations. The platform is using the standard Suburbs Table 12 slab. Your Licensed Architect must verify the applicable CRZ category and permissible FSI for your specific plot.' },
   };
   const m = msgs[specialLocation];
   if (!m) return null;
@@ -1664,6 +1927,7 @@ function SpecialLocationWarning({ specialLocation }) {
 // ============================================================================
 function InputPanel({ input, update, updateFlat, addFlat, removeFlat, showAdvanced, setShowAdvanced, wardDetect, setWardDetect }) {
   const [gmLink, setGmLink] = useState('');
+  const showCostReport = input.reportScope !== 'entitlement';
 
   const handleDetect = useCallback(async () => {
     const url = gmLink.trim();
@@ -1714,7 +1978,7 @@ function InputPanel({ input, update, updateFlat, addFlat, removeFlat, showAdvanc
     <div style={{ background: '#fffefb', border: '1px solid #d4c9b8', borderRadius: 4, padding: 28 }}>
       <div className="serif" style={{ fontSize: 20, fontWeight: 600, marginBottom: 20,
                                       paddingBottom: 14, borderBottom: '1px solid #e7dfd0' }}>
-        About your building
+        Site assessment inputs
       </div>
 
       {/* Location Detector */}
@@ -1845,6 +2109,29 @@ function InputPanel({ input, update, updateFlat, addFlat, removeFlat, showAdvanc
           </div>
         </div>
       </div>
+
+      <Section title="Assessment scope" topMargin>
+        <div style={{ display: 'grid', gap: 10 }}>
+          {[
+            { id: 'entitlement', title: 'Entitlement assessment', desc: 'Review entitlement, scheme suitability and site eligibility without premium cost or parking detail.' },
+            { id: 'costsParking', title: 'Costs & parking analysis', desc: 'Include premium FSI, construction costing and parking requirement detail for a full assessment artifact.' },
+            { id: 'full', title: 'Full advisory artifact', desc: 'Produce a complete entitlement and cost/parking output for a review-ready advisory snapshot.' },
+          ].map(option => (
+            <div key={option.id}
+                 className={`radio-card ${input.reportScope === option.id ? 'active' : ''}`}
+                 onClick={() => update('reportScope', option.id)}
+                 style={{ cursor: 'pointer' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Radio active={input.reportScope === option.id} />
+                <div>
+                  <div style={{ fontWeight: 600, color: '#1a1815' }}>{option.title}</div>
+                  <div style={{ fontSize: 12, color: '#6b5d47', marginTop: 4 }}>{option.desc}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
 
       <Section title="Building basics" topMargin>
         <div>
@@ -2053,7 +2340,7 @@ function InputPanel({ input, update, updateFlat, addFlat, removeFlat, showAdvanc
                 <option value="barc">BARC area (M Ward) — basic FSI may be 0.75</option>
                 <option value="crz">Aksa / Marve / Erangal CRZ (P/N Ward) — basic FSI may be 0.50</option>
               </select>
-              <div className="help-text" style={{ marginTop: 4 }}>Selecting one shows a caution — verify with your architect before using this calculator's FSI output.</div>
+              <div className="help-text" style={{ marginTop: 4 }}>Selecting one shows a caution — verify with your architect before relying on this platform's FSI output.</div>
             </div>
           </div>
         )}
@@ -2204,22 +2491,23 @@ function InputPanel({ input, update, updateFlat, addFlat, removeFlat, showAdvanc
         )}
       </Section>
 
-      <Section title="Ready Reckoner (ASR) & Construction rate" topMargin>
-        <div>
-          <label className="field-label">Ready Reckoner land rate — FSI 1 (₹/sqm)</label>
-          <input type="number" className="num" value={input.asrLandRate}
-                 onChange={e => update('asrLandRate', parseFloat(e.target.value) || 0)} />
-        </div>
-        <div style={{ marginTop: 14 }}>
-          <label className="field-label">SDRR construction rate (₹/sqm BUA)</label>
-          <input type="number" className="num" value={input.constructionRate}
-                 onChange={e => update('constructionRate', parseFloat(e.target.value) || 0)} />
-          <div className="help-text" style={{ fontSize: 10.5 }}>
-            Used for Labour Welfare Cess (1%) and TDR Infrastructure Charge (5%).
-            FY 2025-26 SDRR rate: <strong>₹27,500/sqm</strong> for residential RCC.
+      {showCostReport ? (
+        <Section title="Ready Reckoner (ASR) & Construction rate" topMargin>
+          <div>
+            <label className="field-label">Ready Reckoner land rate — FSI 1 (₹/sqm)</label>
+            <input type="number" className="num" value={input.asrLandRate}
+                   onChange={e => update('asrLandRate', parseFloat(e.target.value) || 0)} />
           </div>
-        </div>
-        <div>
+          <div style={{ marginTop: 14 }}>
+            <label className="field-label">SDRR construction rate (₹/sqm BUA)</label>
+            <input type="number" className="num" value={input.constructionRate}
+                   onChange={e => update('constructionRate', parseFloat(e.target.value) || 0)} />
+            <div className="help-text" style={{ fontSize: 10.5 }}>
+              Used for Labour Welfare Cess (1%) and TDR Infrastructure Charge (5%).
+              FY 2025-26 SDRR rate: <strong>₹27,500/sqm</strong> for residential RCC.
+            </div>
+          </div>
+          <div>
 
           {/* IGR lookup helper */}
           {(() => {
@@ -2265,6 +2553,13 @@ function InputPanel({ input, update, updateFlat, addFlat, removeFlat, showAdvanc
           })()}
         </div>
       </Section>
+      ) : (
+        <Section title="Ready Reckoner (ASR) & Construction rate" topMargin>
+          <div style={{ fontSize: 12, color: '#6b5d47', lineHeight: 1.6 }}>
+            These fields are only required when you choose a Costs & Parking report. Keep this section hidden unless you need premium, construction, or parking costing in the same assessment.
+          </div>
+        </Section>
+      )}
 
       {showAdvanced && (
         <div style={{ display: 'none' }} />
@@ -3357,7 +3652,7 @@ function SlumFlag() {
             Slum encroachment on plot — separate analysis required
           </div>
           <div style={{ fontSize: 12.5, color: '#3d3528', marginTop: 6, lineHeight: 1.55 }}>
-            If part of your plot has slum encroachment, that portion is governed by Reg 33(10) — not 33(7)(B). Each eligible slum dweller (cut-off 1.1.2000) is entitled to a 27.88 sqm rehab tenement, with sale-component math determined by the SRA on a case-specific basis. This calculator does not compute the slum portion. Engage an SRA consultant; the slum side significantly affects developer economics for the whole plot.
+            If part of your plot has slum encroachment, that portion is governed by Reg 33(10) — not 33(7)(B). Each eligible slum dweller (cut-off 1.1.2000) is entitled to a 27.88 sqm rehab tenement, with sale-component math determined by the SRA on a case-specific basis. This platform does not compute the slum portion. Engage an SRA consultant; the slum side significantly affects developer economics for the whole plot.
           </div>
           <div className="num" style={{ fontSize: 10, color: '#6b5d47', marginTop: 8, letterSpacing: '0.04em' }}>
             [Reg 33(10) — Slum Rehabilitation Scheme]
@@ -3870,7 +4165,7 @@ function NextSteps() {
       title: 'Society decision & stamped feasibility',
       timeline: '2–4 months',
       colour: '#8b3a2a',
-      summary: 'Pass the first GB resolution, hire an architect, and get a proper stamped feasibility. This is the document you take to developers — not a calculator printout.',
+      summary: 'Pass the first GB resolution, hire an architect, and get a proper stamped feasibility. This is the document you take to developers — not a software printout.',
       steps: [
         {
           title: 'Pass GB Resolution 1 — Authorise exploration',
@@ -3882,7 +4177,7 @@ function NextSteps() {
         },
         {
           title: 'Review the stamped area statement',
-          detail: 'The architect\'s Proforma-A should match the structure of this calculator\'s area statement: gross plot → deductions → net plot → existing BUA → incentive → FSI build-up → permissible BUA → rehab/sale split. If numbers differ significantly from this output, ask the architect to walk through each line. Differences usually come from a different reg14 deduction or a different existing BUA figure from the OC plans.',
+          detail: 'The architect\'s Proforma-A should match the structure of this platform\'s area statement: gross plot → deductions → net plot → existing BUA → incentive → FSI build-up → permissible BUA → rehab/sale split. If numbers differ significantly from this output, ask the architect to walk through each line. Differences usually come from a different reg14 deduction or a different existing BUA figure from the OC plans.',
         },
         {
           title: 'Pass GB Resolution 2 — Incentive BUA allocation',
