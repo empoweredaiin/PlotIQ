@@ -37,3 +37,27 @@ backend/**/__pycache__/
 
 # Workspace (scratch)
 Workspace/
+
+# Session / handoff docs
+"# *.txt"
+CLAUDE-RESUME.md
+BUILD-HANDOFF.md
+HANDOFF.md
+status.md
+*.txt
+
+# Build logs
+frontend/build_err.txt
+frontend/build_out.txt
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Research data & prototypes
+Research/output formats/
+Research/*.jsx
+Research/*.xlsx
+Research/*.csv
+
+# Compiled assets accidentally placed in public/
+frontend/public/static/
