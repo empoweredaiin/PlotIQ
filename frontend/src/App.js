@@ -1,9 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { Check, X, AlertTriangle, Plus, Trash2, ChevronDown, Printer, Eye, EyeOff, MapPin, LayoutGrid, Map, Layers, TrendingUp, Target, FileText, Folder, Bell } from 'lucide-react';
+import { Check, X, AlertTriangle, Plus, Trash2, ChevronDown, Printer, Eye, EyeOff, MapPin, LayoutGrid, Map, Layers, TrendingUp, Target, FileText, Bell } from 'lucide-react';
 import './design/tokens.css';
-import WorkspaceContextBar from './components/WorkspaceContextBar';
-import WorkspaceNav from './components/WorkspaceNav';
-import WorkspacePageHeader from './components/WorkspacePageHeader';
 import SiteIntelligencePage from './components/SiteIntelligencePage';
 
 // ============================================================================
@@ -415,11 +412,9 @@ function detectApplicableSchemes(input) {
   const buildingType = input.buildingType || 'society';
   const authStatus = input.authorisationStatus;
   const isMembersOnSamePlot = input.membersOnSamePlot;
-  const grossPlot = parseFloat(input.plotArea) || 0;
   const clusterOptedIn = input.clusterOptIn === true;
   const clusterPlot = parseFloat(input.clusterPlotArea) || 0;
   const isIslandCity = input.location === 'islandCity';
-  const isSuburbs = input.location === 'suburbsExtended';
 
   const result = [];
 
@@ -824,8 +819,7 @@ function computeBuildable_33_9(input) {
     premiumSheet: _premiumSheet,
     fungibleSaleBua: fungibleArea,
     fungibleRehabBua: 0,
-    premiumFsiBua: 0, premiumLoad: 1, tdrBua: 0, tdrLoadFactor: 1,
-    fsiSlab: { basic: 4.0 },
+    premiumFsiBua: 0, premiumLoad: 1, tdrLoadFactor: 1,
     rosDeficiency: 0,
     clusterPlot, clusterBuildings, clusterExistingBua: rehabBase, clusterApartments,
     minClusterArea, meetsMinimum,
@@ -881,7 +875,6 @@ function computeBuildable_33_9(input) {
     reservationDeduction: 0,
     fungibleLoadFactor: 1,
     premiumFsiBuaLoaded: 0,
-    tdrBua: 0,
     tdrBuaLoaded: 0,
   };
 }
@@ -892,7 +885,7 @@ function computeBuildable_33_9(input) {
 // ----------------------------------------------------------------------------
 function computeBuildable_33_7B(input) {
   const base = computeBaseInputs(input, 'reg33_7B');
-  const { netPlot, baseFsiBua, premiumFsiBua, tdrBua, ceilingBua, existingBua, residentialFlats } = base;
+  const { netPlot, baseFsiBua, premiumFsiBua, tdrBua, existingBua, residentialFlats } = base;
 
   // Reg 33(7)(B) incentive BUA — free of premium, regulatory entitlement (always at full)
   const incentive15Pct = existingBua * 0.15;
@@ -1764,61 +1757,6 @@ const GlobalStyles = () => (
 // ============================================================================
 // HEADER / INTRO / FOOTER / SHARED
 // ============================================================================
-const Header = () => (
-  <header style={{ borderBottom: '1px solid var(--border)', background: 'transparent', padding: '24px 0' }}>
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 32, flexWrap: 'wrap' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
-        <div style={{ width: 40, height: 40, background: 'var(--rust)', borderRadius: 6, display: 'grid', placeItems: 'center', color: '#fff', fontFamily: 'var(--display)', fontWeight: 700, fontSize: 18, letterSpacing: '-0.03em' }}>P</div>
-        <div>
-          <div className="serif" style={{ fontSize: 28, fontWeight: 700, lineHeight: 1, letterSpacing: '-0.02em' }}>
-            PlotIQ
-          </div>
-          <div style={{ fontSize: 12, color: 'var(--ink-soft)', letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: 2 }}>
-            Regulatory intelligence infrastructure
-          </div>
-        </div>
-      </div>
-      <div style={{ textAlign: 'right' }}>
-        <div className="num" style={{ fontSize: 11, color: 'var(--ink-soft)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-          DCPR 2034 · Reg 33(7)(B)
-        </div>
-        <div style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 4 }}>
-          Institutional assessment for committees and architects
-        </div>
-      </div>
-    </div>
-  </header>
-);
-
-const Intro = () => (
-  <div style={{ marginBottom: 40, maxWidth: 760 }}>
-    <h1 className="serif" style={{ fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 600, lineHeight: 1.08, margin: 0, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
-      A calm assessment instrument for redevelopment intelligence.
-    </h1>
-    <p style={{ fontSize: 17, lineHeight: 1.75, color: 'var(--ink-soft)', marginTop: 20 }}>
-      PlotIQ stages redevelopment intelligence in three purposeful layers: site understanding, entitlement assessment, and optional advisory detail. It is designed to feel like an interpretive report, not a software utility.
-    </p>
-    <div style={{ display: 'grid', gap: 12, marginTop: 28 }}>
-      {[
-        'Establish plot location, ward and land-use context first.',
-        'Review entitlement, scheme eligibility and regulatory certainty next.',
-        'Add premium, construction and parking detail only when you need a full advisory artifact.',
-      ].map((item, idx) => (
-        <div key={idx} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-          <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--rust)', color: '#fff', display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
-            {idx + 1}
-          </div>
-          <div style={{ fontSize: 15, color: 'var(--ink-soft)', lineHeight: 1.7 }}>{item}</div>
-        </div>
-      ))}
-    </div>
-
-    <div style={{ fontSize: 13, lineHeight: 1.7, color: 'var(--ink-faint)', marginTop: 24, padding: '16px 18px', background: 'var(--signal-bg)', borderLeft: '3px solid var(--rust)', borderRadius: 6 }}>
-      <strong style={{ color: 'var(--ink)' }}>Report note.</strong> This is a structured advisory observation for committee and architect review. It is not a sanctioned MCGM approval document.
-    </div>
-  </div>
-);
-
 const LandingPage = ({ onStart }) => {
   const gold = '#C9A96E';
   const bg = '#0D0F14';
@@ -3416,41 +3354,6 @@ function InteractiveResult({ result, input, update, schemeId }) {
   );
 }
 
-// Reusable slider component for FSI loadings
-function LoadingSlider({ label, ref_text, value, onChange, availableSqm, loadedSqm, disabled, disabledReason }) {
-  const pct = Math.round((value ?? 1) * 100);
-  return (
-    <div style={{ padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.07)', opacity: disabled ? 0.5 : 1 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, gap: 12 }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{label}</div>
-          <div style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 2 }}>{ref_text}</div>
-        </div>
-        <div style={{ textAlign: 'right', minWidth: 160 }}>
-          {disabled ? (
-            <div style={{ fontSize: 11, color: 'var(--ink-faint)', fontStyle: 'italic' }}>{disabledReason}</div>
-          ) : (
-            <>
-              <div className="num" style={{ fontSize: 14, fontWeight: 700, color: '#C9A96E' }}>
-                {fmt(loadedSqm)} <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--ink-soft)' }}>/ {fmt(availableSqm)} sqm</span>
-              </div>
-              <div className="num" style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 1 }}>{pct}% loaded</div>
-            </>
-          )}
-        </div>
-      </div>
-      {!disabled && (
-        <input
-          type="range"
-          min="0" max="1" step="0.01"
-          value={value ?? 1}
-          onChange={e => onChange(parseFloat(e.target.value))}
-          style={{ width: '100%', accentColor: '#C9A96E', cursor: 'pointer' }}
-        />
-      )}
-    </div>
-  );
-}
 
 // ============================================================================
 // AREA STATEMENT — RESTRUCTURED
@@ -4870,7 +4773,7 @@ function NextSteps() {
 
             <div style={{ padding: '0 20px 20px 20px' }}>
               <div style={{ fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.6, marginBottom: 18,
-                            paddingTop: 4, borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 14 }}>
+                            paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.07)' }}>
                 {p.summary}
               </div>
 
