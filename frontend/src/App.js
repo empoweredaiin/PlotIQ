@@ -1,5 +1,10 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Check, X, AlertTriangle, Plus, Trash2, ChevronDown, Printer, Eye, EyeOff, MapPin } from 'lucide-react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { Check, X, AlertTriangle, Plus, Trash2, ChevronDown, Printer, Eye, EyeOff, MapPin, LayoutGrid, Map, Layers, TrendingUp, Target, FileText, Folder, Bell } from 'lucide-react';
+import './design/tokens.css';
+import WorkspaceContextBar from './components/WorkspaceContextBar';
+import WorkspaceNav from './components/WorkspaceNav';
+import WorkspacePageHeader from './components/WorkspacePageHeader';
+import SiteIntelligencePage from './components/SiteIntelligencePage';
 
 // ============================================================================
 // WARD DETECTION — point-in-polygon using WardBoundary.geojson
@@ -1110,7 +1115,7 @@ const WORKSPACE_PAGES = [
   { id: 'regulations', label: 'Regulatory Intelligence', title: 'Applicable regulations and entitlement clarity', description: 'Show what the system understands: entitlement, constraints and scheme implications.' },
   { id: 'buildability', label: 'Buildability', title: 'Buildable envelope and spatial feasibility', description: 'Turn entitlement into buildability insight with an emphasis on what fits and why.' },
   { id: 'feasibility', label: 'Feasibility', title: 'Cost, parking and offer analysis', description: 'Translate regulatory outcomes into financial and parking feasibility for advisory review.' },
-  { id: 'ai', label: 'AI Insights', title: 'Strategic recommendations', description: 'Generate high-level opportunity, constraint and next-step guidance from the assessment.' },
+  { id: 'ai', label: 'Advisory Guide', title: 'Process guidance & regulatory explainers', description: 'Step-by-step redevelopment process guidance, document checklists, and plain-language regulatory explainers.' },
   { id: 'reports', label: 'Reports', title: 'Institutional reporting', description: 'Produce a review-ready advisory snapshot designed for committees, architects and lenders.' },
 ];
 
@@ -1145,7 +1150,7 @@ export default function App() {
     losManualValue: 0,
     rosProposed: 0,
     // BUA / flats
-    buaInputMode: 'breakdown',
+    buaInputMode: 'total',
     totalExistingBua: '',
     tenementCount: '',
     flats: [
@@ -1182,6 +1187,7 @@ export default function App() {
   const [wardDetect, setWardDetect] = useState({ status: 'idle', ward: null, error: null });
   const [workspacePage, setWorkspacePage] = useState('overview');
   const [page, setPage] = useState('landing');
+  const [appTab, setAppTab] = useState('input');
 
   const update = (k, v) => setInput(prev => ({ ...prev, [k]: v }));
   const updateFlat = (idx, k, v) =>
@@ -1256,7 +1262,7 @@ export default function App() {
             {result.flatBreakdown && result.flatBreakdown.length > 0 ? (
               <MemberEntitlement breakdown={result.flatBreakdown} input={input} update={update} />
             ) : (
-              <div style={{ padding: 28, border: '1px solid var(--border)', borderRadius: 10, background: '#fffefb', color: 'var(--ink-soft)' }}>
+              <div style={{ padding: 28, border: '1px solid var(--border)', borderRadius: 10, background: '#13161D', color: 'var(--ink-soft)' }}>
                 Switch to "By flat type" input mode to review member entitlement detail.
               </div>
             )}
@@ -1272,7 +1278,7 @@ export default function App() {
       case 'reports':
         return (
           <>
-            <div style={{ marginBottom: 24, padding: 24, background: '#fffefb', border: '1px solid var(--border)', borderRadius: 12 }}>
+            <div style={{ marginBottom: 24, padding: 24, background: '#13161D', border: '1px solid var(--border)', borderRadius: 12 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--rust)', marginBottom: 10 }}>Report workspace</div>
               <div style={{ color: 'var(--ink-soft)', lineHeight: 1.7 }}>
                 This module is the final review artifact environment. Use it to print or save an institutional-grade advisory summary for committee review, architect validation and lender pre-check.
@@ -1309,50 +1315,203 @@ export default function App() {
   };
 
   if (page === 'landing') {
-    return (
-      <div className="redev-app">
-        <Styles />
-        <Header />
-        <LandingPage onStart={() => setPage('tool')} />
-      </div>
-    );
+    return <LandingPage onStart={() => setPage('tool')} />;
   }
 
+  const _gold = '#C9A96E';
+  const _border = 'rgba(255,255,255,0.07)';
+  const _muted = 'rgba(255,255,255,0.45)';
+  const _faint = 'rgba(255,255,255,0.22)';
+  const workspaceNav = [
+    { id:'overview',     label:'Overview',               icon:<LayoutGrid size={15}/> },
+    { id:'intelligence', label:'Site Intelligence',       icon:<Map size={15}/> },
+    { id:'regulations',  label:'Regulatory Intelligence', icon:<Layers size={15}/> },
+    { id:'buildability', label:'Buildability',            icon:<TrendingUp size={15}/> },
+    { id:'feasibility',  label:'Feasibility',             icon:<Target size={15}/> },
+    { id:'ai',           label:'Advisory Guide',           icon:<FileText size={15}/> },
+    { id:'reports',      label:'Reports',                 icon:<FileText size={15}/> },
+  ];
   return (
-    <div className="redev-app">
-      <Styles />
-      <Header />
-      <WorkspaceContextBar currentWorkspace={currentWorkspace} />
+    <div style={{
+      position:'fixed',inset:0,background:'#0D0F14',display:'flex',zIndex:1000,
+      fontFamily:'"Source Sans 3",-apple-system,sans-serif',
+    }}>
 
-      <div className="container">
-        <div className="workspace-grid">
-          <aside className="left-rail no-print">
-            <WorkspaceNav
-              pages={WORKSPACE_PAGES}
-              activePage={workspacePage}
-              onSelect={setWorkspacePage}
-            />
-            <InputPanel
-              input={input}
-              update={update}
-              updateFlat={updateFlat}
-              addFlat={addFlat}
-              removeFlat={removeFlat}
-              showAdvanced={showAdvanced}
-              setShowAdvanced={setShowAdvanced}
-              wardDetect={wardDetect}
-              setWardDetect={setWardDetect}
-            />
-          </aside>
-
-          <main className="workspace-main">
-            <WorkspacePageHeader currentWorkspace={currentWorkspace} />
-            {renderWorkspaceContent()}
-            {workspacePage !== 'reports' && <PrintBar />}
-          </main>
+      {/* ── SIDEBAR ── */}
+      <aside className="piq-tool-sidebar" style={{
+        width:218,flexShrink:0,background:'#0F1219',
+        borderRight:`1px solid ${_border}`,
+        display:'flex',flexDirection:'column',
+        padding:'28px 0 20px',
+      }}>
+        <div style={{padding:'0 22px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{fontSize:15,fontWeight:700,letterSpacing:'0.04em',color:'#fff'}}>
+            PLOTI<span style={{color:_gold}}>Q</span>
+          </div>
+          <button onClick={()=>setPage('landing')} style={{
+            background:'transparent',border:`1px solid ${_border}`,borderRadius:3,
+            color:_faint,fontSize:9,letterSpacing:'0.08em',padding:'3px 6px',
+            cursor:'pointer',fontFamily:'inherit',
+          }}>← BACK</button>
         </div>
 
-        <Footer />
+        <div style={{padding:'0 22px 14px',borderBottom:`1px solid ${_border}`,marginBottom:8}}>
+          {input.societyName ? (
+            <>
+              <div style={{fontSize:9,letterSpacing:'0.14em',textTransform:'uppercase',color:_gold,marginBottom:4}}>ACTIVE ASSESSMENT</div>
+              <div style={{fontSize:12,fontWeight:600,color:'#fff',lineHeight:1.3,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{input.societyName}</div>
+              {input.address && <div style={{fontSize:10.5,color:_faint,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{input.address}</div>}
+            </>
+          ) : (
+            <>
+              <div style={{fontSize:9,letterSpacing:'0.14em',textTransform:'uppercase',color:_faint,marginBottom:4}}>NEW ASSESSMENT</div>
+              <div style={{fontSize:11.5,color:_muted}}>Fill in plot details →</div>
+            </>
+          )}
+        </div>
+
+        <nav style={{flex:1}}>
+          {workspaceNav.map(item=>(
+            <div key={item.id} onClick={()=>setWorkspacePage(item.id)} style={{
+              display:'flex',alignItems:'center',gap:11,
+              padding:'10px 22px',
+              borderLeft:workspacePage===item.id?`2px solid ${_gold}`:'2px solid transparent',
+              background:workspacePage===item.id?'rgba(201,169,110,0.06)':'transparent',
+              color:workspacePage===item.id?'#fff':_muted,
+              fontSize:13,fontWeight:workspacePage===item.id?600:400,
+              cursor:'pointer',
+            }}>
+              <span style={{opacity:workspacePage===item.id?1:0.65,display:'flex'}}>{item.icon}</span>
+              {item.label}
+            </div>
+          ))}
+        </nav>
+
+        <div style={{padding:'14px 22px 0',borderTop:`1px solid ${_border}`}}>
+          <div style={{fontSize:9,letterSpacing:'0.14em',textTransform:'uppercase',color:_faint,marginBottom:4}}>PLOTIQ</div>
+          <div style={{fontSize:11,color:_muted,lineHeight:1.5}}>DCPR 2034 · Mumbai</div>
+        </div>
+      </aside>
+
+      {/* ── MAIN ── */}
+      <div style={{flex:1,minWidth:0,display:'flex',flexDirection:'column',overflow:'hidden'}}>
+
+        {/* Topbar */}
+        <div className="piq-topbar-padding" style={{
+          height:50,flexShrink:0,borderBottom:`1px solid ${_border}`,
+          display:'flex',alignItems:'center',padding:'0 0 0 28px',gap:0,
+          background:'#0F1219',
+        }}>
+          {/* Tab buttons */}
+          <div style={{display:'flex',height:'100%',marginRight:20}}>
+            {[{id:'input',label:'Input'},{id:'results',label:'Results'}].map(tab=>(
+              <button key={tab.id} onClick={()=>setAppTab(tab.id)} style={{
+                padding:'0 22px',fontSize:11,fontWeight:appTab===tab.id?700:400,
+                background:'none',border:'none',
+                borderBottom:appTab===tab.id?`2px solid ${_gold}`:'2px solid transparent',
+                color:appTab===tab.id?'#fff':_muted,
+                cursor:'pointer',fontFamily:'inherit',
+                letterSpacing:'0.07em',textTransform:'uppercase',
+              }}>{tab.label}</button>
+            ))}
+          </div>
+
+          <div style={{flex:1,minWidth:0}}>
+            {appTab==='results' && (
+              <div style={{fontSize:10.5,letterSpacing:'0.14em',textTransform:'uppercase',color:_faint,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
+                {currentWorkspace.title}
+              </div>
+            )}
+          </div>
+
+          <div style={{display:'flex',alignItems:'center',gap:18,flexShrink:0,paddingRight:28}}>
+            {appTab==='results' && result.fsiSlab && (
+              <div className="piq-topbar-stats" style={{display:'flex',gap:18}}>
+                {[
+                  {val:`${input.plotArea} m²`,label:'Plot'},
+                  {val:result.fsiSlab.basic.toFixed(2),label:'Base FSI'},
+                  result.fsiSlab.tdr>0 ? {val:result.fsiSlab.tdr.toFixed(2),label:'TDR'} : null,
+                ].filter(Boolean).map(item=>(
+                  <div key={item.label} style={{textAlign:'right'}}>
+                    <div style={{fontSize:12,fontWeight:700,color:'#fff',fontFamily:'"JetBrains Mono",monospace'}}>{item.val}</div>
+                    <div style={{fontSize:9,color:_faint,textTransform:'uppercase',letterSpacing:'0.1em',marginTop:1}}>{item.label}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button onClick={()=>setPage('landing')} style={{
+              padding:'6px 12px',background:'rgba(201,169,110,0.08)',
+              border:`1px solid rgba(201,169,110,0.2)`,borderRadius:4,
+              color:_gold,fontSize:10,fontWeight:700,letterSpacing:'0.08em',
+              cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap',
+            }}>+ NEW</button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="redev-app" style={{flex:1,minHeight:0,display:'flex',flexDirection:'column',overflow:'hidden'}}>
+          <Styles />
+          <GlobalStyles />
+          {/* Mobile workspace nav — shown only on small screens in Results tab */}
+          {appTab === 'results' && (
+            <div className="piq-mobile-workspace-nav">
+              {workspaceNav.map(item=>(
+                <button key={item.id} onClick={()=>setWorkspacePage(item.id)}
+                        className={workspacePage===item.id?'active':''}>
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          )}
+          {/* Inner content row */}
+          <div style={{flex:1,minHeight:0,display:'flex',overflow:'hidden'}}>
+
+          {appTab === 'input' ? (
+            /* ── INPUT TAB — full-width form ── */
+            <main className="piq-input-tab-inner" style={{flex:1,overflowY:'auto',padding:'32px 40px',display:'flex',justifyContent:'center'}}>
+              <div className="piq-input-col" style={{width:'100%',maxWidth:660}}>
+                <InputPanel
+                  input={input}
+                  update={update}
+                  updateFlat={updateFlat}
+                  addFlat={addFlat}
+                  removeFlat={removeFlat}
+                  showAdvanced={showAdvanced}
+                  setShowAdvanced={setShowAdvanced}
+                  wardDetect={wardDetect}
+                  setWardDetect={setWardDetect}
+                />
+                <div style={{marginTop:36,paddingTop:28,borderTop:`1px solid ${_border}`,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                  <div style={{fontSize:11,color:_muted,lineHeight:1.5}}>
+                    All inputs are saved automatically between tabs.
+                  </div>
+                  <button onClick={()=>setAppTab('results')} style={{
+                    padding:'12px 32px',background:_gold,color:'#0D0F14',
+                    border:'none',borderRadius:4,fontSize:13,fontWeight:700,
+                    letterSpacing:'0.05em',cursor:'pointer',fontFamily:'inherit',
+                    display:'flex',alignItems:'center',gap:8,
+                  }}>Calculate <span style={{fontSize:16,lineHeight:1}}>→</span></button>
+                </div>
+              </div>
+            </main>
+          ) : (
+            /* ── RESULTS TAB — workspace modules ── */
+            <main className="piq-results-tab" style={{flex:1,overflowY:'auto',padding:'24px 28px',display:'grid',gap:20,alignContent:'start'}}>
+              <div style={{display:'flex',justifyContent:'flex-end'}}>
+                <button onClick={()=>setAppTab('input')} style={{
+                  padding:'6px 14px',background:'transparent',
+                  border:`1px solid ${_border}`,borderRadius:4,
+                  color:_muted,fontSize:10,fontWeight:600,letterSpacing:'0.07em',
+                  cursor:'pointer',fontFamily:'inherit',textTransform:'uppercase',
+                }}>← Edit inputs</button>
+              </div>
+              {renderWorkspaceContent()}
+              {workspacePage !== 'reports' && <PrintBar />}
+              <Footer />
+            </main>
+          )}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -1363,29 +1522,11 @@ export default function App() {
 // ============================================================================
 const Styles = () => (
   <style>{`
-    @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
-    :root {
-      --paper: #F5F2EA;
-      --paper-warm: #ECE6DA;
-      --border: #D6CFC4;
-      --ink: #22272D;
-      --ink-soft: #5E6671;
-      --ink-faint: #8F98A3;
-      --rust: #A17A43;
-      --rust-deep: #7F5F37;
-      --signal-bg: #F5EFE6;
-      --success: #3E6650;
-      --display: "Source Serif 4", Georgia, serif;
-      --sans: "Source Sans 3", -apple-system, sans-serif;
-      --mono: "JetBrains Mono", monospace;
-      --radius: 4px;
-    }
-
     .redev-app, .redev-app * { box-sizing: border-box; }
     .redev-app {
-      min-height: 100vh;
-      background: var(--paper);
+      height: 100%;
+      display: flex;
+      background: transparent;
       color: var(--ink);
       font-family: var(--sans);
       line-height: 1.55;
@@ -1399,9 +1540,9 @@ const Styles = () => (
     .redev-app select,
     .redev-app textarea {
       width: 100%;
-      background: #fffefb;
-      border: 1px solid #d4c9b8;
-      color: #1a1815;
+      background: #1A1D26;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #ffffff;
       padding: 9px 12px;
       font-family: inherit;
       font-size: 14px;
@@ -1409,19 +1550,21 @@ const Styles = () => (
       outline: none;
       transition: border-color .12s;
     }
+    .redev-app input::placeholder, .redev-app textarea::placeholder { color: rgba(255,255,255,0.25); }
     .redev-app input:focus, .redev-app select:focus, .redev-app textarea:focus {
-      border-color: #8b3a2a;
-      box-shadow: 0 0 0 3px rgba(139, 58, 42, 0.1);
+      border-color: #C9A96E;
+      box-shadow: 0 0 0 3px rgba(201,169,110,0.12);
     }
     .redev-app input.num { font-family: "JetBrains Mono", monospace; }
 
     .redev-app select {
       cursor: pointer; appearance: none;
-      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%238b3a2a' stroke-width='1.5'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%23C9A96E' stroke-width='1.5'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 12px center;
       padding-right: 32px;
     }
+    .redev-app select option { background: #1A1D26; color: #ffffff; }
 
     .redev-app .field-label {
       display: block;
@@ -1441,121 +1584,77 @@ const Styles = () => (
     }
     .redev-app .radio-card {
       padding: 14px 16px;
-      border: 1px solid #d4c9b8;
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: 12px;
       cursor: pointer;
-      background: #fff;
-      transition: border-color .16s, box-shadow .16s, background .16s;
+      background: #16191F;
+      transition: border-color .16s, background .16s;
       font-size: 13px;
     }
-    .redev-app .radio-card:hover { border-color: #8b3a2a; box-shadow: 0 12px 32px rgba(26,24,21,0.05); }
-    .redev-app .radio-card.active { border-color: #8b3a2a; background: rgba(139, 58, 42, 0.06); }
+    .redev-app .radio-card:hover { border-color: rgba(201,169,110,0.35); }
+    .redev-app .radio-card.active { border-color: #C9A96E; background: rgba(201,169,110,0.06); }
 
-    .redev-app .container {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 32px 24px 48px;
-    }
-
-    .redev-app .workspace-grid {
-      display: grid;
-      grid-template-columns: minmax(320px, 400px) 1fr;
-      gap: 36px;
-      align-items: start;
-    }
-    .redev-app .left-rail {
-      position: sticky;
-      top: 24px;
-      align-self: start;
-      display: grid;
-      gap: 24px;
-    }
-    .redev-app .workspace-main {
-      display: grid;
-      gap: 24px;
-    }
-
-    .redev-app .layout-2col {
-      display: grid;
-      grid-template-columns: minmax(320px, 420px) 1fr;
-      gap: 36px;
-      align-items: start;
-    }
     .redev-app .input-panel {
-      position: sticky;
-      top: 24px;
-      max-height: calc(100vh - 48px);
-      overflow-y: auto;
-      overflow-x: hidden;
-      background: #fffefb;
-      border: 1px solid #e7dfd0;
-      border-radius: 18px;
-      padding: 28px;
-      box-shadow: 0 20px 48px rgba(26,24,21,0.06);
+      background: transparent;
+      border: none;
+      padding: 0;
+      box-shadow: none;
     }
-    .redev-app .input-panel::-webkit-scrollbar { width: 8px; }
-    .redev-app .input-panel::-webkit-scrollbar-track { background: transparent; }
-    .redev-app .input-panel::-webkit-scrollbar-thumb {
-      background: #d4c9b8;
-      border-radius: 4px;
-    }
-    .redev-app .input-panel::-webkit-scrollbar-thumb:hover { background: #b8a88a; }
 
     .redev-app .scenario-card {
       padding: 24px;
       border-radius: 8px;
-      background: #fffefb;
-      border: 1px solid #e7dfd0;
-      box-shadow: 0 1px 6px rgba(26,24,21,0.05);
+      background: #13161D;
+      border: 1px solid rgba(255,255,255,0.07);
     }
 
     /* Tab bar */
     .redev-app .tab-bar {
       display: flex; gap: 2px; margin-bottom: 28px;
-      border-bottom: 1.5px solid #e7dfd0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
     }
     .redev-app .tab-btn {
       padding: 10px 16px; font-size: 11px; font-weight: 600;
       letter-spacing: 0.07em; text-transform: uppercase;
       border: none; background: none; cursor: pointer;
-      color: #a89c87; border-bottom: 2px solid transparent;
-      margin-bottom: -1.5px; transition: color .15s, border-color .15s;
+      color: rgba(255,255,255,0.3); border-bottom: 2px solid transparent;
+      margin-bottom: -1px; transition: color .15s, border-color .15s;
       font-family: inherit;
     }
-    .redev-app .tab-btn:hover { color: #8b3a2a; }
-    .redev-app .tab-btn.active { color: #8b3a2a; border-bottom-color: #8b3a2a; }
+    .redev-app .tab-btn:hover { color: #C9A96E; }
+    .redev-app .tab-btn.active { color: #C9A96E; border-bottom-color: #C9A96E; }
 
     /* Stat cards */
     .redev-app .stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
     .redev-app .stat-card {
-      padding: 18px 20px; background: #fffefb;
-      border: 1px solid #e7dfd0; border-radius: 8px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      padding: 18px 20px;
+      background: #13161D;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px;
     }
-    .redev-app .stat-card-accent { border-top: 3px solid #8b3a2a; }
+    .redev-app .stat-card-accent { border-top: 3px solid #C9A96E; }
 
     /* BUA split bar */
-    .redev-app .bua-split-bar { height: 10px; border-radius: 6px; overflow: hidden; display: flex; background: #f0e9dd; }
-    .redev-app .bua-split-rehab { background: #8b3a2a; transition: width .5s ease; }
-    .redev-app .bua-split-sale  { background: #3d5a4d; transition: width .5s ease; }
+    .redev-app .bua-split-bar { height: 10px; border-radius: 6px; overflow: hidden; display: flex; background: rgba(255,255,255,0.06); }
+    .redev-app .bua-split-rehab { background: #C9A96E; transition: width .5s ease; }
+    .redev-app .bua-split-sale  { background: #4A8C66; transition: width .5s ease; }
 
     /* Phase stepper */
     .redev-app .phase-stepper { display: flex; align-items: center; margin-bottom: 20px; overflow-x: auto; }
-    .redev-app .phase-dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; color: #fffefb; flex-shrink: 0; }
-    .redev-app .phase-line { flex: 1; height: 2px; background: #e7dfd0; min-width: 20px; flex-shrink: 0; }
+    .redev-app .phase-dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; color: #0D0F14; flex-shrink: 0; }
+    .redev-app .phase-line { flex: 1; height: 2px; background: rgba(255,255,255,0.07); min-width: 20px; flex-shrink: 0; }
 
     /* Doc pill */
     .redev-app .doc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .redev-app .doc-pill {
-      padding: 8px 10px; background: #fafaf5;
+      padding: 8px 10px;
+      background: #16191F;
       border-radius: 4px; font-size: 11px; line-height: 1.45;
-      border-left: 2px solid #d4c9b8;
+      border-left: 2px solid rgba(201,169,110,0.3);
     }
 
-    /* Card hover & radio transitions */
-    .redev-app .radio-card { transition: border-color .12s, box-shadow .12s; }
-    .redev-app .radio-card:hover { box-shadow: 0 2px 8px rgba(139,58,42,0.10); }
-    .redev-app tbody tr:hover td { background: rgba(139,58,42,0.015); }
+    .redev-app .radio-card { transition: border-color .12s; }
+    .redev-app tbody tr:hover td { background: rgba(201,169,110,0.04); }
 
     /* Details arrow rotation */
     .redev-app details summary { cursor: pointer; list-style: none; }
@@ -1567,24 +1666,97 @@ const Styles = () => (
     .redev-app details[open] > div { animation: redev-slide .18s ease-out; }
 
     @media print {
-      .redev-app { background: white; }
+      .redev-app { background: white; color: #000; }
       .redev-app .no-print { display: none !important; }
-      .redev-app .scenario-card { break-inside: avoid; border: 1px solid #999; box-shadow: none; }
-      .redev-app .input-panel { display: none; }
-      .redev-app .layout-2col { display: block; }
+      .redev-app .scenario-card { break-inside: avoid; border: 1px solid #999; background: white; }
       .redev-app .tab-bar { display: none; }
     }
     @media (max-width: 980px) {
-      .redev-app .layout-2col { grid-template-columns: 1fr !important; }
       .redev-app .grid-3col { grid-template-columns: 1fr !important; }
       .redev-app .grid-2 { grid-template-columns: 1fr !important; }
       .redev-app .stat-grid { grid-template-columns: 1fr 1fr !important; }
       .redev-app .doc-grid { grid-template-columns: 1fr !important; }
-      .redev-app .input-panel { position: static; }
     }
     @media (max-width: 600px) {
       .redev-app .stat-grid { grid-template-columns: 1fr !important; }
       .redev-app .tab-btn { padding: 8px 10px; font-size: 10px; }
+    }
+    @media (max-width: 768px) {
+      .redev-app table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+      .piq-grid-2 { grid-template-columns: 1fr !important; }
+    }
+  `}</style>
+);
+
+// ============================================================================
+// GLOBAL RESPONSIVE STYLES
+// ============================================================================
+const GlobalStyles = () => (
+  <style>{`
+    /* ── Landing sidebar ── */
+    .piq-lp-sidebar { display: flex !important; }
+    .piq-lp-mobile-nav {
+      display: none;
+      position: sticky; top: 0; z-index: 50;
+      background: #0F1219;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 0 18px;
+      height: 50px;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    /* ── Tool sidebar ── */
+    .piq-tool-sidebar { display: flex !important; }
+    .piq-mobile-workspace-nav {
+      display: none;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      gap: 0; flex-shrink: 0;
+      scrollbar-width: none;
+    }
+    .piq-mobile-workspace-nav::-webkit-scrollbar { display: none; }
+    .piq-mobile-workspace-nav button {
+      padding: 11px 16px; font-size: 11px; font-weight: 500;
+      background: none; border: none; border-bottom: 2px solid transparent;
+      color: rgba(255,255,255,0.45); cursor: pointer;
+      font-family: inherit; white-space: nowrap; flex-shrink: 0;
+      letter-spacing: 0.04em;
+    }
+    .piq-mobile-workspace-nav button.active {
+      color: #C9A96E; border-bottom-color: #C9A96E;
+    }
+
+    @media (max-width: 768px) {
+      /* Landing */
+      .piq-lp-sidebar { display: none !important; }
+      .piq-lp-mobile-nav { display: flex !important; }
+      .piq-lp-main { padding-top: 0 !important; }
+      .piq-hero-content { padding: 40px 20px 60px !important; }
+      .piq-feature-strip { grid-template-columns: 1fr 1fr !important; }
+      .piq-lp-section { padding: 48px 20px !important; }
+      .piq-about-grid { grid-template-columns: 1fr !important; }
+      .piq-usecases-grid { grid-template-columns: 1fr !important; }
+      .piq-pricing-grid { grid-template-columns: 1fr !important; max-width: 100% !important; }
+      .piq-services-card { grid-template-columns: 36px 1fr !important; }
+      .piq-services-card .piq-phase-bar { padding: 12px 0 !important; font-size: 8px !important; }
+      .piq-services-card-body { padding: 16px 16px !important; }
+
+      /* Tool */
+      .piq-tool-sidebar { display: none !important; }
+      .piq-topbar-stats { display: none !important; }
+      .piq-mobile-workspace-nav { display: flex !important; }
+      .piq-topbar-padding { padding-left: 12px !important; }
+      .piq-input-tab-inner { padding: 20px 16px !important; }
+      .piq-input-col { max-width: 100% !important; }
+      .piq-results-tab { padding: 16px !important; }
+    }
+
+    @media (max-width: 480px) {
+      .piq-feature-strip { grid-template-columns: 1fr !important; }
+      .piq-lp-cta-row { flex-direction: column !important; align-items: flex-start !important; }
+      .piq-topbar-new { font-size: 9px !important; padding: 5px 8px !important; }
     }
   `}</style>
 );
@@ -1620,7 +1792,7 @@ const Header = () => (
 
 const Intro = () => (
   <div style={{ marginBottom: 40, maxWidth: 760 }}>
-    <h1 className="serif" style={{ fontSize: 44, fontWeight: 600, lineHeight: 1.08, margin: 0, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
+    <h1 className="serif" style={{ fontSize: 'clamp(28px, 5vw, 44px)', fontWeight: 600, lineHeight: 1.08, margin: 0, letterSpacing: '-0.02em', color: 'var(--ink)' }}>
       A calm assessment instrument for redevelopment intelligence.
     </h1>
     <p style={{ fontSize: 17, lineHeight: 1.75, color: 'var(--ink-soft)', marginTop: 20 }}>
@@ -1647,180 +1819,570 @@ const Intro = () => (
   </div>
 );
 
-const LandingPage = ({ onStart }) => (
-  <main style={{ minHeight: 'calc(100vh - 120px)', padding: '72px 24px 40px', background: 'var(--paper)', color: 'var(--ink)' }}>
-    <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-      <section style={{ display: 'grid', gap: 28, textAlign: 'center', padding: '18px 0 28px' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, padding: '10px 18px', background: 'rgba(255,255,255,0.9)', borderRadius: 999, border: '1px solid var(--border)', margin: '0 auto', maxWidth: 500 }}>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--ink-faint)' }}>
-            Regulatory intelligence infrastructure
-          </span>
+const LandingPage = ({ onStart }) => {
+  const gold = '#C9A96E';
+  const bg = '#0D0F14';
+  const border = 'rgba(255,255,255,0.07)';
+  const textMuted = 'rgba(255,255,255,0.45)';
+  const textFaint = 'rgba(255,255,255,0.22)';
+
+  const navItems = [
+    { id: 'platform', label: 'Platform' },
+    { id: 'about',    label: 'About' },
+    { id: 'services', label: 'Services' },
+    { id: 'usecases', label: 'Use Cases' },
+    { id: 'pricing',  label: 'Pricing' },
+  ];
+  const [activeSection, setActiveSection] = useState('platform');
+  const mainRef = useRef(null);
+
+  const scrollTo = (id) => {
+    setActiveSection(id);
+    const el = document.getElementById(`lp-${id}`);
+    if (el && mainRef.current) mainRef.current.scrollTo({ top: el.offsetTop, behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    const mainEl = mainRef.current;
+    if (!mainEl) return;
+    const ids = ['platform', 'about', 'services', 'usecases', 'pricing'];
+    const handleScroll = () => {
+      for (let i = ids.length - 1; i >= 0; i--) {
+        const el = document.getElementById(`lp-${ids[i]}`);
+        if (el && el.offsetTop <= mainEl.scrollTop + 120) {
+          setActiveSection(ids[i]);
+          return;
+        }
+      }
+    };
+    mainEl.addEventListener('scroll', handleScroll);
+    return () => mainEl.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const windowLights = [
+    [548,80,0.35],[572,80,0.5],[548,110,0.28],[572,110,0.45],
+    [548,160,0.4],[572,160,0.32],[548,200,0.5],[572,200,0.28],
+    [548,260,0.38],[572,260,0.48],[548,310,0.3],[572,310,0.42],
+    [630,100,0.45],[652,100,0.3],[630,140,0.35],[652,140,0.5],
+    [630,190,0.28],[652,190,0.42],[630,240,0.5],[652,240,0.3],
+    [704,130,0.4],[704,170,0.32],[704,220,0.48],
+    [770,170,0.35],[795,170,0.45],[770,210,0.28],
+  ];
+
+  const perspectiveDots = [
+    [200,100,0.35],[380,90,0.45],[540,75,0.55],
+    [720,60,0.65],[900,75,0.55],[1060,90,0.45],
+    [1240,100,0.35],[300,108,0.25],[620,102,0.4],
+    [820,102,0.4],[1140,108,0.25],
+  ];
+
+  return (
+    <div style={{
+      position:'fixed',top:0,left:0,right:0,bottom:0,
+      background:bg, display:'flex', zIndex:1000,
+      fontFamily:'"Source Sans 3",-apple-system,sans-serif',
+    }}>
+      <GlobalStyles />
+
+      {/* ── SIDEBAR ── */}
+      <aside className="piq-lp-sidebar" style={{
+        width:218, flexShrink:0,
+        background:'#0F1219',
+        borderRight:`1px solid ${border}`,
+        display:'flex', flexDirection:'column',
+        padding:'28px 0 20px',
+      }}>
+        <div style={{padding:'0 22px 36px',fontSize:15,fontWeight:700,letterSpacing:'0.04em',color:'#fff'}}>
+          PLOTI<span style={{color:gold}}>Q</span>
         </div>
-
-        <div style={{ padding: '42px 28px 28px', background: 'rgba(255,255,255,0.95)', borderRadius: 18, border: '1px solid var(--border)', boxShadow: '0 24px 64px rgba(0,0,0,0.06)' }}>
-          <div className="serif" style={{ fontSize: 58, fontWeight: 700, lineHeight: 1.05, letterSpacing: '-0.04em', color: 'var(--ink)' }}>
-            Plot<span style={{ color: 'var(--rust)' }}>IQ</span>
-          </div>
-          <p style={{ margin: '24px auto 0', maxWidth: 760, fontSize: 20, lineHeight: 1.75, color: 'var(--ink-soft)' }}>
-            PlotIQ is a regulatory intelligence environment. It is built to structure redevelopment decision-making through layered assessment, not to surface every internal calculation.
-          </p>
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>
-            <button onClick={onStart}
-                    style={{ padding: '18px 34px', fontSize: 16, fontWeight: 700, background: 'var(--rust)', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', minWidth: 260, boxShadow: '0 18px 40px rgba(161,122,67,0.18)' }}>
-              Open the intelligence workspace
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section style={{ marginTop: 24, display: 'grid', gap: 14, justifyItems: 'center' }}>
-        {[
-          'Capture plot, ward and site context clearly.',
-          'Review entitlement, scheme eligibility and regulatory certainty.',
-          'Use costs only when you need a review-ready advisory artifact.',
-        ].map((label, index) => (
-          <div key={index} style={{ maxWidth: 560, padding: '18px 22px', background: '#fff', borderRadius: 14, border: '1px solid var(--border)', color: 'var(--ink-soft)', fontSize: 15, lineHeight: 1.75, textAlign: 'left' }}>
-            <div style={{ fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--rust)', fontWeight: 700, marginBottom: 10 }}>Step {index + 1}</div>
-            <div>{label}</div>
-          </div>
-        ))}
-      </section>
-
-      <section style={{ marginTop: 42, padding: 28, borderRadius: 14, background: '#fff', border: '1px solid var(--border)' }}>
-        <div style={{ display: 'grid', gap: 20, gridTemplateColumns: '1fr 1fr' }}>
-          <div>
-            <div style={{ fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--rust)', fontWeight: 700, marginBottom: 14 }}>Proof of authority</div>
-            <p style={{ margin: 0, fontSize: 15, lineHeight: 1.8, color: 'var(--ink-soft)' }}>
-              This platform is the analytical engine behind a formal feasibility assessment. It uses the same clause-led logic and traceability set expected by architects, developers and society committees.
-            </p>
-          </div>
-          <div>
-            <div style={{ fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--rust)', fontWeight: 700, marginBottom: 14 }}>Why this matters</div>
-            <p style={{ margin: 0, fontSize: 15, lineHeight: 1.8, color: 'var(--ink-soft)' }}>
-              Redevelopment is a regulatory process. The UI should support calm, procedural decisions and surface assumptions clearly, not push flashy product language.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section style={{ marginTop: 42, padding: 24, borderRadius: 14, background: 'var(--signal-bg)', border: '1px solid var(--border)' }}>
-        <div style={{ fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink-faint)', fontWeight: 700, marginBottom: 10 }}>Positioning note</div>
-        <p style={{ margin: 0, fontSize: 15, lineHeight: 1.8, color: 'var(--ink-soft)' }}>
-          PlotIQ is a regulatory intelligence layer for redevelopment. It is not a lead-generation interface or a flashy app. It is a report-like tool for committees, architects and regulatory review.
-        </p>
-      </section>
-    </div>
-  </main>
-);
-
-const WorkspaceContextBar = ({ currentWorkspace }) => (
-  <div style={{ borderBottom: '1px solid var(--border)', background: '#fffefb', padding: '16px 0' }}>
-    <div style={{ maxWidth: 1180, margin: '0 auto', padding: '0 32px', display: 'flex', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
-      <div>
-        <div className="serif" style={{ fontSize: 18, fontWeight: 600, marginBottom: 4, color: 'var(--ink)' }}>{currentWorkspace.label}</div>
-        <div style={{ fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.6 }}>{currentWorkspace.title}</div>
-      </div>
-      <div style={{ fontSize: 12, color: 'var(--ink-faint)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
-        Modular intelligence workspace
-      </div>
-    </div>
-  </div>
-);
-
-const WorkspaceNav = ({ pages, activePage, onSelect }) => (
-  <div style={{ marginBottom: 24, padding: 20, background: '#fffefb', border: '1px solid var(--border)', borderRadius: 14 }}>
-    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--rust)', marginBottom: 16 }}>Workspace modules</div>
-    <div style={{ display: 'grid', gap: 8 }}>
-      {pages.map(page => (
-        <button key={page.id}
-          type="button"
-          onClick={() => onSelect(page.id)}
-          style={{
-            width: '100%',
-            textAlign: 'left',
-            padding: '12px 14px',
-            borderRadius: 10,
-            border: activePage === page.id ? '1px solid var(--rust)' : '1px solid #d4c9b8',
-            background: activePage === page.id ? 'rgba(161,122,67,0.12)' : '#fffefb',
-            color: activePage === page.id ? 'var(--ink)' : 'var(--ink-soft)',
-            cursor: 'pointer',
-            fontSize: 14,
-            fontWeight: 600,
+        <nav style={{flex:1}}>
+          {navItems.map(item => (
+            <div key={item.id} onClick={() => scrollTo(item.id)} style={{
+              display:'flex',alignItems:'center',
+              padding:'11px 22px',
+              borderLeft:activeSection===item.id?`2px solid ${gold}`:'2px solid transparent',
+              background:activeSection===item.id?'rgba(201,169,110,0.06)':'transparent',
+              color:activeSection===item.id?'#fff':textMuted,
+              fontSize:13,fontWeight:activeSection===item.id?600:400,
+              cursor:'pointer',
+              transition:'color 0.15s,background 0.15s',
+            }}>
+              {item.label}
+            </div>
+          ))}
+        </nav>
+        <div style={{padding:'14px 22px 0',borderTop:`1px solid ${border}`}}>
+          <button onClick={onStart} style={{
+            width:'100%',padding:'10px 14px',
+            background:'rgba(201,169,110,0.10)',
+            border:`1px solid rgba(201,169,110,0.25)`,
+            borderRadius:4,color:gold,
+            fontSize:12,fontWeight:600,
+            cursor:'pointer',fontFamily:'inherit',
+            letterSpacing:'0.04em',
           }}>
-          {page.label}
-        </button>
-      ))}
-    </div>
-  </div>
-);
-
-const WorkspacePageHeader = ({ currentWorkspace }) => (
-  <div style={{ marginBottom: 24, padding: 22, background: '#fffefb', border: '1px solid var(--border)', borderRadius: 14 }}>
-    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap' }}>
-      <div>
-        <div className="serif" style={{ fontSize: 28, fontWeight: 600, marginBottom: 8, color: 'var(--ink)' }}>{currentWorkspace.label}</div>
-        <div style={{ fontSize: 14, color: 'var(--ink-soft)', lineHeight: 1.75 }}>{currentWorkspace.description}</div>
-      </div>
-      <div style={{ minWidth: 220, padding: '14px 18px', background: '#f5f1ea', borderRadius: 12, border: '1px solid #e7dfd0' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--rust)', textTransform: 'uppercase', letterSpacing: '0.11em', marginBottom: 8 }}>Workspace guidance</div>
-        <div style={{ fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.65 }}>
-          Each module should answer: what is this, why it matters, and what to do next.
+            Start Assessment →
+          </button>
         </div>
-      </div>
-    </div>
-  </div>
-);
+      </aside>
 
-const SiteIntelligencePage = ({ input, wardDetect, result }) => (
-  <> 
-    <div style={{ display: 'grid', gap: 18, marginBottom: 18, gridTemplateColumns: '1fr 1fr' }}>
-      <div style={{ padding: 22, background: '#fffefb', border: '1px solid var(--border)', borderRadius: 14 }}>
-        <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 700, color: 'var(--rust)', marginBottom: 12 }}>Site metrics</div>
-        <div style={{ display: 'grid', gap: 14 }}>
-          <StatLine label="Plot area" value={`${input.plotArea || 0} sqm`} />
-          <StatLine label="DP road width" value={`${input.roadWidth || 0} m`} />
-          <StatLine label="Zone / land use" value={input.zone} />
-          <StatLine label="Building age" value={`${input.buildingAge || 0} yrs`} />
-          <StatLine label="Primary entitlement" value={result.fsiSlab ? `${result.fsiSlab.basic.toFixed(2)} FSI` : 'n/a'} />
-        </div>
-      </div>
-      <div style={{ padding: 22, background: '#fffefb', border: '1px solid var(--border)', borderRadius: 14 }}>
-        <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 700, color: 'var(--rust)', marginBottom: 12 }}>Location detection</div>
-        <div style={{ display: 'grid', gap: 10 }}>
-          <div style={{ fontSize: 13, color: 'var(--ink)' }}>{wardDetect.ward ? `Ward ${wardDetect.ward}` : 'Not detected yet'}</div>
-          <div style={{ fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.7 }}>
-            {wardDetect.status === 'found' && wardDetect.info ? wardDetect.info.localities : wardDetect.status === 'loading' ? 'Detecting your plot…' : wardDetect.status === 'error' ? wardDetect.error : 'Paste a Google Maps link in the input panel to identify your ward and site context.'}
+      {/* ── MAIN (scrollable) ── */}
+      <main ref={mainRef} className="piq-lp-main" style={{
+        flex:1,minWidth:0,
+        overflowY:'auto',
+        position:'relative',
+        display:'flex',flexDirection:'column',
+      }}>
+
+        {/* Mobile top nav (hidden on desktop via CSS) */}
+        <div className="piq-lp-mobile-nav">
+          <div style={{fontSize:15,fontWeight:700,letterSpacing:'0.04em',color:'#fff'}}>
+            PLOTI<span style={{color:gold}}>Q</span>
           </div>
-          <div style={{ padding: '12px 14px', background: 'rgba(232,220,192,0.24)', borderRadius: 10, color: 'var(--ink-soft)', fontSize: 12 }}>
-            Site intelligence is the first module in a modular workflow. Start with location and plot context, then move to entitlement and feasibility.
+          <button onClick={onStart} style={{
+            padding:'7px 14px',background:'rgba(201,169,110,0.10)',
+            border:`1px solid rgba(201,169,110,0.25)`,borderRadius:4,color:gold,
+            fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit',letterSpacing:'0.04em',
+          }}>Start →</button>
+        </div>
+
+        {/* Top bar (bell icon) */}
+        <div style={{position:'absolute',top:18,right:20,zIndex:20}}>
+          <div style={{
+            width:38,height:38,borderRadius:'50%',
+            background:'rgba(0,0,0,0.55)',border:`1px solid ${border}`,
+            backdropFilter:'blur(8px)',
+            display:'flex',alignItems:'center',justifyContent:'center',
+            cursor:'pointer',position:'relative',
+          }}>
+            <Bell size={15} color={textMuted}/>
+            <div style={{position:'absolute',top:8,right:8,width:6,height:6,borderRadius:'50%',background:gold}}/>
           </div>
         </div>
-      </div>
-    </div>
-    <div style={{ padding: 22, background: '#fffefb', border: '1px solid var(--border)', borderRadius: 14 }}>
-      <div style={{ fontSize: 12, textTransform: 'uppercase', fontWeight: 700, color: 'var(--rust)', marginBottom: 12 }}>Spatial view</div>
-      <div style={{ minHeight: 220, display: 'grid', placeItems: 'center', borderRadius: 12, background: '#f5f1ea', color: 'var(--ink-soft)' }}>
-        <div style={{ textAlign: 'center', maxWidth: 320 }}>
-          <div style={{ fontWeight: 700, marginBottom: 10 }}>Spatial preview placeholder</div>
-          <div style={{ fontSize: 13, lineHeight: 1.7 }}>A map / parcel overlay belongs here. In this modular architecture, spatial intelligence is its own layer, not buried under forms.</div>
-        </div>
-      </div>
-    </div>
-  </>
-);
 
-const StatLine = ({ label, value }) => (
-  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14, alignItems: 'baseline' }}>
-    <div style={{ fontSize: 12, color: 'var(--ink-soft)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</div>
-    <div className="num" style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink)' }}>{value}</div>
-  </div>
-);
+        {/* ── PLATFORM / HERO ── */}
+        <section id="lp-platform" style={{height:'100vh',minHeight:600,position:'relative',overflow:'hidden'}}>
+
+          {/* Sky gradient */}
+          <div style={{
+            position:'absolute',inset:0,
+            background:'linear-gradient(180deg,#1B2133 0%,#141926 28%,#0E1220 62%,#0A0C14 100%)',
+          }}/>
+
+          {/* Atmospheric glow */}
+          <div style={{
+            position:'absolute',left:'20%',right:'20%',top:'15%',bottom:'25%',
+            background:'radial-gradient(ellipse at 50% 80%,rgba(201,169,110,0.055) 0%,transparent 65%)',
+            pointerEvents:'none',
+          }}/>
+
+          {/* City silhouette */}
+          <svg style={{position:'absolute',bottom:'90px',left:0,width:'100%',height:'65%'}}
+            viewBox="0 0 1440 480" preserveAspectRatio="xMidYMax meet">
+            <defs>
+              <linearGradient id="bG1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#1F2840"/><stop offset="100%" stopColor="#0C0E16"/>
+              </linearGradient>
+              <linearGradient id="bG2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#18223A"/><stop offset="100%" stopColor="#0A0C14"/>
+              </linearGradient>
+              <linearGradient id="tG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#0A160A"/><stop offset="100%" stopColor="#050A05"/>
+              </linearGradient>
+              <filter id="wGlow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="1.5" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <radialGradient id="aGlow" cx="50%" cy="100%" r="55%">
+                <stop offset="0%" stopColor="#C9A96E" stopOpacity="0.055"/>
+                <stop offset="100%" stopColor="#0A0C14" stopOpacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect x="0" y="0" width="1440" height="480" fill="url(#aGlow)"/>
+            {/* Far background */}
+            <rect x="0" y="280" width="100" height="200" fill="#131826" opacity="0.5"/>
+            <rect x="110" y="250" width="80" height="230" fill="#131826" opacity="0.45"/>
+            <rect x="200" y="300" width="70" height="180" fill="#131826" opacity="0.4"/>
+            <rect x="280" y="270" width="90" height="210" fill="#131826" opacity="0.45"/>
+            {/* Mid-tier */}
+            <rect x="380" y="180" width="75" height="300" fill="url(#bG2)" opacity="0.8"/>
+            <rect x="462" y="210" width="60" height="270" fill="url(#bG2)" opacity="0.75"/>
+            {/* Main tall tower */}
+            <rect x="540" y="30" width="72" height="450" fill="url(#bG1)"/>
+            <rect x="566" y="0" width="20" height="42" fill="#141C2C"/>
+            <rect x="571" y="-10" width="10" height="14" fill="#131A2A"/>
+            {[70,100,130,160,190,220,250,280,310,340,370,400].map((y,i)=>(
+              <line key={`th${i}`} x1="540" y1={y} x2="612" y2={y} stroke="rgba(201,169,110,0.07)" strokeWidth="0.6"/>
+            ))}
+            {[558,576,594].map((x,i)=>(
+              <line key={`tv${i}`} x1={x} y1="30" x2={x} y2="480" stroke="rgba(201,169,110,0.06)" strokeWidth="0.6"/>
+            ))}
+            {/* Second tower */}
+            <rect x="624" y="60" width="62" height="420" fill="url(#bG1)"/>
+            {[90,120,150,180,210,240,270,300,330,360].map((y,i)=>(
+              <line key={`t2h${i}`} x1="624" y1={y} x2="686" y2={y} stroke="rgba(201,169,110,0.06)" strokeWidth="0.6"/>
+            ))}
+            {[640,656,670].map((x,i)=>(
+              <line key={`t2v${i}`} x1={x} y1="60" x2={x} y2="480" stroke="rgba(201,169,110,0.05)" strokeWidth="0.5"/>
+            ))}
+            {/* Third tower */}
+            <rect x="698" y="100" width="54" height="380" fill="url(#bG1)" opacity="0.9"/>
+            {[130,160,190,220,250,280,310,340].map((y,i)=>(
+              <line key={`t3h${i}`} x1="698" y1={y} x2="752" y2={y} stroke="rgba(201,169,110,0.06)" strokeWidth="0.5"/>
+            ))}
+            {/* Fourth tower */}
+            <rect x="762" y="140" width="68" height="340" fill="url(#bG2)" opacity="0.8"/>
+            {[170,200,230,260,290,320,350].map((y,i)=>(
+              <line key={`t4h${i}`} x1="762" y1={y} x2="830" y2={y} stroke="rgba(201,169,110,0.05)" strokeWidth="0.5"/>
+            ))}
+            {/* Far right */}
+            <rect x="900" y="220" width="85" height="260" fill="url(#bG2)" opacity="0.6"/>
+            <rect x="995" y="250" width="70" height="230" fill="#131826" opacity="0.5"/>
+            <rect x="1075" y="280" width="90" height="200" fill="#131826" opacity="0.45"/>
+            <rect x="1175" y="260" width="80" height="220" fill="#131826" opacity="0.4"/>
+            <rect x="1265" y="300" width="175" height="180" fill="#131826" opacity="0.35"/>
+            {/* Window lights */}
+            {windowLights.map(([x,y,op],i)=>(
+              <rect key={`w${i}`} x={x} y={y} width="10" height="6"
+                fill={`rgba(201,169,110,${op})`} rx="1" filter="url(#wGlow)"/>
+            ))}
+            {/* Trees */}
+            <ellipse cx="340" cy="432" rx="42" ry="30" fill="url(#tG)"/>
+            <ellipse cx="370" cy="442" rx="35" ry="24" fill="url(#tG)"/>
+            <rect x="350" y="440" width="10" height="40" fill="url(#tG)"/>
+            <ellipse cx="860" cy="428" rx="48" ry="32" fill="url(#tG)"/>
+            <ellipse cx="895" cy="436" rx="38" ry="26" fill="url(#tG)"/>
+            <rect x="873" y="436" width="10" height="44" fill="url(#tG)"/>
+            <ellipse cx="1140" cy="435" rx="35" ry="24" fill="url(#tG)" opacity="0.7"/>
+          </svg>
+
+          {/* Golden perspective grid */}
+          <svg style={{position:'absolute',bottom:0,left:0,width:'100%',height:'120px'}}
+            viewBox="0 0 1440 120" preserveAspectRatio="none">
+            {[-200,0,200,400,600,720,840,1000,1200,1440,1640].map((x,i)=>(
+              <line key={`pl${i}`} x1={x} y1={120} x2={720} y2={0}
+                stroke="rgba(201,169,110,0.13)" strokeWidth="0.6"/>
+            ))}
+            {[30,60,90].map((y,i)=>(
+              <line key={`hl${i}`} x1={0} y1={y} x2={1440} y2={y}
+                stroke="rgba(201,169,110,0.07)" strokeWidth="0.5"/>
+            ))}
+            {perspectiveDots.map(([x,y,op],i)=>(
+              <circle key={`d${i}`} cx={x} cy={y} r="2.5" fill={`rgba(201,169,110,${op})`}/>
+            ))}
+          </svg>
+
+
+          {/* Hero text */}
+          <div className="piq-hero-content" style={{position:'relative',zIndex:2,padding:'70px 52px 80px'}}>
+            <div style={{
+              display:'inline-flex',alignItems:'center',gap:4,
+              fontSize:10.5,letterSpacing:'0.18em',textTransform:'uppercase',
+              color:textMuted,marginBottom:22,fontWeight:500,
+            }}>
+              <span style={{color:gold,borderBottom:`1px solid ${gold}`,paddingBottom:'2px'}}>URBAN</span>
+              {' '}DEVELOPMENT INTELLIGENCE
+            </div>
+
+            <h1 style={{
+              margin:0,lineHeight:1.04,
+              fontSize:'clamp(44px,4.8vw,72px)',
+              fontWeight:700,letterSpacing:'-0.025em',color:'#FFFFFF',
+              fontFamily:'"Source Serif 4",Georgia,serif',
+            }}>
+              Understand.<br/>
+              Evaluate.<br/>
+              Decide with Clarity<span style={{color:gold}}>.</span>
+            </h1>
+
+            <p style={{
+              marginTop:18,fontSize:14,lineHeight:1.75,
+              color:textMuted,maxWidth:400,
+              fontFamily:'"Source Sans 3",sans-serif',fontWeight:400,
+            }}>
+              PlotIQ transforms regulatory complexity, spatial intelligence and feasibility logic into structured assessments you can trust.
+            </p>
+
+            <div className="piq-lp-cta-row" style={{display:'flex',gap:13,marginTop:30,alignItems:'center'}}>
+              <button onClick={onStart} style={{
+                padding:'13px 26px',
+                background:'#FFFFFF',color:bg,
+                border:'none',borderRadius:6,
+                fontSize:13.5,fontWeight:700,
+                cursor:'pointer',letterSpacing:'-0.01em',
+                display:'flex',alignItems:'center',gap:9,
+              }}>
+                Start New Assessment <span>→</span>
+              </button>
+              <button onClick={() => scrollTo('services')} style={{
+                padding:'13px 20px',
+                background:'transparent',
+                border:'1px solid rgba(255,255,255,0.14)',
+                color:'#fff',borderRadius:6,
+                fontSize:13.5,fontWeight:500,
+                cursor:'pointer',
+                display:'flex',alignItems:'center',gap:10,
+              }}>
+                Explore Services
+                <span style={{
+                  width:26,height:26,borderRadius:'50%',
+                  border:'1px solid rgba(255,255,255,0.18)',
+                  display:'inline-flex',alignItems:'center',justifyContent:'center',
+                  fontSize:12,lineHeight:1,
+                }}>→</span>
+              </button>
+            </div>
+          </div>
+
+        </section>
+
+        {/* Feature strip */}
+        <div className="piq-feature-strip" style={{
+          display:'grid',gridTemplateColumns:'repeat(4,1fr)',
+          borderTop:`1px solid ${border}`,
+          borderBottom:`1px solid ${border}`,
+        }}>
+          {[
+            {
+              title:'Spatial Intelligence',
+              desc:'Map your plot\'s zoning, FSI envelope, road access, and surrounding land uses — derived from cadastral and regulatory data.',
+              icon:<svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>,
+            },
+            {
+              title:'Regulatory Intelligence',
+              desc:'Navigate DCPR 2034, TDR entitlements, premium FSI, and development restrictions — with a cited rule reference for every output.',
+              icon:<svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>,
+            },
+            {
+              title:'Feasibility Intelligence',
+              desc:'Model BUA, GDV, construction cost, and return across residential, commercial, and mixed-use configurations on any Mumbai plot.',
+              icon:<svg width="18" height="18" fill="currentColor" stroke="none" viewBox="0 0 24 24"><rect x="17" y="3" width="4" height="18" rx="1"/><rect x="11" y="8" width="4" height="13" rx="1"/><rect x="5" y="13" width="4" height="8" rx="1"/></svg>,
+            },
+            {
+              title:'Strategic Intelligence',
+              desc:'Identify TDR loading opportunities, acquisition risk flags, and market signals to make confident development decisions.',
+              icon:<svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
+            },
+          ].map((f,i)=>(
+            <div key={f.title} style={{
+              padding:'20px 22px',
+              borderRight:i<3?`1px solid ${border}`:'none',
+              display:'flex',gap:14,alignItems:'flex-start',
+              cursor:'pointer',
+            }}>
+              <div style={{
+                width:38,height:38,borderRadius:9,
+                background:'rgba(201,169,110,0.07)',
+                border:'1px solid rgba(201,169,110,0.14)',
+                display:'flex',alignItems:'center',justifyContent:'center',
+                color:gold,flexShrink:0,
+              }}>
+                {f.icon}
+              </div>
+              <div>
+                <div style={{fontSize:12.5,fontWeight:700,color:'#fff',marginBottom:5,lineHeight:1.2}}>{f.title}</div>
+                <div style={{fontSize:11.5,color:textMuted,lineHeight:1.6}}>{f.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── ABOUT ── */}
+        <section id="lp-about" className="piq-lp-section" style={{padding:'80px 60px',borderBottom:`1px solid ${border}`,background:'#0D0F14'}}>
+          <div style={{maxWidth:820}}>
+            <div style={{fontSize:10,letterSpacing:'0.18em',textTransform:'uppercase',color:gold,marginBottom:18,fontWeight:600}}>About PlotIQ</div>
+            <h2 style={{margin:'0 0 24px',fontSize:'clamp(28px,3vw,44px)',fontWeight:700,letterSpacing:'-0.02em',color:'#fff',fontFamily:'"Source Serif 4",Georgia,serif',lineHeight:1.15}}>
+              Mumbai's regulatory framework is complex by design.<br/>We make it legible.
+            </h2>
+            <p style={{fontSize:14.5,lineHeight:1.8,color:textMuted,maxWidth:640,margin:'0 0 48px'}}>
+              PlotIQ is a regulatory and spatial intelligence platform built specifically for Mumbai's Comprehensive Development Control and Promotion Regulations 2034. Every FSI slab, premium schedule, incentive BUA formula, and TDR rule is encoded directly from the gazette — so every output is traceable back to a specific regulation, not a consultant's estimate.
+            </p>
+            <div className="piq-about-grid" style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:1,background:border,border:`1px solid ${border}`,borderRadius:4,overflow:'hidden'}}>
+              {[
+                {val:'DCPR 2034',label:'Primary regulation encoded'},
+                {val:'Reg 33(7)(B)',label:'Core redevelopment scheme'},
+                {val:'33(7)(A) · 33(9)',label:'Alternate schemes supported'},
+              ].map((s,i)=>(
+                <div key={i} style={{padding:'22px 24px',background:'#13161D'}}>
+                  <div style={{fontSize:18,fontWeight:700,color:'#fff',fontFamily:'"JetBrains Mono",monospace',marginBottom:6,letterSpacing:'-0.02em'}}>{s.val}</div>
+                  <div style={{fontSize:11,color:textMuted,textTransform:'uppercase',letterSpacing:'0.1em'}}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── SERVICES ── */}
+        <section id="lp-services" className="piq-lp-section" style={{padding:'80px 60px',borderBottom:`1px solid ${border}`,background:'#0A0C11'}}>
+          <div style={{fontSize:10,letterSpacing:'0.18em',textTransform:'uppercase',color:gold,marginBottom:18,fontWeight:600}}>What We Do</div>
+          <h2 style={{margin:'0 0 10px',fontSize:'clamp(26px,2.8vw,40px)',fontWeight:700,letterSpacing:'-0.02em',color:'#fff',fontFamily:'"Source Serif 4",Georgia,serif',lineHeight:1.15}}>
+            End-to-end support for society redevelopment.
+          </h2>
+          <p style={{fontSize:14,lineHeight:1.75,color:textMuted,maxWidth:580,margin:'0 0 48px'}}>
+            From the first committee discussion to Occupancy Certificate — we provide the intelligence, documents, and advisory support that turn regulatory complexity into a clear path forward.
+          </p>
+          <div style={{display:'grid',gap:3}}>
+            {[
+              {
+                phase:'01',colour:'#5a7a4f',
+                title:'Document Readiness Audit',
+                summary:'Before you engage a developer or architect, we audit your property card, OC / CC status, approved plans, and structural reports — and produce a gap list of exactly what is missing and where to obtain it.',
+                tags:['Property card & Index II','OC / CC confirmation','Approved plan status check','Structural audit guidance','RTI filing support'],
+              },
+              {
+                phase:'02',colour:gold,
+                title:'Regulatory Feasibility Report',
+                summary:'We compute your FSI entitlement under DCPR 2034, produce a Proforma-A aligned area statement, and make explicit what carpet area every member is owed — before any developer conversation begins.',
+                tags:['FSI under Reg 33(7)(B) / 33(7)(A) / 33(9)','Incentive BUA & premium FSI build-up','Rehab vs. sale split analysis','Scheme benchmarking','GB resolution scope guidance'],
+              },
+              {
+                phase:'03',colour:'#3d5a4d',
+                title:'RFP Preparation & Developer Evaluation',
+                summary:'We write the RFP that goes to developers, define the offer evaluation matrix, and benchmark every incoming proposal against your regulatory floor — so no developer can mislead you on numbers.',
+                tags:['Standardised RFP with feasibility floor','Offer comparison matrix','Developer RERA & KYC verification','Corpus / rent / carpet benchmarking','GBR 3 resolution support'],
+              },
+              {
+                phase:'04',colour:'#4a3a8a',
+                title:'Agreement Review & MCGM Filing Support',
+                summary:'We review the Development Agreement against your feasibility numbers, flag deviations from regulation, and support your architect through the IOD / Development Permission filing.',
+                tags:['DA clause review vs. Proforma-A','Premium payment verification','NOC checklist — Fire, AAI, Tree','MCGM submission tracking','IOD / DP milestone reporting'],
+              },
+              {
+                phase:'05',colour:'rgba(255,255,255,0.3)',
+                title:'Construction Monitoring & OC Verification',
+                summary:'We track milestone payments, monitor DA compliance, and verify flat measurements against what was promised before members accept possession — the phase most societies hand off entirely.',
+                tags:['Transit rent standing instruction audit','Slab-by-slab progress reporting','Milestone vs. DA schedule','Flat measurement verification','OC & sinking fund handover checklist'],
+              },
+            ].map((s,i)=>(
+              <div key={i} className="piq-services-card" style={{display:'grid',gridTemplateColumns:'52px 1fr',background:'#13161D',border:`1px solid ${border}`,borderRadius:4,overflow:'hidden'}}>
+                <div className="piq-phase-bar" style={{background:s.colour,display:'grid',placeItems:'center',padding:'20px 0',writingMode:'vertical-rl',transform:'rotate(180deg)'}}>
+                  <span style={{fontSize:9.5,fontWeight:700,letterSpacing:'0.16em',color:'rgba(255,255,255,0.9)',textTransform:'uppercase',whiteSpace:'nowrap'}}>Phase {s.phase}</span>
+                </div>
+                <div className="piq-services-card-body" style={{padding:'24px 28px'}}>
+                  <div style={{fontSize:15,fontWeight:700,color:'#fff',marginBottom:8}}>{s.title}</div>
+                  <div style={{fontSize:13,color:textMuted,lineHeight:1.7,marginBottom:16,maxWidth:660}}>{s.summary}</div>
+                  <div style={{display:'flex',flexWrap:'wrap',gap:7}}>
+                    {s.tags.map((tag,j)=>(
+                      <div key={j} style={{padding:'4px 10px',fontSize:11,background:'rgba(255,255,255,0.04)',border:`1px solid ${border}`,borderRadius:3,color:textMuted}}>{tag}</div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── USE CASES ── */}
+        <section id="lp-usecases" className="piq-lp-section" style={{padding:'80px 60px',borderBottom:`1px solid ${border}`,background:'#0D0F14'}}>
+          <div style={{fontSize:10,letterSpacing:'0.18em',textTransform:'uppercase',color:gold,marginBottom:18,fontWeight:600}}>Who It's For</div>
+          <h2 style={{margin:'0 0 48px',fontSize:'clamp(26px,2.8vw,40px)',fontWeight:700,letterSpacing:'-0.02em',color:'#fff',fontFamily:'"Source Serif 4",Georgia,serif',lineHeight:1.15}}>
+            Built for every stakeholder in the redevelopment chain.
+          </h2>
+          <div className="piq-usecases-grid" style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:16}}>
+            {[
+              {
+                type:'Housing Societies',badge:'Primary',
+                desc:'Understand your FSI entitlement and incentive BUA before you invite a single developer. Walk into every negotiation knowing the regulatory floor — not discovering it after you\'ve signed.',
+                points:['Know what area each member is owed','Identify missing documents before they block you','Prepare a credible RFP, not just a conversation'],
+              },
+              {
+                type:'Architects & PMCs',badge:'Professional',
+                desc:'Generate FSI computations, area statements and scheme comparisons in minutes. PlotIQ handles the DCPR arithmetic — you focus on the design and the client relationship.',
+                points:['Proforma-A aligned area statement output','33(7)(B) / 33(7)(A) / 33(9) side-by-side','Verify mode for cross-checking your own calcs'],
+              },
+              {
+                type:'Developers & Builders',badge:'Developer',
+                desc:'Underwrite acquisition bids with regulatory precision. Know exactly what the society is entitled to, what the sale component could be, and where the viability inflection points are before you make an offer.',
+                points:['Maximum permissible BUA under DCPR 2034','Rehab-to-sale ratio and viability analysis','Premium FSI and TDR loading scenarios'],
+              },
+              {
+                type:'Lenders & Investors',badge:'Finance',
+                desc:'Validate FSI claims in developer proposals before committing capital. PlotIQ produces an independent area statement from the regulation — not from the developer\'s architect.',
+                points:['Independent FSI entitlement verification','Viability ratio and GDV benchmarking','Development timeline and risk flag summary'],
+              },
+            ].map((uc,i)=>(
+              <div key={i} style={{padding:'28px 30px',background:'#13161D',border:`1px solid ${border}`,borderRadius:4}}>
+                <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:12,marginBottom:16}}>
+                  <div style={{fontSize:16,fontWeight:700,color:'#fff'}}>{uc.type}</div>
+                  <div style={{padding:'3px 8px',fontSize:9.5,letterSpacing:'0.12em',textTransform:'uppercase',background:'rgba(201,169,110,0.08)',border:'1px solid rgba(201,169,110,0.2)',borderRadius:3,color:gold,flexShrink:0}}>{uc.badge}</div>
+                </div>
+                <p style={{fontSize:13,color:textMuted,lineHeight:1.7,margin:'0 0 18px'}}>{uc.desc}</p>
+                <div style={{display:'grid',gap:9}}>
+                  {uc.points.map((pt,j)=>(
+                    <div key={j} style={{display:'flex',gap:10,alignItems:'flex-start'}}>
+                      <span style={{color:gold,fontSize:9,marginTop:4,flexShrink:0}}>◆</span>
+                      <span style={{fontSize:12,color:textMuted,lineHeight:1.5}}>{pt}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── PRICING ── */}
+        <section id="lp-pricing" className="piq-lp-section" style={{padding:'80px 60px',background:'#0A0C11'}}>
+          <div style={{fontSize:10,letterSpacing:'0.18em',textTransform:'uppercase',color:gold,marginBottom:18,fontWeight:600}}>Access</div>
+          <h2 style={{margin:'0 0 10px',fontSize:'clamp(26px,2.8vw,40px)',fontWeight:700,letterSpacing:'-0.02em',color:'#fff',fontFamily:'"Source Serif 4",Georgia,serif',lineHeight:1.15}}>
+            Start with the calculation. Engage for the full picture.
+          </h2>
+          <p style={{fontSize:14,lineHeight:1.75,color:textMuted,maxWidth:520,margin:'0 0 52px'}}>
+            The assessment tool is free for all. Advisory retainers are by engagement.
+          </p>
+          <div className="piq-pricing-grid" style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16,maxWidth:880}}>
+            {[
+              {
+                tier:'Assessment',price:'Free',priceNote:null,highlight:false,ctaLabel:'Start Now',ctaAction:onStart,
+                desc:'Run the full FSI computation, scheme comparison, and area statement for any Mumbai plot.',
+                features:['Reg 33(7)(B) / 33(7)(A) / 33(9) computation','Area statement & rehab / sale split','Premium FSI and TDR scenarios','Developer negotiation flags','Printable advisory report'],
+              },
+              {
+                tier:'Professional',price:'₹ 25,000',priceNote:'per engagement',highlight:true,ctaLabel:'Request Engagement',ctaAction:()=>window.location.href='mailto:nik.tengle167@gmail.com?subject=PlotIQ%20Professional%20Engagement&body=I%20would%20like%20to%20discuss%20a%20Professional%20engagement%20for%20my%20society.',
+                desc:'Document readiness audit, stamped feasibility review, and a developer RFP prepared for your specific plot.',
+                features:['Everything in Assessment','Document gap audit with source guide','RFP preparation (Proforma-A aligned)','Developer offer evaluation matrix','One review cycle with our team'],
+              },
+              {
+                tier:'Advisory Retainer',price:'₹ 75,000+',priceNote:'by scope',highlight:false,ctaLabel:'Schedule a Call',ctaAction:()=>window.location.href='mailto:nik.tengle167@gmail.com?subject=PlotIQ%20Advisory%20Retainer&body=I%20would%20like%20to%20discuss%20a%20full-cycle%20advisory%20retainer%20for%20my%20society.',
+                desc:'Full-cycle advisory from GB resolution through MCGM filing — including DA review and construction milestone tracking.',
+                features:['Everything in Professional','GB resolution drafting support','DA clause-by-clause review','MCGM filing tracking','Construction milestone & OC checklist'],
+              },
+            ].map((t,i)=>(
+              <div key={i} style={{padding:'28px 26px',background:t.highlight?'rgba(201,169,110,0.06)':'#13161D',border:t.highlight?`1px solid rgba(201,169,110,0.3)`:`1px solid ${border}`,borderRadius:4,display:'flex',flexDirection:'column'}}>
+                <div style={{fontSize:10,letterSpacing:'0.14em',textTransform:'uppercase',color:t.highlight?gold:textFaint,marginBottom:12,fontWeight:600}}>{t.tier}</div>
+                <div style={{fontSize:28,fontWeight:700,color:'#fff',fontFamily:'"Source Serif 4",serif',letterSpacing:'-0.02em',lineHeight:1,marginBottom:4}}>{t.price}</div>
+                <div style={{fontSize:11,color:textFaint,marginBottom:t.priceNote?14:18,minHeight:16}}>{t.priceNote||''}</div>
+                <p style={{fontSize:12.5,color:textMuted,lineHeight:1.65,margin:'0 0 20px',flex:1}}>{t.desc}</p>
+                <div style={{display:'grid',gap:9,marginBottom:24}}>
+                  {t.features.map((ft,j)=>(
+                    <div key={j} style={{display:'flex',gap:9,alignItems:'flex-start'}}>
+                      <span style={{color:t.highlight?gold:textMuted,fontSize:11,marginTop:2,flexShrink:0}}>✓</span>
+                      <span style={{fontSize:12,color:textMuted,lineHeight:1.45}}>{ft}</span>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={t.ctaAction} style={{width:'100%',padding:'11px',background:t.highlight?gold:'rgba(255,255,255,0.06)',color:t.highlight?'#0D0F14':'#fff',border:t.highlight?'none':`1px solid ${border}`,borderRadius:4,fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+                  {t.ctaLabel}
+                </button>
+              </div>
+            ))}
+          </div>
+          <div style={{marginTop:80,paddingTop:32,borderTop:`1px solid ${border}`,fontSize:11,color:textFaint,lineHeight:1.7,maxWidth:760}}>
+            <strong style={{color:textMuted}}>Disclaimer.</strong> PlotIQ provides preliminary feasibility analysis based on the Comprehensive DCPR 2034 (PEATA edition). Outputs are not sanctioned approvals. The original gazette notifications and any subsequent State / MCGM amendments shall prevail. This analysis does not replace a Licensed Architect's certified plan or legal advice.
+          </div>
+        </section>
+
+      </main>
+    </div>
+  );
+};
+
+
 
 const Footer = () => (
-  <footer style={{ marginTop: 80, paddingTop: 32, borderTop: '1px solid #d4c9b8',
-                   fontSize: 11, color: '#a89c87', lineHeight: 1.7 }}>
+  <footer style={{ marginTop: 80, paddingTop: 32, borderTop: '1px solid rgba(255,255,255,0.1)',
+                   fontSize: 11, color: 'var(--ink-faint)', lineHeight: 1.7 }}>
     <p style={{ maxWidth: 760 }}>
-      <strong style={{ color: '#6b5d47' }}>Disclaimer.</strong> PlotIQ provides preliminary feasibility
+      <strong style={{ color: 'var(--ink-soft)' }}>Disclaimer.</strong> PlotIQ provides preliminary feasibility
       analysis based on the Comprehensive DCPR 2034 (PEATA edition). Outputs are not sanctioned approvals.
       The original gazette notifications and any subsequent State/MCGM amendments shall prevail. This
       analysis does not replace a Licensed Architect's certified plan or legal advice. Use with awareness
@@ -1830,15 +2392,15 @@ const Footer = () => (
 );
 
 const PrintBar = () => (
-  <div className="no-print" style={{ marginTop: 32, paddingTop: 24, borderTop: '1px solid #d4c9b8',
+  <div className="no-print" style={{ marginTop: 32, paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.1)',
                                      display: 'flex', justifyContent: 'space-between',
                                      alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-    <div style={{ fontSize: 12, color: '#6b5d47', maxWidth: 480 }}>
+    <div style={{ fontSize: 12, color: 'var(--ink-soft)', maxWidth: 480 }}>
       This screen is a working advisory assessment. Print it to create a review-ready artifact for committee discussion, architect validation, and lender or bank pre-check.
     </div>
     <button onClick={() => window.print()}
             style={{ padding: '11px 18px', fontSize: 13, fontWeight: 600,
-                     background: '#1a1815', color: '#f5f1ea', border: 'none',
+                     background: '#C9A96E', color: '#0D0F14', border: 'none',
                      borderRadius: 3, cursor: 'pointer',
                      display: 'flex', alignItems: 'center', gap: 8 }}>
       <Printer size={14} /> Print or save as PDF
@@ -1846,30 +2408,40 @@ const PrintBar = () => (
   </div>
 );
 
-const Section = ({ title, children, topMargin }) => (
-  <div style={{ marginTop: topMargin ? 24 : 0 }}>
-    <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase',
-                  color: '#8b3a2a', marginBottom: 14 }}>{title}</div>
+const Section = ({ title, children, topMargin, moduleTag }) => (
+  <div style={{ marginTop: topMargin ? 26 : 0 }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase',
+                    color: '#C9A96E' }}>{title}</div>
+      {moduleTag && (
+        <div style={{
+          fontSize: 9, letterSpacing: '0.06em', textTransform: 'uppercase', fontWeight: 500,
+          color: 'rgba(255,255,255,0.28)', background: 'rgba(255,255,255,0.04)',
+          padding: '2px 8px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.07)',
+          whiteSpace: 'nowrap',
+        }}>{moduleTag}</div>
+      )}
+    </div>
     {children}
   </div>
 );
 
 const Radio = ({ active }) => (
   <div style={{ width: 14, height: 14, borderRadius: '50%',
-                border: `1.5px solid ${active ? '#8b3a2a' : '#d4c9b8'}`,
+                border: `1.5px solid ${active ? '#C9A96E' : 'rgba(255,255,255,0.2)'}`,
                 display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-    {active && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#8b3a2a' }} />}
+    {active && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#C9A96E' }} />}
   </div>
 );
 
 const Toggle = ({ checked, onChange, label, sub }) => (
   <label style={{ display: 'flex', gap: 12, padding: '10px 0', cursor: 'pointer',
-                  borderBottom: '1px solid #f0e9dd' }}>
+                  borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
     <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)}
-           style={{ marginTop: 4, accentColor: '#8b3a2a' }} />
+           style={{ marginTop: 4, accentColor: '#C9A96E' }} />
     <div>
-      <div style={{ fontSize: 13, fontWeight: 500, color: '#1a1815' }}>{label}</div>
-      {sub && <div style={{ fontSize: 11, color: '#6b5d47', marginTop: 2 }}>{sub}</div>}
+      <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)' }}>{label}</div>
+      {sub && <div style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 2 }}>{sub}</div>}
     </div>
   </label>
 );
@@ -1877,25 +2449,25 @@ const Toggle = ({ checked, onChange, label, sub }) => (
 const SectionTitle = ({ eyebrow, title, children }) => (
   <div style={{ marginBottom: 18 }}>
     <div style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase',
-                  color: '#8b3a2a', fontWeight: 600, marginBottom: 6 }}>{eyebrow}</div>
+                  color: '#C9A96E', fontWeight: 600, marginBottom: 6 }}>{eyebrow}</div>
     <h3 className="serif" style={{ fontSize: 22, fontWeight: 600, margin: 0,
-                                   color: '#1a1815', letterSpacing: '-0.01em' }}>{title}</h3>
-    {children && <p style={{ fontSize: 13.5, color: '#3d3528', marginTop: 8,
+                                   color: 'var(--ink)', letterSpacing: '-0.01em' }}>{title}</h3>
+    {children && <p style={{ fontSize: 13.5, color: 'var(--ink-soft)', marginTop: 8,
                               lineHeight: 1.6, maxWidth: 720 }}>{children}</p>}
   </div>
 );
 
 const th = { padding: '11px 18px', fontSize: 10, letterSpacing: '0.12em',
-             textTransform: 'uppercase', color: '#6b5d47', fontWeight: 600, textAlign: 'left' };
+             textTransform: 'uppercase', color: 'var(--ink-soft)', fontWeight: 600, textAlign: 'left' };
 const td = { padding: '12px 18px', verticalAlign: 'top' };
 
 const Row = ({ label, value, sub, highlight, muted }) => (
   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
-    <div style={{ fontSize: 12, color: muted ? '#a89c87' : '#3d3528' }}>{label}</div>
+    <div style={{ fontSize: 12, color: muted ? 'var(--ink-faint)' : 'var(--ink-soft)' }}>{label}</div>
     <div style={{ textAlign: 'right' }}>
       <div className="num" style={{ fontSize: 13, fontWeight: highlight ? 700 : 500,
-                                    color: muted ? '#6b5d47' : highlight ? '#8b3a2a' : '#1a1815' }}>{value}</div>
-      {sub && <div className="num" style={{ fontSize: 10, color: '#a89c87', marginTop: 1 }}>{sub}</div>}
+                                    color: muted ? 'var(--ink-soft)' : highlight ? '#C9A96E' : 'var(--ink)' }}>{value}</div>
+      {sub && <div className="num" style={{ fontSize: 10, color: 'var(--ink-faint)', marginTop: 1 }}>{sub}</div>}
     </div>
   </div>
 );
@@ -1912,11 +2484,11 @@ function SpecialLocationWarning({ specialLocation }) {
   const m = msgs[specialLocation];
   if (!m) return null;
   return (
-    <div style={{ background: 'rgba(192,140,48,0.08)', border: '1px solid rgba(192,140,48,0.35)', borderLeft: '3px solid #c08c30', borderRadius: 4, padding: 16, marginBottom: 24, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-      <AlertTriangle size={18} color="#c08c30" style={{ flexShrink: 0, marginTop: 2 }} />
+    <div style={{ background: 'rgba(192,140,48,0.08)', border: '1px solid rgba(192,140,48,0.35)', borderLeft: '3px solid #C9A96E', borderRadius: 4, padding: 16, marginBottom: 24, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+      <AlertTriangle size={18} color="#C9A96E" style={{ flexShrink: 0, marginTop: 2 }} />
       <div>
-        <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1815' }}>Caution — {m.label}</div>
-        <div style={{ fontSize: 12.5, color: '#3d3528', marginTop: 6, lineHeight: 1.55 }}>{m.detail}</div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>Caution — {m.label}</div>
+        <div style={{ fontSize: 12.5, color: 'var(--ink-soft)', marginTop: 6, lineHeight: 1.55 }}>{m.detail}</div>
       </div>
     </div>
   );
@@ -1927,6 +2499,7 @@ function SpecialLocationWarning({ specialLocation }) {
 // ============================================================================
 function InputPanel({ input, update, updateFlat, addFlat, removeFlat, showAdvanced, setShowAdvanced, wardDetect, setWardDetect }) {
   const [gmLink, setGmLink] = useState('');
+  const [showSpecialConditions, setShowSpecialConditions] = useState(input.mixedTenancy || input.slumOnPlot);
   const showCostReport = input.reportScope !== 'entitlement';
 
   const handleDetect = useCallback(async () => {
@@ -1975,19 +2548,30 @@ function InputPanel({ input, update, updateFlat, addFlat, removeFlat, showAdvanc
   }, [gmLink, setWardDetect, update, input.societyName, input.address]);
 
   return (
-    <div style={{ background: '#fffefb', border: '1px solid #d4c9b8', borderRadius: 4, padding: 28 }}>
-      <div className="serif" style={{ fontSize: 20, fontWeight: 600, marginBottom: 20,
-                                      paddingBottom: 14, borderBottom: '1px solid #e7dfd0' }}>
-        Site assessment inputs
+    <div style={{ background: 'transparent', padding: 0 }}>
+      <div style={{
+        fontSize: 13, fontWeight: 700, marginBottom: 20, letterSpacing: '-0.01em',
+        paddingBottom: 14, borderBottom: '1px solid rgba(255,255,255,0.07)', color: '#fff',
+        display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
+      }}>
+        <span className="serif">Site Assessment</span>
+        {wardDetect.ward && (
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 400, fontFamily: 'inherit', letterSpacing: '0.04em' }}>
+            Ward {wardDetect.ward}
+          </span>
+        )}
       </div>
 
-      {/* Location Detector */}
-      <div style={{ marginBottom: 22, padding: 16, background: '#f5f1ea',
-                    border: '1px solid #e7dfd0', borderRadius: 6 }}>
+      {/* ── LOCATE YOUR PLOT ── */}
+      <div style={{
+        marginBottom: 24, padding: 14,
+        background: 'rgba(201,169,110,0.05)',
+        border: '1px solid rgba(201,169,110,0.18)', borderRadius: 6,
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
-          <MapPin size={14} color="#8b3a2a" />
-          <span style={{ fontSize: 12, fontWeight: 700, color: '#8b3a2a', letterSpacing: '0.06em' }}>
-            LOCATE YOUR PLOT
+          <MapPin size={13} color="#C9A96E" />
+          <span style={{ fontSize: 10, fontWeight: 700, color: '#C9A96E', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            Locate your plot
           </span>
         </div>
         <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
@@ -1997,135 +2581,127 @@ function InputPanel({ input, update, updateFlat, addFlat, removeFlat, showAdvanc
             value={gmLink}
             onChange={e => setGmLink(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleDetect()}
-            style={{ flex: 1, padding: '8px 10px', fontSize: 12, borderRadius: 3,
-                     border: '1px solid #d4c9b8', background: '#fffefb',
-                     color: '#1a1815', outline: 'none', fontFamily: 'inherit' }}
+            style={{ flex: 1, padding: '8px 10px', fontSize: 12, borderRadius: 3, outline: 'none', fontFamily: 'inherit' }}
           />
-          <button onClick={handleDetect}
-            style={{ padding: '8px 14px', fontSize: 12, fontWeight: 600, borderRadius: 3,
-                     background: '#8b3a2a', color: '#fffefb', border: 'none', cursor: 'pointer',
-                     whiteSpace: 'nowrap', opacity: wardDetect.status === 'loading' ? 0.6 : 1 }}>
+          <button onClick={handleDetect} style={{
+            padding: '8px 14px', fontSize: 12, fontWeight: 600, borderRadius: 3,
+            background: '#C9A96E', color: '#0D0F14', border: 'none', cursor: 'pointer',
+            whiteSpace: 'nowrap', opacity: wardDetect.status === 'loading' ? 0.6 : 1,
+          }}>
             {wardDetect.status === 'loading' ? 'Detecting…' : 'Detect ward'}
           </button>
         </div>
-        <div style={{ fontSize: 10.5, color: '#6b5d47', lineHeight: 1.55 }}>
-          Open Google Maps → right-click on your plot → <strong>"What's here?"</strong> → copy the URL from your browser's address bar.
+        <div style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.35)', lineHeight: 1.55 }}>
+          Google Maps → right-click on your plot → <strong>"What's here?"</strong> → copy the URL from the address bar.
         </div>
 
         {wardDetect.status === 'found' && wardDetect.ward && (() => {
           const info = wardDetect.info || {};
           return (
-            <div style={{ marginTop: 12, padding: '10px 12px', background: '#fffefb',
-                          border: `1.5px solid ${info.islandCity ? '#8b3a2a' : '#3a6b8b'}`,
-                          borderRadius: 4 }}>
+            <div style={{
+              marginTop: 12, padding: '10px 12px',
+              background: info.islandCity ? 'rgba(201,169,110,0.07)' : 'rgba(74,140,102,0.07)',
+              border: `1px solid ${info.islandCity ? 'rgba(201,169,110,0.3)' : 'rgba(74,140,102,0.3)'}`,
+              borderRadius: 4,
+            }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                <div style={{ padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700,
-                              background: info.islandCity ? '#8b3a2a' : '#3a6b8b', color: '#fffefb' }}>
-                  Ward {wardDetect.ward}
-                </div>
-                <div style={{ fontSize: 11, fontWeight: 600,
-                              color: info.islandCity ? '#8b3a2a' : '#3a6b8b' }}>
-                  {info.islandCity ? 'Island City (Mumbai City)' : 'Suburbs (Mumbai Suburban)'}
+                <div style={{
+                  padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 700,
+                  background: info.islandCity ? '#C9A96E' : '#4A8C66', color: '#0D0F14',
+                }}>Ward {wardDetect.ward}</div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: info.islandCity ? '#C9A96E' : '#4A8C66' }}>
+                  {info.islandCity ? 'Island City' : 'Suburbs'}
                 </div>
               </div>
-              <div style={{ fontSize: 11, color: '#3d3528', marginBottom: 6 }}>
-                {info.localities}
-              </div>
-              <div style={{ fontSize: 10.5, color: '#6b5d47', padding: '8px 10px',
-                            background: '#f5f1ea', borderRadius: 3, lineHeight: 1.6 }}>
-                <strong>For Ready Reckoner (ASR):</strong> District <strong>{info.igrDistrict}</strong> · Taluka <strong>{info.igrTaluka}</strong>.
-                <div style={{ marginTop: 6 }}>
-                  <a href="https://efilingigr.maharashtra.gov.in/ePASR/"
-                     target="_blank" rel="noopener noreferrer"
-                     style={{ color: '#8b3a2a', fontWeight: 600, textDecoration: 'underline' }}>
-                    Open IGR ASR portal ↗
-                  </a>
-                  <span style={{ marginLeft: 6 }}>→ pick village → note "Open Land" rate → enter it in the Ready Reckoner field below.</span>
-                </div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 4 }}>{info.localities}</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>
+                ASR: {info.igrDistrict} · {info.igrTaluka}
               </div>
             </div>
           );
         })()}
 
         {wardDetect.status === 'error' && (
-          <div style={{ marginTop: 10, padding: '8px 10px', background: '#fff5f3',
-                        border: '1px solid #f5c8bf', borderRadius: 3, fontSize: 11,
-                        color: '#7a2010', lineHeight: 1.55 }}>
+          <div style={{
+            marginTop: 10, padding: '8px 10px',
+            background: 'rgba(220,60,40,0.08)', border: '1px solid rgba(220,60,40,0.25)',
+            borderRadius: 3, fontSize: 11, color: 'rgba(255,140,120,0.9)', lineHeight: 1.55,
+          }}>
             {wardDetect.error}
           </div>
         )}
 
-        {/* Society name + Address + Location dropdown — merged into the locate card */}
-        <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px dashed #d4c9b8' }}>
+        <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px dashed rgba(255,255,255,0.1)' }}>
           <div>
             <label className="field-label">
               Society name
               {wardDetect.status === 'found' && wardDetect.parsedName && (
-                <span style={{ marginLeft: 8, fontSize: 9.5, fontWeight: 600, color: '#3a6b8b',
-                               textTransform: 'none', letterSpacing: 0 }}>
-                  ✓ auto-filled from Google
+                <span style={{ marginLeft: 8, fontSize: 9.5, fontWeight: 600, color: '#3a6b8b', textTransform: 'none', letterSpacing: 0 }}>
+                  ✓ auto-filled
                 </span>
               )}
             </label>
             <input type="text" value={input.societyName}
                    onChange={e => update('societyName', e.target.value)}
                    placeholder="e.g. Saraswati CHS Ltd" />
-            <div className="help-text" style={{ fontSize: 10.5 }}>
-              Edit to override or correct the auto-filled name.
-            </div>
           </div>
-          <div style={{ marginTop: 12 }}>
+          <div style={{ marginTop: 10 }}>
             <label className="field-label">Address / locality</label>
             <input type="text" value={input.address}
                    onChange={e => update('address', e.target.value)}
                    placeholder="e.g. Borivali West" />
           </div>
-          <div style={{ marginTop: 12 }}>
+          <div style={{ marginTop: 10 }}>
             <label className="field-label">Location in Mumbai</label>
             {wardDetect.status === 'found' ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
-                            background: '#fffefb', border: '1.5px solid #d4c9b8', borderRadius: 3 }}>
-                <div style={{ padding: '3px 10px', borderRadius: 10, fontSize: 11, fontWeight: 700,
-                              background: (wardDetect.info && wardDetect.info.islandCity) ? '#8b3a2a' : '#3a6b8b',
-                              color: '#fffefb' }}>
-                  {(wardDetect.info && wardDetect.info.islandCity) ? 'Island City' : 'Suburbs / Extended Suburbs'}
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px',
+                background: '#13161D', border: '1.5px solid rgba(255,255,255,0.1)', borderRadius: 3,
+              }}>
+                <div style={{
+                  padding: '3px 10px', borderRadius: 10, fontSize: 11, fontWeight: 700,
+                  background: (wardDetect.info && wardDetect.info.islandCity) ? '#C9A96E' : '#3a6b8b',
+                  color: (wardDetect.info && wardDetect.info.islandCity) ? '#0D0F14' : '#ffffff',
+                }}>
+                  {(wardDetect.info && wardDetect.info.islandCity) ? 'Island City' : 'Suburbs'}
                 </div>
-                <span style={{ fontSize: 11, color: '#6b5d47' }}>
-                  set from Ward {wardDetect.ward}
-                </span>
-                <button onClick={() => { setWardDetect({ status: 'idle', ward: null, error: null }); setGmLink(''); }}
-                        style={{ marginLeft: 'auto', padding: '4px 10px', fontSize: 10.5, fontWeight: 600,
-                                 background: 'transparent', color: '#8b3a2a', border: '1px solid #d4c9b8',
-                                 borderRadius: 3, cursor: 'pointer' }}>
-                  Edit manually
+                <button
+                  onClick={() => { setWardDetect({ status: 'idle', ward: null, error: null }); setGmLink(''); }}
+                  style={{
+                    marginLeft: 'auto', padding: '4px 10px', fontSize: 10, fontWeight: 600,
+                    background: 'transparent', color: '#C9A96E',
+                    border: '1px solid rgba(255,255,255,0.07)', borderRadius: 3, cursor: 'pointer',
+                  }}>
+                  Edit
                 </button>
               </div>
             ) : (
               <select value={input.location} onChange={e => update('location', e.target.value)}>
                 <option value="suburbsExtended">Suburbs / Extended Suburbs</option>
-                <option value="islandCity">Island City (south of Mahim/Sion)</option>
+                <option value="islandCity">Island City (south of Mahim / Sion)</option>
               </select>
             )}
           </div>
         </div>
       </div>
 
-      <Section title="Assessment scope" topMargin>
-        <div style={{ display: 'grid', gap: 10 }}>
+      {/* ── WHAT TO ASSESS ── */}
+      <Section title="What to assess" moduleTag="All modules">
+        <div style={{ display: 'grid', gap: 8 }}>
           {[
-            { id: 'entitlement', title: 'Entitlement assessment', desc: 'Review entitlement, scheme suitability and site eligibility without premium cost or parking detail.' },
-            { id: 'costsParking', title: 'Costs & parking analysis', desc: 'Include premium FSI, construction costing and parking requirement detail for a full assessment artifact.' },
-            { id: 'full', title: 'Full advisory artifact', desc: 'Produce a complete entitlement and cost/parking output for a review-ready advisory snapshot.' },
+            { id: 'entitlement', title: 'Entitlement only', desc: 'FSI, scheme eligibility, and maximum permissible area. No cost or parking detail.' },
+            { id: 'costsParking', title: 'Costs & parking', desc: 'Adds premium FSI cost, construction estimate, and parking analysis.' },
+            { id: 'full', title: 'Full advisory output', desc: 'Complete entitlement + costs + offer evaluation — review-ready snapshot.' },
           ].map(option => (
             <div key={option.id}
                  className={`radio-card ${input.reportScope === option.id ? 'active' : ''}`}
                  onClick={() => update('reportScope', option.id)}
                  style={{ cursor: 'pointer' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                 <Radio active={input.reportScope === option.id} />
                 <div>
-                  <div style={{ fontWeight: 600, color: '#1a1815' }}>{option.title}</div>
-                  <div style={{ fontSize: 12, color: '#6b5d47', marginTop: 4 }}>{option.desc}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>{option.title}</div>
+                  <div style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 3, lineHeight: 1.5 }}>{option.desc}</div>
                 </div>
               </div>
             </div>
@@ -2133,246 +2709,257 @@ function InputPanel({ input, update, updateFlat, addFlat, removeFlat, showAdvanc
         </div>
       </Section>
 
-      <Section title="Building basics" topMargin>
+      {/* ── BUILDING PROFILE ── */}
+      <Section title="Building profile" topMargin moduleTag="Regulatory Intelligence">
+        <div className="piq-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+          <div>
+            <label className="field-label">Building age (years)</label>
+            <input type="number" className="num" value={input.buildingAge}
+                   onChange={e => update('buildingAge', parseInt(e.target.value) || 0)} />
+            <div className="help-text">30+ years required for Reg 33(7)(B).</div>
+          </div>
+          <div>
+            <label className="field-label">Authorisation status</label>
+            <select value={input.authorisationStatus}
+                    onChange={e => update('authorisationStatus', e.target.value)}>
+              <option value="oc">OC received</option>
+              <option value="cc">CC + plans (no OC)</option>
+              <option value="tolerated">Tolerated / pre-datum</option>
+              <option value="none">No documents</option>
+            </select>
+          </div>
+        </div>
         <div>
-          <label className="field-label">Zone / land use</label>
+          <label className="field-label">Property zone</label>
           <select value={input.zone} onChange={e => update('zone', e.target.value)}>
             <option value="residential">Residential</option>
             <option value="commercial">Commercial</option>
-            <option value="mixed">Mixed (Residential + Commercial)</option>
+            <option value="mixed">Mixed use (Residential + Commercial)</option>
             <option value="industrial">Industrial</option>
           </select>
-          <div className="help-text">Determines Reg 14 amenity, LOS %, and fungible rate.</div>
+          <div className="help-text">From the DP map. Affects amenity, open space %, and fungible FSI rate.</div>
         </div>
-        <div style={{ marginTop: 14 }}>
-          <label className="field-label">Age of building (years)</label>
-          <input type="number" className="num" value={input.buildingAge}
-                 onChange={e => update('buildingAge', parseInt(e.target.value) || 0)} />
-          <div className="help-text">Reg 33(7)(B) needs 30+ years.</div>
-        </div>
-        <div style={{ marginTop: 14 }}>
-          <label className="field-label">Building type</label>
+        <div style={{ marginTop: 12 }}>
+          <label className="field-label">Type of building</label>
           <div style={{ display: 'grid', gap: 6 }}>
             {[
-              { id: 'society', label: 'Cooperative housing society (members own flats)' },
-              { id: 'cessed', label: 'Cessed building (paying MHADA cess)' },
-              { id: 'tenanted', label: 'Tenanted building (tenants, not members)' },
+              { id: 'society', label: 'Co-operative housing society' },
+              { id: 'cessed', label: 'Cessed building (MHADA cess)' },
+              { id: 'tenanted', label: 'Tenanted building' },
             ].map(opt => (
               <div key={opt.id}
                    className={`radio-card ${input.buildingType === opt.id ? 'active' : ''}`}
                    onClick={() => update('buildingType', opt.id)}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Radio active={input.buildingType === opt.id} />
-                  {opt.label}
+                  <span style={{ fontSize: 12 }}>{opt.label}</span>
                 </div>
               </div>
             ))}
           </div>
         </div>
-        <div style={{ marginTop: 14 }}>
-          <label className="field-label">Authorisation records</label>
-          <select value={input.authorisationStatus}
-                  onChange={e => update('authorisationStatus', e.target.value)}>
-            <option value="oc">Has Occupation Certificate (OC)</option>
-            <option value="cc">CC + approved plans only</option>
-            <option value="tolerated">Tolerated (assessment record before datum line)</option>
-            <option value="none">No approved plans, OC, or MCGM file</option>
-          </select>
-          <div className="help-text">Check with your society's office bearers.</div>
+
+        <div style={{ marginTop: 18, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase',
+                        color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>
+            Eligibility checks
+          </div>
+          <Toggle checked={input.membersOnSamePlot}
+                  onChange={v => update('membersOnSamePlot', v)}
+                  label="All members stay on same plot"
+                  sub="Required by Reg 33(7)(B)" />
+          <Toggle checked={input.gbResolution}
+                  onChange={v => update('gbResolution', v)}
+                  label="GB resolution passed or planned"
+                  sub="Required at proposal stage" />
+          <div style={{ marginTop: 8 }}>
+            <button onClick={() => setShowSpecialConditions(s => !s)} style={{
+              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '8px 10px',
+              background: showSpecialConditions ? 'rgba(201,169,110,0.06)' : 'rgba(255,255,255,0.02)',
+              border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4,
+              cursor: 'pointer', color: showSpecialConditions ? '#C9A96E' : 'rgba(255,255,255,0.45)',
+              fontSize: 11.5, fontWeight: 600, fontFamily: 'inherit',
+            }}>
+              <span>Special conditions {(input.mixedTenancy || input.slumOnPlot) ? '·' : ''}</span>
+              <ChevronDown size={13} style={{ transform: showSpecialConditions ? 'rotate(180deg)' : 'none', transition: 'transform 0.18s' }} />
+            </button>
+            {showSpecialConditions && (
+              <div style={{ padding: '10px 0 2px' }}>
+                <Toggle checked={input.mixedTenancy}
+                        onChange={v => update('mixedTenancy', v)}
+                        label="Plot has mixed tenancy"
+                        sub="Triggers notional-plot split under Reg 33(7)(B) clause 8" />
+                <Toggle checked={input.slumOnPlot}
+                        onChange={v => update('slumOnPlot', v)}
+                        label="Slum encroachment on plot"
+                        sub="Needs separate Reg 33(10) analysis" />
+              </div>
+            )}
+          </div>
         </div>
       </Section>
 
-      <Section title="Plot & access" topMargin>
-        <div className="grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+      {/* ── PLOT DETAILS ── */}
+      <Section title="Plot details" topMargin moduleTag="Buildability">
+        <div className="piq-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div>
             <label className="field-label">Plot area (sqm)</label>
             <input type="number" className="num" value={input.plotArea}
                    onChange={e => update('plotArea', parseFloat(e.target.value) || 0)} />
           </div>
           <div>
-            <label className="field-label">DP road width (m)</label>
+            <label className="field-label">Road width (m)</label>
             <input type="number" className="num" value={input.roadWidth}
                    onChange={e => update('roadWidth', parseFloat(e.target.value) || 0)} />
           </div>
         </div>
-        <div className="help-text">
-          <strong>Use the DP (Development Plan) road width</strong>, not just the existing width on site.
-          If your road is being widened under the DP, enter the proposed full width. The FSI slab follows
-          the DP width per Reg 30 / Table 12 Note 1.
-        </div>
-        <div style={{ marginTop: 14 }}>
-          <label className="field-label">DP road + Regular Line set-back (sqm)</label>
+        <div className="help-text">Use the DP (Development Plan) road width — proposed width, not current. Determines the FSI slab per Table 12.</div>
+
+        <div style={{ marginTop: 12 }}>
+          <label className="field-label">Area under DP road / road line (sqm)</label>
           <input type="number" className="num" value={input.dpRoadDeduction}
-                 onChange={e => update('dpRoadDeduction', parseFloat(e.target.value) || 0)} />
-          <div className="help-text">Reg 16 + Reg 30(A)(2). Area under proposed DP road and sanctioned Regular Line — deducted from plot for FSI. Enter 0 if none.</div>
+                 onChange={e => update('dpRoadDeduction', parseFloat(e.target.value) || 0)}
+                 placeholder="0" />
+          <div className="help-text">Deducted from plot area for FSI (Reg 16, Reg 30(A)(2)). Enter 0 if none.</div>
         </div>
+
         {parseFloat(input.roadWidth) >= 6 && parseFloat(input.roadWidth) < 9 && (
           <div style={{ marginTop: 10, padding: '10px 12px', background: 'rgba(192,140,48,0.07)', border: '1px solid rgba(192,140,48,0.3)', borderRadius: 3 }}>
             <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer', fontSize: 12 }}>
               <input type="checkbox" checked={!!input.roadWideningProposed}
                      onChange={e => update('roadWideningProposed', e.target.checked)}
-                     style={{ marginTop: 2, accentColor: '#8b3a2a' }} />
+                     style={{ marginTop: 2, accentColor: '#C9A96E' }} />
               <div>
-                <div style={{ fontWeight: 600, color: '#1a1815' }}>Road being widened to 9m+ under DP?</div>
-                <div style={{ color: '#6b5d47', marginTop: 2 }}>Table 12 Note 1: plots abutting roads proposed to be widened to ≥9m may use the 9m FSI slab.</div>
+                <div style={{ fontWeight: 600, color: 'var(--ink)' }}>Road being widened to 9m+ under DP?</div>
+                <div style={{ color: 'var(--ink-soft)', marginTop: 2, fontSize: 11 }}>Table 12 Note 1: may use the 9m FSI slab if widening is proposed.</div>
               </div>
             </label>
           </div>
         )}
 
         <button onClick={() => setShowAdvanced(!showAdvanced)}
-                style={{ marginTop: 14, fontSize: 12, color: '#8b3a2a', background: 'none',
-                         border: 'none', cursor: 'pointer',
-                         display: 'flex', alignItems: 'center', gap: 4, padding: 0 }}>
-          {showAdvanced ? <EyeOff size={12} /> : <Eye size={12} />}
-          {showAdvanced ? 'Hide' : 'Show'} deduction details & advanced inputs
+                style={{
+                  marginTop: 12, fontSize: 11.5, color: 'rgba(201,169,110,0.7)', background: 'none',
+                  border: '1px solid rgba(255,255,255,0.07)', borderRadius: 3, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px',
+                }}>
+          {showAdvanced ? <EyeOff size={11} /> : <Eye size={11} />}
+          {showAdvanced ? 'Hide' : 'Show'} advanced deductions
         </button>
 
         {showAdvanced && (
-          <div style={{ marginTop: 14, padding: 14, background: '#fafaf5',
-                        border: '1px solid #e7dfd0', borderRadius: 3 }}>
-            <div className="field-label" style={{ marginBottom: 10, color: '#8b3a2a' }}>
-              Plot deductions — Reg 30(A)(2)
+          <div style={{ marginTop: 12, padding: 14, background: '#111318', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 3 }}>
+            <div className="field-label" style={{ marginBottom: 10, color: '#C9A96E', fontSize: 9.5 }}>
+              Advanced deductions — Reg 30(A)(2)
             </div>
 
             <div>
               <label className="field-label">DP reservation — net deduction (sqm)</label>
               <input type="number" className="num" value={input.reservationDeduction}
                      onChange={e => update('reservationDeduction', parseFloat(e.target.value) || 0)} />
-              <div className="help-text">Reg 17. Enter the reservation area that is NET deducted from your FSI plot. For a plain surrender: full reservation area. For Accommodation Reservation (AR) development: enter only Y% (the portion handed over) — the (100−Y)% is developable AND its FSI is loadable on the balance plot. Y varies by reservation type (Table 4/5). If unsure, leave as the full reservation area for a conservative estimate; consult an architect for AR upside.</div>
+              <div className="help-text">Reg 17. Area surrendered for reservations. For AR development, enter only the portion handed over — the retained % is developable with FSI loadable on the balance plot.</div>
             </div>
 
-            <div style={{ marginTop: 10, padding: 12, background: '#fffefb', border: '1px solid #e7dfd0', borderRadius: 3 }}>
+            <div style={{ marginTop: 10, padding: 12, background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 3 }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12 }}>
                 <input type="checkbox" checked={!!input.isAmalgamated}
                        onChange={e => update('isAmalgamated', e.target.checked)}
-                       style={{ accentColor: '#8b3a2a' }} />
-                <div style={{ fontWeight: 600, color: '#1a1815' }}>Amalgamated plot</div>
+                       style={{ accentColor: '#C9A96E' }} />
+                <span style={{ fontWeight: 600, color: 'var(--ink)' }}>Amalgamated plot</span>
               </label>
-              <div className="help-text" style={{ marginTop: 4 }}>
-                Reg 14 Note (iii): if any original sub-plot was &lt; 4,000 sqm and total ≤ 20,000 sqm, amenity is not triggered.
-              </div>
+              <div className="help-text" style={{ marginTop: 4 }}>Reg 14 Note (iii): if any original sub-plot was &lt; 4,000 sqm, amenity may not be triggered.</div>
               {input.isAmalgamated && (
                 <div style={{ marginTop: 8 }}>
-                  <label className="field-label">Smallest original sub-plot area (sqm)</label>
+                  <label className="field-label">Smallest original sub-plot (sqm)</label>
                   <input type="number" className="num" value={input.smallestOriginalPlot}
                          onChange={e => update('smallestOriginalPlot', parseFloat(e.target.value) || 0)} />
                 </div>
               )}
             </div>
 
-            {/* Reg 14 amenity — auto with override */}
-            <div style={{ marginTop: 14, padding: 12, background: '#fffefb',
-                          border: '1px solid #e7dfd0', borderRadius: 3 }}>
+            <div style={{ marginTop: 10, padding: 12, background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 3 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1815' }}>
-                  Reg 14 amenity surrender
-                </div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, cursor: 'pointer', color: '#6b5d47' }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>Reg 14 — Amenity space</div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, cursor: 'pointer', color: 'var(--ink-soft)' }}>
                   <input type="checkbox" checked={input.reg14Override}
                          onChange={e => update('reg14Override', e.target.checked)}
-                         style={{ accentColor: '#8b3a2a' }} />
-                  Override auto-value
+                         style={{ accentColor: '#C9A96E' }} />
+                  Override auto
                 </label>
               </div>
               {input.reg14Override ? (
-                <div>
-                  <input type="number" className="num" value={input.reg14ManualValue}
-                         onChange={e => update('reg14ManualValue', parseFloat(e.target.value) || 0)}
-                         placeholder="Manual amenity area (sqm)" />
-                  <div className="help-text" style={{ marginTop: 4 }}>
-                    Override active. Auto-computed value will be ignored.
-                  </div>
-                </div>
+                <input type="number" className="num" value={input.reg14ManualValue}
+                       onChange={e => update('reg14ManualValue', parseFloat(e.target.value) || 0)}
+                       placeholder="Manual amenity area (sqm)" />
               ) : (
-                <div className="help-text" style={{ marginTop: 0 }}>
-                  Auto-applied when plot ≥ 4,000 sqm in R/C zone. 5% (4–10k sqm) or 500 + 10% × (plot − 10k).
-                  For 33(7)(B) the full amenity applies (no 35% reduction). Toggle override if you need to set a different value.
-                </div>
+                <div className="help-text" style={{ marginTop: 0 }}>Auto-applied when plot ≥ 4,000 sqm. 5% (4–10k sqm) or 500 + 10% × excess above 10k. Full amenity applies for 33(7)(B) — no 35% reduction.</div>
               )}
             </div>
 
-            {/* Reg 27 LOS — auto with override */}
-            <div style={{ marginTop: 10, padding: 12, background: '#fffefb',
-                          border: '1px solid #e7dfd0', borderRadius: 3 }}>
+            <div style={{ marginTop: 10, padding: 12, background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 3 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1815' }}>
-                  Reg 27 Layout Open Space (LOS)
-                </div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, cursor: 'pointer', color: '#6b5d47' }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>Reg 27 — Layout open space</div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, cursor: 'pointer', color: 'var(--ink-soft)' }}>
                   <input type="checkbox" checked={input.losOverride}
                          onChange={e => update('losOverride', e.target.checked)}
-                         style={{ accentColor: '#8b3a2a' }} />
-                  Override auto-value
+                         style={{ accentColor: '#C9A96E' }} />
+                  Override auto
                 </label>
               </div>
               {input.losOverride ? (
-                <div>
-                  <input type="number" className="num" value={input.losManualValue}
-                         onChange={e => update('losManualValue', parseFloat(e.target.value) || 0)}
-                         placeholder="Manual LOS area (sqm)" />
-                </div>
+                <input type="number" className="num" value={input.losManualValue}
+                       onChange={e => update('losManualValue', parseFloat(e.target.value) || 0)}
+                       placeholder="Manual LOS area (sqm)" />
               ) : (
-                <div className="help-text" style={{ marginTop: 0 }}>
-                  Auto-applied on net plot. 15% (1–2.5k sqm) / 20% (2.5–10k) / 25% (&gt;10k).
-                  LOS is a site-planning constraint — not an FSI deduction.
-                </div>
+                <div className="help-text" style={{ marginTop: 0 }}>Auto-applied: 15% (1–2.5k sqm) / 20% (2.5–10k) / 25% (&gt;10k). Site-planning constraint — not an FSI deduction.</div>
               )}
             </div>
 
-            <div style={{ marginTop: 10, padding: 12, background: '#fffefb', border: '1px solid #e7dfd0', borderRadius: 3 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1815', marginBottom: 6 }}>
-                Proposed ROS / LOS area in design (sqm)
-              </div>
+            <div style={{ marginTop: 10, padding: 12, background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 3 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', marginBottom: 6 }}>Proposed open space in design (sqm)</div>
               <input type="number" className="num" value={input.rosProposed}
                      onChange={e => update('rosProposed', parseFloat(e.target.value) || 0)}
                      placeholder="0" />
-              <div className="help-text" style={{ marginTop: 4 }}>
-                How much open space your proposed building will actually provide. Used to compute OSD premium deficiency — if 0, OSD is calculated on the full required ROS (conservative).
-              </div>
+              <div className="help-text" style={{ marginTop: 4 }}>Open space the proposed building will provide. Reduces the OSD premium deficiency calculation.</div>
             </div>
 
-            <div style={{ marginTop: 10, padding: 12, background: '#fffefb', border: '1px solid #e7dfd0', borderRadius: 3 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: '#1a1815', marginBottom: 6 }}>Special micro-location</div>
-              <select value={input.specialLocation} onChange={e => update('specialLocation', e.target.value)}
-                      style={{ fontSize: 12 }}>
+            <div style={{ marginTop: 10, padding: 12, background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 3 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', marginBottom: 6 }}>Special micro-location</div>
+              <select value={input.specialLocation} onChange={e => update('specialLocation', e.target.value)} style={{ fontSize: 12 }}>
                 <option value="none">None — standard FSI applies</option>
-                <option value="barc">BARC area (M Ward) — basic FSI may be 0.75</option>
-                <option value="crz">Aksa / Marve / Erangal CRZ (P/N Ward) — basic FSI may be 0.50</option>
+                <option value="barc">BARC area (M Ward) — FSI may be 0.75</option>
+                <option value="crz">Aksa / Marve / Erangal CRZ — FSI may be 0.50</option>
               </select>
-              <div className="help-text" style={{ marginTop: 4 }}>Selecting one shows a caution — verify with your architect before relying on this platform's FSI output.</div>
+              <div className="help-text" style={{ marginTop: 4 }}>Verify with your architect before relying on this platform's FSI output for these locations.</div>
             </div>
           </div>
         )}
       </Section>
 
-      <Section title="Existing flats & built-up area" topMargin>
+      {/* ── EXISTING UNITS ── */}
+      <Section title="Existing units" topMargin moduleTag="Buildability · Feasibility">
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-          <button onClick={() => update('buaInputMode', 'breakdown')}
-                  style={{ flex: 1, padding: '8px 10px', fontSize: 12,
-                           border: `1px solid ${input.buaInputMode === 'breakdown' ? '#8b3a2a' : '#d4c9b8'}`,
-                           background: input.buaInputMode === 'breakdown' ? 'rgba(139, 58, 42, 0.04)' : '#fffefb',
-                           color: input.buaInputMode === 'breakdown' ? '#8b3a2a' : '#6b5d47',
-                           cursor: 'pointer', borderRadius: 3, fontWeight: 500 }}>
-            By flat type
-          </button>
-          <button onClick={() => update('buaInputMode', 'total')}
-                  style={{ flex: 1, padding: '8px 10px', fontSize: 12,
-                           border: `1px solid ${input.buaInputMode === 'total' ? '#8b3a2a' : '#d4c9b8'}`,
-                           background: input.buaInputMode === 'total' ? 'rgba(139, 58, 42, 0.04)' : '#fffefb',
-                           color: input.buaInputMode === 'total' ? '#8b3a2a' : '#6b5d47',
-                           cursor: 'pointer', borderRadius: 3, fontWeight: 500 }}>
-            Total only
-          </button>
+          {['breakdown', 'total'].map(mode => (
+            <button key={mode}
+                    onClick={() => update('buaInputMode', mode)}
+                    style={{
+                      flex: 1, padding: '7px 10px', fontSize: 11.5, fontWeight: 500,
+                      border: `1px solid ${input.buaInputMode === mode ? '#C9A96E' : 'rgba(255,255,255,0.1)'}`,
+                      background: input.buaInputMode === mode ? 'rgba(201,169,110,0.08)' : '#16191F',
+                      color: input.buaInputMode === mode ? '#C9A96E' : 'var(--ink-soft)',
+                      cursor: 'pointer', borderRadius: 3,
+                    }}>
+              {mode === 'breakdown' ? 'By flat type' : 'Total only'}
+            </button>
+          ))}
         </div>
 
         {input.buaInputMode === 'breakdown' ? (
           <div>
             {input.flats.map((flat, idx) => (
-              <div key={idx} style={{ padding: 10, border: '1px solid #e7dfd0',
-                                      borderRadius: 3, marginBottom: 8, background: '#fafaf5' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '60px 1fr 1fr 26px',
-                              gap: 6, alignItems: 'end' }}>
+              <div key={idx} style={{ padding: 10, border: '1px solid rgba(255,255,255,0.07)', borderRadius: 3, marginBottom: 8, background: '#111318' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '60px 1fr 1fr 26px', gap: 6, alignItems: 'end' }}>
                   <div>
                     <div className="field-label" style={{ fontSize: 9, marginBottom: 3 }}>Type</div>
                     <input type="text" value={flat.label}
@@ -2391,14 +2978,11 @@ function InputPanel({ input, update, updateFlat, addFlat, removeFlat, showAdvanc
                            onChange={e => updateFlat(idx, 'count', e.target.value)}
                            style={{ padding: '6px 8px', fontSize: 12 }} />
                   </div>
-                  <button onClick={() => removeFlat(idx)}
-                          style={{ padding: 6, background: 'none',
-                                   border: '1px solid #d4c9b8', borderRadius: 3,
-                                   cursor: 'pointer', color: '#a89c87' }}>
+                  <button onClick={() => removeFlat(idx)} style={{ padding: 6, background: 'none', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 3, cursor: 'pointer', color: 'var(--ink-faint)' }}>
                     <Trash2 size={12} />
                   </button>
                 </div>
-                <div style={{ marginTop: 6, fontSize: 10, color: '#6b5d47' }}>
+                <div style={{ marginTop: 6, fontSize: 10, color: 'var(--ink-soft)' }}>
                   <label style={{ display: 'inline-flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
                     <input type="radio" checked={flat.use === 'residential'}
                            onChange={() => updateFlat(idx, 'use', 'residential')} />
@@ -2407,23 +2991,19 @@ function InputPanel({ input, update, updateFlat, addFlat, removeFlat, showAdvanc
                   <label style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginLeft: 12, cursor: 'pointer' }}>
                     <input type="radio" checked={flat.use === 'commercial'}
                            onChange={() => updateFlat(idx, 'use', 'commercial')} />
-                    Shop / commercial
+                    Commercial
                   </label>
                 </div>
               </div>
             ))}
-            <button onClick={addFlat}
-                    style={{ width: '100%', padding: '8px', fontSize: 12, background: 'none',
-                             border: '1px dashed #d4c9b8', borderRadius: 3, cursor: 'pointer',
-                             color: '#8b3a2a', display: 'flex',
-                             alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+            <button onClick={addFlat} style={{ width: '100%', padding: '7px', fontSize: 12, background: 'none', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 3, cursor: 'pointer', color: '#C9A96E', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
               <Plus size={12} /> Add flat type
             </button>
           </div>
         ) : (
-          <div className="grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="piq-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
-              <label className="field-label">Total existing BUA (sqm)</label>
+              <label className="field-label">Total BUA (sqm)</label>
               <input type="number" className="num" value={input.totalExistingBua}
                      onChange={e => update('totalExistingBua', e.target.value)} />
             </div>
@@ -2436,39 +3016,20 @@ function InputPanel({ input, update, updateFlat, addFlat, removeFlat, showAdvanc
         )}
       </Section>
 
-      <Section title="Confirmations" topMargin>
-        <Toggle checked={input.membersOnSamePlot}
-                onChange={v => update('membersOnSamePlot', v)}
-                label="Members will be re-accommodated on the same plot"
-                sub="Required by Reg 33(7)(B)" />
-        <Toggle checked={input.gbResolution}
-                onChange={v => update('gbResolution', v)}
-                label="Society GB resolution passed (or planned)"
-                sub="Required at proposal stage" />
-        <Toggle checked={input.mixedTenancy}
-                onChange={v => update('mixedTenancy', v)}
-                label="Plot has mixed tenanted + member-owned buildings"
-                sub="If yes, Reg 33(7)(B) clause 8 requires proportional notional-plot split" />
-        <Toggle checked={input.slumOnPlot}
-                onChange={v => update('slumOnPlot', v)}
-                label="Slum encroachment on part of the plot"
-                sub="Triggers Reg 33(10) advisory — needs separate analysis" />
-      </Section>
-
-      <Section title="Cluster scheme — Reg 33(9)" topMargin>
+      {/* ── CLUSTER SCHEME ── */}
+      <Section title="Cluster scheme" topMargin moduleTag="Buildability">
         <Toggle checked={input.clusterOptIn}
                 onChange={v => update('clusterOptIn', v)}
-                label="Combine with neighbouring societies (cluster)"
-                sub={`Activates Reg 33(9). Min ${input.location === 'islandCity' ? '4,000' : '6,000'} sqm cluster area.`} />
-
+                label="Combine with neighbouring societies (Reg 33(9))"
+                sub={`Min ${input.location === 'islandCity' ? '4,000' : '6,000'} sqm total cluster area required.`} />
         {input.clusterOptIn && (
-          <div style={{ marginTop: 14, padding: 14, background: 'rgba(139, 58, 42, 0.04)', border: '1px solid #e7dfd0', borderRadius: 4 }}>
-            <div className="grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ marginTop: 14, padding: 14, background: 'rgba(201,169,110,0.06)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4 }}>
+            <div className="piq-grid-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
                 <label className="field-label">Total cluster plot (sqm)</label>
                 <input type="number" className="num" value={input.clusterPlotArea}
                        onChange={e => update('clusterPlotArea', parseFloat(e.target.value) || 0)} />
-                <div className="help-text">Aggregate of all participating society plots.</div>
+                <div className="help-text">All participating plots combined.</div>
               </div>
               <div>
                 <label className="field-label">Buildings in cluster</label>
@@ -2476,13 +3037,13 @@ function InputPanel({ input, update, updateFlat, addFlat, removeFlat, showAdvanc
                        onChange={e => update('clusterBuildings', parseInt(e.target.value) || 1)} />
               </div>
               <div>
-                <label className="field-label">Aggregate existing BUA (sqm)</label>
+                <label className="field-label">Total existing BUA (sqm)</label>
                 <input type="number" className="num" value={input.clusterExistingBua}
                        onChange={e => update('clusterExistingBua', parseFloat(e.target.value) || 0)} />
-                <div className="help-text">Sum of existing BUA across all buildings.</div>
+                <div className="help-text">Sum across all buildings.</div>
               </div>
               <div>
-                <label className="field-label">Aggregate apartments</label>
+                <label className="field-label">Total apartments</label>
                 <input type="number" className="num" value={input.clusterApartments}
                        onChange={e => update('clusterApartments', parseInt(e.target.value) || 0)} />
               </div>
@@ -2491,78 +3052,54 @@ function InputPanel({ input, update, updateFlat, addFlat, removeFlat, showAdvanc
         )}
       </Section>
 
+      {/* ── LAND & CONSTRUCTION RATES ── */}
       {showCostReport ? (
-        <Section title="Ready Reckoner (ASR) & Construction rate" topMargin>
+        <Section title="Land & construction rates" topMargin moduleTag="Feasibility">
           <div>
             <label className="field-label">Ready Reckoner land rate — FSI 1 (₹/sqm)</label>
             <input type="number" className="num" value={input.asrLandRate}
                    onChange={e => update('asrLandRate', parseFloat(e.target.value) || 0)} />
           </div>
-          <div style={{ marginTop: 14 }}>
+          <div style={{ marginTop: 12 }}>
             <label className="field-label">SDRR construction rate (₹/sqm BUA)</label>
             <input type="number" className="num" value={input.constructionRate}
                    onChange={e => update('constructionRate', parseFloat(e.target.value) || 0)} />
-            <div className="help-text" style={{ fontSize: 10.5 }}>
-              Used for Labour Welfare Cess (1%) and TDR Infrastructure Charge (5%).
-              FY 2025-26 SDRR rate: <strong>₹27,500/sqm</strong> for residential RCC.
-            </div>
+            <div className="help-text">FY 2025-26 rate: ₹27,500/sqm for residential RCC.</div>
           </div>
-          <div>
-
-          {/* IGR lookup helper */}
           {(() => {
             const wardInfo = wardDetect && wardDetect.status === 'found' ? (wardDetect.info || {}) : null;
             return (
-              <div style={{ marginTop: 12, padding: 12, background: '#f5f1ea',
-                            border: '1px solid #e7dfd0', borderRadius: 4 }}>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
-                              textTransform: 'uppercase', color: '#8b3a2a', marginBottom: 8 }}>
-                  Look up your rate
+              <div style={{ marginTop: 12, padding: 12, background: '#16191F', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4 }}>
+                <div style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#C9A96E', marginBottom: 8 }}>
+                  Look up your ASR rate
                 </div>
-
                 {wardInfo ? (
-                  <div style={{ fontSize: 11.5, color: '#3d3528', lineHeight: 1.7, marginBottom: 10 }}>
-                    For <strong>Ward {wardDetect.ward}</strong> ({wardInfo.localities}):
+                  <div style={{ fontSize: 11.5, color: 'var(--ink-soft)', lineHeight: 1.7, marginBottom: 10 }}>
+                    For <strong>Ward {wardDetect.ward}</strong>:
                     <ol style={{ margin: '6px 0 0 18px', padding: 0 }}>
-                      <li>Click the button below — IGR ASR portal opens in a new tab</li>
-                      <li>Select District: <strong>{wardInfo.igrDistrict}</strong></li>
-                      <li>Select Taluka: <strong>{wardInfo.igrTaluka}</strong></li>
-                      <li>Pick the village/locality matching your plot</li>
-                      <li>Read the <strong>"Open Land" / Residential FSI&nbsp;1</strong> rate and enter above</li>
+                      <li>Click below — IGR ASR portal opens in a new tab</li>
+                      <li>District: <strong>{wardInfo.igrDistrict}</strong> · Taluka: <strong>{wardInfo.igrTaluka}</strong></li>
+                      <li>Pick your village/locality → read "Open Land" / Residential FSI 1 rate</li>
                     </ol>
                   </div>
                 ) : (
-                  <div style={{ fontSize: 11.5, color: '#3d3528', lineHeight: 1.65, marginBottom: 10 }}>
-                    Use the <strong>Locate your plot</strong> panel at the top to auto-identify your ward, then return here for tailored lookup steps. Or open the IGR portal directly:
+                  <div style={{ fontSize: 11.5, color: 'var(--ink-soft)', lineHeight: 1.65, marginBottom: 10 }}>
+                    Detect your ward first (top panel) for tailored lookup steps.
                   </div>
                 )}
-
                 <a href="https://efilingigr.maharashtra.gov.in/ePASR/"
                    target="_blank" rel="noopener noreferrer"
-                   style={{ display: 'inline-flex', alignItems: 'center', gap: 6,
-                            padding: '8px 14px', background: '#8b3a2a', color: '#fffefb',
-                            fontSize: 12, fontWeight: 600, borderRadius: 3, textDecoration: 'none',
-                            border: 'none' }}>
+                   style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 12px', background: '#C9A96E', color: '#0D0F14', fontSize: 11.5, fontWeight: 600, borderRadius: 3, textDecoration: 'none' }}>
                   Open IGR ASR portal ↗
                 </a>
-                <div style={{ marginTop: 8, fontSize: 10.5, color: '#6b5d47', lineHeight: 1.55 }}>
-                  Used to estimate premium FSI payable and fungible charges. The ASR is the official basis used by MCGM for these calculations.
-                </div>
               </div>
             );
           })()}
-        </div>
-      </Section>
-      ) : (
-        <Section title="Ready Reckoner (ASR) & Construction rate" topMargin>
-          <div style={{ fontSize: 12, color: '#6b5d47', lineHeight: 1.6 }}>
-            These fields are only required when you choose a Costs & Parking report. Keep this section hidden unless you need premium, construction, or parking costing in the same assessment.
-          </div>
         </Section>
-      )}
-
-      {showAdvanced && (
-        <div style={{ display: 'none' }} />
+      ) : (
+        <div style={{ marginTop: 20, padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 4, fontSize: 11.5, color: 'rgba(255,255,255,0.3)', lineHeight: 1.6 }}>
+          Switch to "Costs &amp; parking" or "Full advisory" above to unlock land rates and feasibility inputs.
+        </div>
       )}
     </div>
   );
@@ -2580,21 +3117,21 @@ function SchemePicker({ schemes, activeSchemeId, primarySchemeId, onSelect, inpu
 
   return (
     <div style={{
-      background: '#fffefb',
-      border: '1px solid #d4c9b8',
+      background: '#13161D',
+      border: '1px solid rgba(255,255,255,0.07)',
       borderRadius: 6,
       padding: 24,
       marginBottom: 28,
     }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap', marginBottom: 16 }}>
         <div style={{ flex: 1, minWidth: 280 }}>
-          <div style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#8b3a2a', fontWeight: 600, marginBottom: 6 }}>
+          <div style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#C9A96E', fontWeight: 600, marginBottom: 6 }}>
             {isOverride ? 'Manually selected scheme' : 'Auto-detected applicable scheme'}
           </div>
-          <h3 className="serif" style={{ fontSize: 24, fontWeight: 600, margin: 0, color: '#1a1815', letterSpacing: '-0.01em' }}>
+          <h3 className="serif" style={{ fontSize: 24, fontWeight: 600, margin: 0, color: 'var(--ink)', letterSpacing: '-0.01em' }}>
             {activeMeta?.code} — {activeMeta?.name}
           </h3>
-          <p style={{ fontSize: 13, color: '#3d3528', marginTop: 6, lineHeight: 1.5, margin: '6px 0 0' }}>{activeMeta?.desc}</p>
+          <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 6, lineHeight: 1.5, margin: '6px 0 0' }}>{activeMeta?.desc}</p>
         </div>
         <div style={{ minWidth: 220 }}>
           <label className="field-label">Switch scheme</label>
@@ -2613,8 +3150,8 @@ function SchemePicker({ schemes, activeSchemeId, primarySchemeId, onSelect, inpu
       </div>
 
       {/* Eligibility trace — Why this scheme? Always visible. */}
-      <div style={{ marginTop: 8, paddingTop: 16, borderTop: '1px solid #f0e9dd' }}>
-        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#6b5d47', marginBottom: 10 }}>
+      <div style={{ marginTop: 8, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ink-soft)', marginBottom: 10 }}>
           Why this scheme?
         </div>
         <div style={{ display: 'grid', gap: 12 }}>
@@ -2625,30 +3162,30 @@ function SchemePicker({ schemes, activeSchemeId, primarySchemeId, onSelect, inpu
             return (
               <div key={s.id} style={{
                 padding: 12,
-                background: isActive ? 'rgba(139, 58, 42, 0.05)' : 'transparent',
-                border: `1px solid ${isActive ? '#8b3a2a' : '#e7dfd0'}`,
+                background: isActive ? 'rgba(201,169,110,0.08)' : 'transparent',
+                border: `1px solid ${isActive ? '#C9A96E' : 'rgba(255,255,255,0.07)'}`,
                 borderRadius: 4,
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 6 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div className="num" style={{ fontSize: 11, fontWeight: 700, color: '#8b3a2a', letterSpacing: '0.04em' }}>
+                    <div className="num" style={{ fontSize: 11, fontWeight: 700, color: '#C9A96E', letterSpacing: '0.04em' }}>
                       {meta?.code}
                     </div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1815' }}>{meta?.short}</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{meta?.short}</div>
                     {isPrimary && (
-                      <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 100, letterSpacing: '0.08em', background: '#8b3a2a', color: 'white' }}>RECOMMENDED</span>
+                      <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 100, letterSpacing: '0.08em', background: '#C9A96E', color: 'white' }}>RECOMMENDED</span>
                     )}
                     {!isPrimary && s.eligible && (
                       <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 100, letterSpacing: '0.08em', background: 'rgba(90, 122, 79, 0.15)', color: '#3d5a4d' }}>ELIGIBLE</span>
                     )}
                     {!s.eligible && (
-                      <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 100, letterSpacing: '0.08em', background: 'rgba(168, 156, 135, 0.2)', color: '#6b5d47' }}>NOT ELIGIBLE</span>
+                      <span style={{ fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 100, letterSpacing: '0.08em', background: 'rgba(168, 156, 135, 0.2)', color: 'var(--ink-soft)' }}>NOT ELIGIBLE</span>
                     )}
                   </div>
                 </div>
                 <div style={{ display: 'grid', gap: 3, marginLeft: 8 }}>
                   {s.gates.map((g, gi) => (
-                    <div key={gi} style={{ display: 'flex', gap: 8, fontSize: 12, color: g.ok ? '#3d3528' : '#6b5d47' }}>
+                    <div key={gi} style={{ display: 'flex', gap: 8, fontSize: 12, color: g.ok ? 'var(--ink)' : 'var(--ink-soft)' }}>
                       <span style={{ color: g.ok ? '#5a7a4f' : '#a4493a', flexShrink: 0, fontWeight: 700, marginTop: 1 }}>
                         {g.ok ? '✓' : '✗'}
                       </span>
@@ -2671,8 +3208,8 @@ function SchemePicker({ schemes, activeSchemeId, primarySchemeId, onSelect, inpu
 // ============================================================================
 function EligibilityPanel({ eligibility, input }) {
   return (
-    <div style={{ background: eligibility.eligible ? '#f0f5ee' : '#fbeeea',
-                  border: `1px solid ${eligibility.eligible ? '#a8c2a0' : '#d8a59a'}`,
+    <div style={{ background: eligibility.eligible ? 'rgba(74,140,102,0.08)' : 'rgba(164,73,58,0.08)',
+                  border: `1px solid ${eligibility.eligible ? 'rgba(74,140,102,0.35)' : 'rgba(164,73,58,0.35)'}`,
                   borderRadius: 6, padding: 28, marginBottom: 28 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
         <div style={{ width: 44, height: 44, borderRadius: '50%',
@@ -2686,7 +3223,7 @@ function EligibilityPanel({ eligibility, input }) {
             {eligibility.eligible ? 'Eligible for redevelopment' : 'Not yet eligible — see issues below'}
           </div>
           <h2 className="serif" style={{ fontSize: 26, fontWeight: 600, margin: '4px 0 0 0',
-                                          color: '#1a1815', lineHeight: 1.2 }}>
+                                          color: 'var(--ink)', lineHeight: 1.2 }}>
             {eligibility.eligible
               ? `${input.societyName || 'Your society'} qualifies under Reg 33(7)(B)`
               : `${input.societyName || 'Your society'} cannot use Reg 33(7)(B) yet`}
@@ -2696,18 +3233,18 @@ function EligibilityPanel({ eligibility, input }) {
 
       {eligibility.passed.length > 0 && (
         <div style={{ marginTop: 20, paddingTop: 20,
-                      borderTop: `1px solid ${eligibility.eligible ? '#cdd9c6' : '#e8d4ce'}` }}>
+                      borderTop: '1px solid rgba(255,255,255,0.07)' }}>
           <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em',
                         textTransform: 'uppercase', color: '#5a7a4f', marginBottom: 10 }}>
             What's working
           </div>
           <div style={{ display: 'grid', gap: 6 }}>
             {eligibility.passed.map((p, i) => (
-              <div key={i} style={{ display: 'flex', gap: 10, fontSize: 13, color: '#3d3528' }}>
+              <div key={i} style={{ display: 'flex', gap: 10, fontSize: 13, color: 'var(--ink-soft)' }}>
                 <Check size={14} color="#5a7a4f" style={{ flexShrink: 0, marginTop: 2 }} />
                 <div>
                   {p.title}
-                  <span className="num" style={{ marginLeft: 6, fontSize: 10, color: '#6b5d47' }}>[{p.ref}]</span>
+                  <span className="num" style={{ marginLeft: 6, fontSize: 10, color: 'var(--ink-soft)' }}>[{p.ref}]</span>
                 </div>
               </div>
             ))}
@@ -2717,27 +3254,27 @@ function EligibilityPanel({ eligibility, input }) {
 
       {eligibility.issues.length > 0 && (
         <div style={{ marginTop: 20, paddingTop: 20,
-                      borderTop: `1px solid ${eligibility.eligible ? '#cdd9c6' : '#e8d4ce'}` }}>
+                      borderTop: '1px solid rgba(255,255,255,0.07)' }}>
           <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em',
                         textTransform: 'uppercase', color: '#a4493a', marginBottom: 10 }}>
             Issues to address
           </div>
           <div style={{ display: 'grid', gap: 12 }}>
             {eligibility.issues.map((iss, i) => (
-              <div key={i} style={{ padding: 14, background: 'rgba(255,255,255,0.6)',
-                                    border: `1px solid ${iss.level === 'fail' ? '#d8a59a' : '#e0c89a'}`,
-                                    borderLeft: `3px solid ${iss.level === 'fail' ? '#a4493a' : '#c08c30'}`,
+              <div key={i} style={{ padding: 14, background: 'rgba(255,255,255,0.03)',
+                                    border: `1px solid ${iss.level === 'fail' ? 'rgba(164,73,58,0.3)' : 'rgba(201,169,110,0.3)'}`,
+                                    borderLeft: `3px solid ${iss.level === 'fail' ? '#a4493a' : '#C9A96E'}`,
                                     borderRadius: 3 }}>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                   {iss.level === 'fail'
                     ? <X size={14} color="#a4493a" style={{ flexShrink: 0, marginTop: 3 }} />
-                    : <AlertTriangle size={14} color="#c08c30" style={{ flexShrink: 0, marginTop: 3 }} />}
+                    : <AlertTriangle size={14} color="#C9A96E" style={{ flexShrink: 0, marginTop: 3 }} />}
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1815' }}>{iss.title}</div>
-                    <div style={{ fontSize: 12.5, color: '#3d3528', marginTop: 6, lineHeight: 1.55 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{iss.title}</div>
+                    <div style={{ fontSize: 12.5, color: 'var(--ink-soft)', marginTop: 6, lineHeight: 1.55 }}>
                       {iss.detail}
                     </div>
-                    <div className="num" style={{ fontSize: 10, color: '#6b5d47',
+                    <div className="num" style={{ fontSize: 10, color: 'var(--ink-soft)',
                                                   marginTop: 8, letterSpacing: '0.04em' }}>[{iss.ref}]</div>
                   </div>
                 </div>
@@ -2767,8 +3304,8 @@ function InteractiveResult({ result, input, update, schemeId }) {
     ? (r.memberSideRehabBua / r.permissibleBua) * 100 : 0;
   const salePct = 100 - rehabPct;
 
-  const viabilityColour = r.viabilityRating === 'marginal' ? '#c08c30'
-    : r.viabilityRating === 'viable' ? '#8b3a2a' : '#3d5a4d';
+  const viabilityColour = r.viabilityRating === 'marginal' ? '#C9A96E'
+    : r.viabilityRating === 'viable' ? '#C9A96E' : '#3d5a4d';
 
   return (
     <div style={{ marginBottom: 32 }}>
@@ -2779,14 +3316,14 @@ function InteractiveResult({ result, input, update, schemeId }) {
       {/* 3-stat card row */}
       <div className="stat-grid">
         <div className="stat-card stat-card-accent">
-          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#8b3a2a', marginBottom: 6 }}>Total permissible</div>
-          <div className="num serif" style={{ fontSize: 36, fontWeight: 700, color: '#1a1815', lineHeight: 1, letterSpacing: '-0.02em' }}>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#C9A96E', marginBottom: 6 }}>Total permissible</div>
+          <div className="num serif" style={{ fontSize: 36, fontWeight: 700, color: 'var(--ink)', lineHeight: 1, letterSpacing: '-0.02em' }}>
             {fmt(r.permissibleBua)}
           </div>
-          <div className="num" style={{ fontSize: 12, color: '#6b5d47', marginTop: 4 }}>sqm · {fmtSqft(r.permissibleBua)} sqft</div>
-          <div className="num" style={{ fontSize: 11, color: '#a89c87', marginTop: 3 }}>FSI {r.effFsi.toFixed(2)} effective</div>
+          <div className="num" style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 4 }}>sqm · {fmtSqft(r.permissibleBua)} sqft</div>
+          <div className="num" style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 3 }}>FSI {r.effFsi.toFixed(2)} effective</div>
           {!isFullyLoaded && (
-            <div style={{ marginTop: 8, fontSize: 10.5, color: '#c08c30', background: 'rgba(192,140,48,0.08)', padding: '4px 8px', borderRadius: 3 }}>
+            <div style={{ marginTop: 8, fontSize: 10.5, color: '#C9A96E', background: 'rgba(192,140,48,0.08)', padding: '4px 8px', borderRadius: 3 }}>
               Max: {fmt(r.permissibleBuaMax)} sqm ({utilisationPct.toFixed(0)}% loaded)
             </div>
           )}
@@ -2794,26 +3331,26 @@ function InteractiveResult({ result, input, update, schemeId }) {
 
         <div className="stat-card">
           <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#3d5a4d', marginBottom: 6 }}>Rehab → members</div>
-          <div className="num serif" style={{ fontSize: 36, fontWeight: 700, color: '#1a1815', lineHeight: 1, letterSpacing: '-0.02em' }}>
+          <div className="num serif" style={{ fontSize: 36, fontWeight: 700, color: 'var(--ink)', lineHeight: 1, letterSpacing: '-0.02em' }}>
             {fmt(r.memberSideRehabBua)}
           </div>
-          <div className="num" style={{ fontSize: 12, color: '#6b5d47', marginTop: 4 }}>sqm · {fmtSqft(r.memberSideRehabBua)} sqft</div>
-          <div className="num" style={{ fontSize: 11, color: '#a89c87', marginTop: 3 }}>{rehabPct.toFixed(0)}% of total</div>
+          <div className="num" style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 4 }}>sqm · {fmtSqft(r.memberSideRehabBua)} sqft</div>
+          <div className="num" style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 3 }}>{rehabPct.toFixed(0)}% of total</div>
         </div>
 
         <div className="stat-card">
-          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#6b5d47', marginBottom: 6 }}>Sale → developer</div>
-          <div className="num serif" style={{ fontSize: 36, fontWeight: 700, color: '#8b3a2a', lineHeight: 1, letterSpacing: '-0.02em' }}>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ink-soft)', marginBottom: 6 }}>Sale → developer</div>
+          <div className="num serif" style={{ fontSize: 36, fontWeight: 700, color: '#C9A96E', lineHeight: 1, letterSpacing: '-0.02em' }}>
             {fmt(r.saleBua)}
           </div>
-          <div className="num" style={{ fontSize: 12, color: '#6b5d47', marginTop: 4 }}>sqm · {fmtSqft(r.saleBua)} sqft</div>
-          <div className="num" style={{ fontSize: 11, color: '#a89c87', marginTop: 3 }}>Ratio {r.viabilityRatio.toFixed(2)} sale : rehab</div>
+          <div className="num" style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 4 }}>sqm · {fmtSqft(r.saleBua)} sqft</div>
+          <div className="num" style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 3 }}>Ratio {r.viabilityRatio.toFixed(2)} sale : rehab</div>
         </div>
       </div>
 
       {/* BUA split bar */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#6b5d47', marginBottom: 5, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--ink-soft)', marginBottom: 5, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
           <span>◼ Members ({rehabPct.toFixed(0)}%)</span>
           <span>◼ Developer ({salePct.toFixed(0)}%)</span>
         </div>
@@ -2825,24 +3362,24 @@ function InteractiveResult({ result, input, update, schemeId }) {
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 5, fontSize: 10.5 }}>
           <span className="num" style={{ color: '#3d5a4d', fontWeight: 600 }}>{fmt(r.memberSideRehabBua)} sqm</span>
-          <span className="num" style={{ color: '#8b3a2a', fontWeight: 600 }}>{fmt(r.saleBua)} sqm</span>
+          <span className="num" style={{ color: '#C9A96E', fontWeight: 600 }}>{fmt(r.saleBua)} sqm</span>
         </div>
       </div>
 
       {/* Viability + governing path */}
-      <div style={{ background: '#fffefb', border: '1px solid #e7dfd0', borderRadius: 6, padding: 20, marginBottom: 16 }}>
+      <div style={{ background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 6, padding: 20, marginBottom: 16 }}>
         <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: schemeId === 'reg33_7B' ? 14 : 0 }}>
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: viabilityColour, marginTop: 6, flexShrink: 0 }} />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: viabilityColour }}>
               {r.viabilityRating}
             </div>
-            <div style={{ fontSize: 13, color: '#1a1815', marginTop: 3, lineHeight: 1.55 }}>{r.viabilityNote}</div>
+            <div style={{ fontSize: 13, color: 'var(--ink)', marginTop: 3, lineHeight: 1.55 }}>{r.viabilityNote}</div>
           </div>
         </div>
         {schemeId === 'reg33_7B' && (
-          <div style={{ paddingTop: 12, borderTop: '1px solid #f0e9dd', fontSize: 11.5, color: '#6b5d47', lineHeight: 1.6 }}>
-            <strong style={{ color: '#1a1815' }}>Governing path:</strong>{' '}
+          <div style={{ paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.07)', fontSize: 11.5, color: 'var(--ink-soft)', lineHeight: 1.6 }}>
+            <strong style={{ color: 'var(--ink)' }}>Governing path:</strong>{' '}
             {r.rehabPathGoverns
               ? `Rehab + Incentive (${fmt(r.rehabBasePath)} sqm) exceeds Reg 30 ceiling at current loadings.`
               : `Reg 30 ceiling (${fmt(r.reg30PathLoaded)} sqm) governs. Incentive of ${fmt(r.incentiveBua)} sqm is absorbed within this.`}
@@ -2851,24 +3388,24 @@ function InteractiveResult({ result, input, update, schemeId }) {
       </div>
 
       {/* Loading controls */}
-      <div style={{ background: '#fafaf5', border: '1px solid #e7dfd0', borderRadius: 6, padding: '14px 18px' }}>
+      <div style={{ background: '#111318', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 6, padding: '14px 18px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
-          <div style={{ fontSize: 11, color: '#6b5d47', lineHeight: 1.5 }}>
+          <div style={{ fontSize: 11, color: 'var(--ink-soft)', lineHeight: 1.5 }}>
             Adjust <strong>Premium FSI</strong>, <strong>TDR</strong> and <strong>Fungible</strong> sliders in the
-            {' '}<button onClick={() => {}} style={{ background: 'none', border: 'none', padding: 0, color: '#8b3a2a', fontWeight: 600, cursor: 'default', fontSize: 11 }}>Area Statement</button> tab.
+            {' '}<button onClick={() => {}} style={{ background: 'none', border: 'none', padding: 0, color: '#C9A96E', fontWeight: 600, cursor: 'default', fontSize: 11 }}>Area Statement</button> tab.
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <button onClick={() => { update('premiumFsiLoad', 1); update('tdrLoad', 1); update('fungibleLoad', 1); }}
-              style={{ padding: '6px 12px', fontSize: 11, fontWeight: 600, background: '#1a1815', color: '#f5f1ea', border: 'none', borderRadius: 4, cursor: 'pointer' }}>
+              style={{ padding: '6px 12px', fontSize: 11, fontWeight: 600, background: 'rgba(255,255,255,0.06)', color: 'var(--ink)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 4, cursor: 'pointer' }}>
               Reset max
             </button>
             <button onClick={() => { update('premiumFsiLoad', 0); update('tdrLoad', 0); update('fungibleLoad', 1); }}
-              style={{ padding: '6px 12px', fontSize: 11, fontWeight: 600, background: 'transparent', color: '#8b3a2a', border: '1px solid #8b3a2a', borderRadius: 4, cursor: 'pointer' }}>
+              style={{ padding: '6px 12px', fontSize: 11, fontWeight: 600, background: 'transparent', color: '#C9A96E', border: '1px solid rgba(201,169,110,0.35)', borderRadius: 4, cursor: 'pointer' }}>
               Basic only
             </button>
             {r.premiumPayable > 0 && (
-              <div style={{ fontSize: 11.5, color: '#6b5d47', alignSelf: 'center' }}>
-                Premium: <span className="num" style={{ fontWeight: 700, color: '#8b3a2a' }}>{fmtCurrency(r.premiumPayable)}</span>
+              <div style={{ fontSize: 11.5, color: 'var(--ink-soft)', alignSelf: 'center' }}>
+                Premium: <span className="num" style={{ fontWeight: 700, color: '#C9A96E' }}>{fmtCurrency(r.premiumPayable)}</span>
               </div>
             )}
           </div>
@@ -2883,21 +3420,21 @@ function InteractiveResult({ result, input, update, schemeId }) {
 function LoadingSlider({ label, ref_text, value, onChange, availableSqm, loadedSqm, disabled, disabledReason }) {
   const pct = Math.round((value ?? 1) * 100);
   return (
-    <div style={{ padding: '12px 0', borderBottom: '1px solid #f5efe2', opacity: disabled ? 0.5 : 1 }}>
+    <div style={{ padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.07)', opacity: disabled ? 0.5 : 1 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, gap: 12 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1815' }}>{label}</div>
-          <div style={{ fontSize: 11, color: '#6b5d47', marginTop: 2 }}>{ref_text}</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{label}</div>
+          <div style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 2 }}>{ref_text}</div>
         </div>
         <div style={{ textAlign: 'right', minWidth: 160 }}>
           {disabled ? (
-            <div style={{ fontSize: 11, color: '#a89c87', fontStyle: 'italic' }}>{disabledReason}</div>
+            <div style={{ fontSize: 11, color: 'var(--ink-faint)', fontStyle: 'italic' }}>{disabledReason}</div>
           ) : (
             <>
-              <div className="num" style={{ fontSize: 14, fontWeight: 700, color: '#8b3a2a' }}>
-                {fmt(loadedSqm)} <span style={{ fontSize: 11, fontWeight: 500, color: '#6b5d47' }}>/ {fmt(availableSqm)} sqm</span>
+              <div className="num" style={{ fontSize: 14, fontWeight: 700, color: '#C9A96E' }}>
+                {fmt(loadedSqm)} <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--ink-soft)' }}>/ {fmt(availableSqm)} sqm</span>
               </div>
-              <div className="num" style={{ fontSize: 11, color: '#6b5d47', marginTop: 1 }}>{pct}% loaded</div>
+              <div className="num" style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 1 }}>{pct}% loaded</div>
             </>
           )}
         </div>
@@ -2908,7 +3445,7 @@ function LoadingSlider({ label, ref_text, value, onChange, availableSqm, loadedS
           min="0" max="1" step="0.01"
           value={value ?? 1}
           onChange={e => onChange(parseFloat(e.target.value))}
-          style={{ width: '100%', accentColor: '#8b3a2a', cursor: 'pointer' }}
+          style={{ width: '100%', accentColor: '#C9A96E', cursor: 'pointer' }}
         />
       )}
     </div>
@@ -2969,32 +3506,32 @@ function CompareOffer({ result, input, update }) {
       </SectionTitle>
 
       {/* Upload */}
-      <div style={{ background: '#fffefb', border: '1px solid #e7dfd0', borderRadius: 6, padding: 22, marginBottom: 18 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8b3a2a', marginBottom: 10 }}>
+      <div style={{ background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 6, padding: 22, marginBottom: 18 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#C9A96E', marginBottom: 10 }}>
           1. Upload developer offer (optional)
         </div>
-        <label style={{ display: 'inline-block', padding: '10px 18px', background: '#8b3a2a', color: '#fffefb',
+        <label style={{ display: 'inline-block', padding: '10px 18px', background: '#C9A96E', color: '#0D0F14',
                         fontSize: 12, fontWeight: 600, borderRadius: 3, cursor: 'pointer' }}>
           Choose file
           <input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={handleFile} style={{ display: 'none' }} />
         </label>
         {input.devOfferFileName && (
-          <span style={{ marginLeft: 14, fontSize: 12, color: '#3d3528' }}>
+          <span style={{ marginLeft: 14, fontSize: 12, color: 'var(--ink-soft)' }}>
             📄 {input.devOfferFileName} <button onClick={() => update('devOfferFileName', '')}
               style={{ marginLeft: 8, padding: '2px 8px', fontSize: 10, background: 'transparent',
-                       color: '#a4493a', border: '1px solid #d4c9b8', borderRadius: 3, cursor: 'pointer' }}>
+                       color: '#a4493a', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 3, cursor: 'pointer' }}>
               Remove
             </button>
           </span>
         )}
-        <div style={{ marginTop: 8, fontSize: 11, color: '#6b5d47' }}>
+        <div style={{ marginTop: 8, fontSize: 11, color: 'var(--ink-soft)' }}>
           Stored only in your browser. Not uploaded anywhere. We don't read its contents — type the numbers below.
         </div>
       </div>
 
       {/* Inputs */}
-      <div style={{ background: '#fffefb', border: '1px solid #e7dfd0', borderRadius: 6, padding: 22, marginBottom: 18 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8b3a2a', marginBottom: 14 }}>
+      <div style={{ background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 6, padding: 22, marginBottom: 18 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#C9A96E', marginBottom: 14 }}>
           2. What the developer is proposing (sqft carpet)
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }} className="grid-2">
@@ -3019,27 +3556,27 @@ function CompareOffer({ result, input, update }) {
 
       {/* Comparison */}
       {(devRehab > 0 || devSale > 0) ? (
-        <div style={{ background: '#fffefb', border: '1px solid #e7dfd0', borderRadius: 6, padding: 28 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8b3a2a', marginBottom: 18 }}>
+        <div style={{ background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 6, padding: 28 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#C9A96E', marginBottom: 18 }}>
             3. Side-by-side comparison
           </div>
 
           {/* Rehab block */}
-          <div style={{ padding: 18, background: '#fafaf5', borderRadius: 4, borderLeft: `4px solid ${tone(rehabVerdict)}`, marginBottom: 14 }}>
+          <div style={{ padding: 18, background: '#111318', borderRadius: 4, borderLeft: `4px solid ${tone(rehabVerdict)}`, marginBottom: 14 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1815' }}>Rehab area to society members</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>Rehab area to society members</div>
               <Pill kind={rehabVerdict} />
             </div>
             <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
               <tbody>
-                <tr><td style={{ padding: '6px 0', color: '#6b5d47' }}>Your existing carpet area</td>
+                <tr><td style={{ padding: '6px 0', color: 'var(--ink-soft)' }}>Your existing carpet area</td>
                     <td style={{ padding: '6px 0', textAlign: 'right', fontWeight: 600 }} className="num">{fmt(existingCarpetSqft)} sqft</td></tr>
-                <tr><td style={{ padding: '6px 0', color: '#6b5d47' }}>Developer offers as rehab</td>
+                <tr><td style={{ padding: '6px 0', color: 'var(--ink-soft)' }}>Developer offers as rehab</td>
                     <td style={{ padding: '6px 0', textAlign: 'right', fontWeight: 600 }} className="num">{fmt(devRehab)} sqft</td></tr>
-                <tr style={{ borderTop: '1px solid #e7dfd0' }}>
-                    <td style={{ padding: '6px 0', color: '#6b5d47' }}>Regulatory entitlement (incentive share applied)</td>
-                    <td style={{ padding: '6px 0', textAlign: 'right', fontWeight: 700, color: '#8b3a2a' }} className="num">{fmt(regRehabCarpetSqft)} sqft</td></tr>
-                <tr style={{ borderTop: '1px solid #e7dfd0' }}>
+                <tr style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+                    <td style={{ padding: '6px 0', color: 'var(--ink-soft)' }}>Regulatory entitlement (incentive share applied)</td>
+                    <td style={{ padding: '6px 0', textAlign: 'right', fontWeight: 700, color: '#C9A96E' }} className="num">{fmt(regRehabCarpetSqft)} sqft</td></tr>
+                <tr style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
                     <td style={{ padding: '8px 0 0', color: tone(rehabVerdict), fontWeight: 600 }}>
                       {rehabDelta >= 0 ? 'Above entitlement by' : 'Shortfall vs entitlement'}
                     </td>
@@ -3051,18 +3588,18 @@ function CompareOffer({ result, input, update }) {
           </div>
 
           {/* Sale block */}
-          <div style={{ padding: 18, background: '#fafaf5', borderRadius: 4, borderLeft: `4px solid ${tone(saleVerdict)}`, marginBottom: 14 }}>
+          <div style={{ padding: 18, background: '#111318', borderRadius: 4, borderLeft: `4px solid ${tone(saleVerdict)}`, marginBottom: 14 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1815' }}>Sale area to developer</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>Sale area to developer</div>
               <Pill kind={saleVerdict} />
             </div>
             <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
               <tbody>
-                <tr><td style={{ padding: '6px 0', color: '#6b5d47' }}>Developer claims as sale</td>
+                <tr><td style={{ padding: '6px 0', color: 'var(--ink-soft)' }}>Developer claims as sale</td>
                     <td style={{ padding: '6px 0', textAlign: 'right', fontWeight: 600 }} className="num">{fmt(devSale)} sqft</td></tr>
-                <tr><td style={{ padding: '6px 0', color: '#6b5d47' }}>Regulatory max sale (after rehab obligation)</td>
-                    <td style={{ padding: '6px 0', textAlign: 'right', fontWeight: 700, color: '#8b3a2a' }} className="num">{fmt(regSaleCarpetSqft)} sqft</td></tr>
-                <tr style={{ borderTop: '1px solid #e7dfd0' }}>
+                <tr><td style={{ padding: '6px 0', color: 'var(--ink-soft)' }}>Regulatory max sale (after rehab obligation)</td>
+                    <td style={{ padding: '6px 0', textAlign: 'right', fontWeight: 700, color: '#C9A96E' }} className="num">{fmt(regSaleCarpetSqft)} sqft</td></tr>
+                <tr style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
                     <td style={{ padding: '8px 0 0', color: tone(saleVerdict), fontWeight: 600 }}>
                       {saleDelta > 0 ? 'Exceeds regulatory max by' : 'Within regulatory max — surplus available'}
                     </td>
@@ -3074,7 +3611,7 @@ function CompareOffer({ result, input, update }) {
           </div>
 
           {/* Verdict */}
-          <div style={{ marginTop: 18, padding: 16, background: 'rgba(139,58,42,0.05)', borderLeft: '3px solid #8b3a2a', borderRadius: 3, fontSize: 13, color: '#3d3528', lineHeight: 1.7 }}>
+          <div style={{ marginTop: 18, padding: 16, background: 'rgba(201,169,110,0.08)', borderLeft: '3px solid #C9A96E', borderRadius: 3, fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.7 }}>
             <strong>Plain-English verdict.&nbsp;</strong>
             {rehabVerdict === 'ok' && saleVerdict === 'ok' &&
               "Developer's offer broadly matches what the regulation permits. Negotiate on corpus, transit rent, and timelines."}
@@ -3088,7 +3625,7 @@ function CompareOffer({ result, input, update }) {
           </div>
         </div>
       ) : (
-        <div style={{ padding: 28, textAlign: 'center', background: '#fafaf5', border: '1px dashed #d4c9b8', borderRadius: 6, color: '#6b5d47', fontSize: 13 }}>
+        <div style={{ padding: 28, textAlign: 'center', background: '#111318', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 6, color: 'var(--ink-soft)', fontSize: 13 }}>
           Enter the rehab and sale areas from your developer's offer above to see the comparison.
         </div>
       )}
@@ -3333,26 +3870,26 @@ function AreaStatement({ result, input, update }) {
 
       {verifyMode && (
         <div className="no-print" style={{ marginBottom: 12, padding: '10px 14px',
-                                            background: '#fff8e6', border: '1px solid #d4b75a',
-                                            borderRadius: 4, fontSize: 12, color: '#5a4a1a',
+                                            background: 'rgba(201,169,110,0.08)', border: '1px solid rgba(201,169,110,0.3)',
+                                            borderRadius: 4, fontSize: 12, color: '#C9A96E',
                                             display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span>
             <strong>Verification mode active.</strong> Type expected values from your approved area statement into the Expected column.
             Δ% &gt; 1.0 will flag in red. Values persist in localStorage.
           </span>
           <button onClick={clearVerifyStore}
-                  style={{ padding: '4px 10px', fontSize: 11, background: '#fffefb',
-                           border: '1px solid #d4b75a', borderRadius: 3, cursor: 'pointer',
-                           color: '#5a4a1a' }}>
+                  style={{ padding: '4px 10px', fontSize: 11, background: '#13161D',
+                           border: '1px solid rgba(201,169,110,0.3)', borderRadius: 3, cursor: 'pointer',
+                           color: '#C9A96E' }}>
             Clear all
           </button>
         </div>
       )}
 
-      <div style={{ background: '#fffefb', border: '1px solid #e7dfd0', borderRadius: 4, overflow: 'hidden' }}>
+      <div style={{ background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
-            <tr style={{ background: '#f0e9dd', borderBottom: '1px solid #e7dfd0' }}>
+            <tr style={{ background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
               <th style={th}>#</th>
               <th style={{ ...th, textAlign: 'left' }}>Item</th>
               <th style={{ ...th, textAlign: 'right' }}>Value</th>
@@ -3367,10 +3904,10 @@ function AreaStatement({ result, input, update }) {
               const colCount = verifyMode ? 7 : 5;
               if (row.isHeader) {
                 return (
-                  <tr key={i} style={{ background: 'rgba(139, 58, 42, 0.06)' }}>
+                  <tr key={i} style={{ background: 'rgba(201,169,110,0.08)' }}>
                     <td colSpan={colCount} style={{ padding: '10px 18px', fontSize: 11,
                                              letterSpacing: '0.12em', textTransform: 'uppercase',
-                                             color: '#8b3a2a', fontWeight: 700 }}>
+                                             color: '#C9A96E', fontWeight: 700 }}>
                       {row.section} — {row.label}
                     </td>
                   </tr>
@@ -3381,21 +3918,21 @@ function AreaStatement({ result, input, update }) {
                 const pct = Math.round(currentVal * 100);
                 const loadedSqm = (row.availableSqm || 0) * currentVal;
                 return (
-                  <tr key={i} className="no-print" style={{ borderBottom: '1px solid #f5efe2',
+                  <tr key={i} className="no-print" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)',
                                        background: 'rgba(192, 140, 48, 0.04)' }}>
-                    <td style={{ ...td, color: '#a89c87', fontSize: 10 }} className="num">{i + 1}</td>
+                    <td style={{ ...td, color: 'var(--ink-faint)', fontSize: 10 }} className="num">{i + 1}</td>
                     <td style={{ ...td }}>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: '#8b3a2a', display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', background: '#8b3a2a', color: '#fffefb', padding: '2px 6px', borderRadius: 2 }}>SLIDER</span>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#C9A96E', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', background: '#C9A96E', color: '#0D0F14', padding: '2px 6px', borderRadius: 2 }}>SLIDER</span>
                         {row.label}
                       </div>
                       {row.sublabel && (
-                        <div style={{ fontSize: 11, color: '#6b5d47', marginTop: 3 }}>{row.sublabel}</div>
+                        <div style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 3 }}>{row.sublabel}</div>
                       )}
                     </td>
                     <td colSpan={verifyMode ? 5 : 3} style={{ ...td, paddingTop: 10, paddingBottom: 10 }}>
                       {row.disabled ? (
-                        <div style={{ fontSize: 11, color: '#a89c87', fontStyle: 'italic' }}>
+                        <div style={{ fontSize: 11, color: 'var(--ink-faint)', fontStyle: 'italic' }}>
                           {row.disabledReason || 'Not available'}
                         </div>
                       ) : (
@@ -3407,13 +3944,13 @@ function AreaStatement({ result, input, update }) {
                             step="0.01"
                             value={currentVal}
                             onChange={e => update(row.stateKey, parseFloat(e.target.value))}
-                            style={{ flex: 1, accentColor: '#8b3a2a', minWidth: 200 }}
+                            style={{ flex: 1, accentColor: '#C9A96E', minWidth: 200 }}
                           />
                           <div style={{ minWidth: 180, textAlign: 'right' }}>
-                            <div className="num" style={{ fontSize: 13, fontWeight: 700, color: '#8b3a2a' }}>
-                              {fmt(loadedSqm)} <span style={{ fontSize: 10, fontWeight: 500, color: '#6b5d47' }}>/ {fmt(row.availableSqm)} sqm</span>
+                            <div className="num" style={{ fontSize: 13, fontWeight: 700, color: '#C9A96E' }}>
+                              {fmt(loadedSqm)} <span style={{ fontSize: 10, fontWeight: 500, color: 'var(--ink-soft)' }}>/ {fmt(row.availableSqm)} sqm</span>
                             </div>
-                            <div className="num" style={{ fontSize: 10.5, color: '#6b5d47' }}>{pct}% loaded · Ref: {row.ref}</div>
+                            <div className="num" style={{ fontSize: 10.5, color: 'var(--ink-soft)' }}>{pct}% loaded · Ref: {row.ref}</div>
                           </div>
                         </div>
                       )}
@@ -3425,16 +3962,16 @@ function AreaStatement({ result, input, update }) {
                 const rawVal = input[row.stateKey];
                 const displayVal = rawVal === undefined || rawVal === null ? '' : rawVal;
                 return (
-                  <tr key={i} style={{ borderBottom: '1px solid #f5efe2',
+                  <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.07)',
                                        background: 'rgba(192, 140, 48, 0.04)' }}>
-                    <td style={{ ...td, color: '#a89c87', fontSize: 10 }} className="num">{i + 1}</td>
-                    <td style={{ ...td, fontWeight: 400, color: '#3d3528' }}>
+                    <td style={{ ...td, color: 'var(--ink-faint)', fontSize: 10 }} className="num">{i + 1}</td>
+                    <td style={{ ...td, fontWeight: 400, color: 'var(--ink-soft)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', background: '#8b3a2a', color: '#fffefb', padding: '2px 6px', borderRadius: 2 }}>EDIT</span>
+                        <span style={{ fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', background: '#C9A96E', color: '#0D0F14', padding: '2px 6px', borderRadius: 2 }}>EDIT</span>
                         <span>{row.label}</span>
                       </div>
                       {row.sublabel && (
-                        <div style={{ fontSize: 11, color: '#6b5d47', marginTop: 4, lineHeight: 1.4 }}>{row.sublabel}</div>
+                        <div style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 4, lineHeight: 1.4 }}>{row.sublabel}</div>
                       )}
                     </td>
                     <td style={{ ...td, textAlign: 'right' }}>
@@ -3451,13 +3988,13 @@ function AreaStatement({ result, input, update }) {
                           }}
                           className="num"
                           style={{ width: 110, padding: '5px 8px', fontSize: 13, fontWeight: 600,
-                                   background: '#fffefb', border: '1px solid #c9b896', color: '#a4493a',
+                                   background: '#13161D', border: '1px solid #c9b896', color: '#a4493a',
                                    borderRadius: 3, textAlign: 'right' }}
                         />
                       </div>
                     </td>
-                    <td style={{ ...td, fontSize: 11, color: '#6b5d47' }} className="num">{row.unit || 'sqm'}</td>
-                    <td style={{ ...td, fontSize: 10.5, color: '#8b3a2a' }} className="num">{row.ref}</td>
+                    <td style={{ ...td, fontSize: 11, color: 'var(--ink-soft)' }} className="num">{row.unit || 'sqm'}</td>
+                    <td style={{ ...td, fontSize: 10.5, color: '#C9A96E' }} className="num">{row.ref}</td>
                     {verifyMode && (<>
                       <td style={{ ...td }}>—</td>
                       <td style={{ ...td }}>—</td>
@@ -3476,16 +4013,16 @@ function AreaStatement({ result, input, update }) {
               const flag = delta !== null && Math.abs(delta) > 1.0;
               const isNumericRow = typeof row.value === 'number';
               return (
-                <tr key={i} style={{ borderBottom: '1px solid #f5efe2',
-                                     background: row.highlight ? 'rgba(139, 58, 42, 0.04)' : 'transparent',
+                <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.07)',
+                                     background: row.highlight ? 'rgba(201,169,110,0.06)' : 'transparent',
                                      opacity: row.italic ? 0.8 : 1 }}>
-                  <td style={{ ...td, color: '#a89c87', fontSize: 10 }} className="num">{i + 1}</td>
+                  <td style={{ ...td, color: 'var(--ink-faint)', fontSize: 10 }} className="num">{i + 1}</td>
                   <td style={{ ...td, fontWeight: row.bold ? 600 : 400,
-                               color: row.bold ? '#1a1815' : '#3d3528',
+                               color: row.bold ? 'var(--ink)' : 'var(--ink-soft)',
                                fontStyle: row.italic ? 'italic' : 'normal' }}>
                     {row.label}
                     {row.formula && (
-                      <div className="num" style={{ fontSize: 10.5, color: '#a89c87',
+                      <div className="num" style={{ fontSize: 10.5, color: 'var(--ink-faint)',
                                                     marginTop: 2, fontWeight: 400 }}>
                         = {row.formula}
                       </div>
@@ -3493,14 +4030,14 @@ function AreaStatement({ result, input, update }) {
                   </td>
                   <td style={{ ...td, textAlign: 'right',
                                fontWeight: row.bold ? 700 : 500,
-                               color: row.highlight ? '#8b3a2a' : isNeg ? '#a4493a' : '#1a1815' }}
+                               color: row.highlight ? '#C9A96E' : isNeg ? '#a4493a' : 'var(--ink)' }}
                       className="num">
                     {typeof row.value === 'number'
                       ? fmt(row.value, row.value < 10 && row.value > 0 ? 2 : 0)
                       : (row.value || '—')}
                   </td>
-                  <td style={{ ...td, fontSize: 11, color: '#6b5d47' }} className="num">{row.unit}</td>
-                  <td style={{ ...td, fontSize: 10.5, color: '#8b3a2a' }} className="num">{row.ref}</td>
+                  <td style={{ ...td, fontSize: 11, color: 'var(--ink-soft)' }} className="num">{row.unit}</td>
+                  <td style={{ ...td, fontSize: 10.5, color: '#C9A96E' }} className="num">{row.ref}</td>
                   {verifyMode && (
                     <td style={{ ...td, textAlign: 'right', padding: '4px 8px' }}>
                       {isNumericRow ? (
@@ -3511,9 +4048,9 @@ function AreaStatement({ result, input, update }) {
                           placeholder="—"
                           className="num"
                           style={{ width: 100, padding: '4px 6px', fontSize: 12,
-                                   background: '#fffefb', border: '1px solid #d4c9b8',
+                                   background: '#13161D', border: '1px solid rgba(255,255,255,0.07)',
                                    borderRadius: 3, textAlign: 'right' }} />
-                      ) : <span style={{ color: '#a89c87' }}>—</span>}
+                      ) : <span style={{ color: 'var(--ink-faint)' }}>—</span>}
                     </td>
                   )}
                   {verifyMode && (
@@ -3535,8 +4072,8 @@ function AreaStatement({ result, input, update }) {
                             onChange={e => setVerifyField(rowKey, 'source', e.target.value)}
                             placeholder="source note"
                             style={{ width: '100%', padding: '3px 6px', fontSize: 10.5,
-                                     background: '#fffefb', border: '1px solid #d4c9b8',
-                                     borderRadius: 3, fontStyle: 'italic', color: '#6b5d47' }} />
+                                     background: '#13161D', border: '1px solid rgba(255,255,255,0.07)',
+                                     borderRadius: 3, fontStyle: 'italic', color: 'var(--ink-soft)' }} />
                         </div>
                       )}
                     </td>
@@ -3563,8 +4100,8 @@ function MemberEntitlement({ breakdown, input, update }) {
       </SectionTitle>
 
       <div className="no-print" style={{ marginBottom: 16, padding: 16,
-                                          background: 'rgba(139, 58, 42, 0.04)',
-                                          border: '1px solid #e7dfd0', borderRadius: 4 }}>
+                                          background: 'rgba(201,169,110,0.06)',
+                                          border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4 }}>
         <label className="field-label">
           Member share of Incentive BUA — set this per your draft GB resolution
         </label>
@@ -3572,8 +4109,8 @@ function MemberEntitlement({ breakdown, input, update }) {
           <input type="range" min="0" max="100" step="5"
                  value={input.memberIncentiveShare}
                  onChange={e => update('memberIncentiveShare', parseInt(e.target.value))}
-                 style={{ flex: 1, accentColor: '#8b3a2a' }} />
-          <div className="num" style={{ fontSize: 18, fontWeight: 700, color: '#8b3a2a',
+                 style={{ flex: 1, accentColor: '#C9A96E' }} />
+          <div className="num" style={{ fontSize: 18, fontWeight: 700, color: '#C9A96E',
                                         minWidth: 60, textAlign: 'right' }}>
             {input.memberIncentiveShare}%
           </div>
@@ -3584,10 +4121,10 @@ function MemberEntitlement({ breakdown, input, update }) {
         </div>
       </div>
 
-      <div style={{ background: '#fffefb', border: '1px solid #e7dfd0', borderRadius: 4, overflow: 'hidden' }}>
+      <div style={{ background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ background: '#f0e9dd' }}>
+            <tr style={{ background: 'rgba(255,255,255,0.04)' }}>
               <th style={th}>Flat type</th>
               <th style={{ ...th, textAlign: 'right' }}>Count</th>
               <th style={{ ...th, textAlign: 'right' }}>Existing carpet</th>
@@ -3597,26 +4134,26 @@ function MemberEntitlement({ breakdown, input, update }) {
           </thead>
           <tbody>
             {breakdown.map((b, i) => (
-              <tr key={i} style={{ borderTop: '1px solid #f0e9dd' }}>
+              <tr key={i} style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
                 <td style={td}>
                   <div style={{ fontWeight: 600 }}>{b.label}</div>
-                  <div style={{ fontSize: 10, color: '#a89c87', textTransform: 'uppercase',
+                  <div style={{ fontSize: 10, color: 'var(--ink-faint)', textTransform: 'uppercase',
                                 letterSpacing: '0.06em', marginTop: 2 }}>{b.use}</div>
                 </td>
                 <td style={{ ...td, textAlign: 'right' }} className="num">{b.count}</td>
                 <td style={{ ...td, textAlign: 'right' }} className="num">
                   {fmt(b.existingCarpet)} sqm
-                  <div style={{ fontSize: 10, color: '#a89c87' }}>≈ {fmtSqft(b.existingCarpet)} sqft</div>
+                  <div style={{ fontSize: 10, color: 'var(--ink-faint)' }}>≈ {fmtSqft(b.existingCarpet)} sqft</div>
                 </td>
                 <td style={{ ...td, textAlign: 'right' }} className="num">
                   {fmt(b.minGuaranteed)} sqm
-                  <div style={{ fontSize: 10, color: '#a89c87' }}>≈ {fmtSqft(b.minGuaranteed)} sqft</div>
+                  <div style={{ fontSize: 10, color: 'var(--ink-faint)' }}>≈ {fmtSqft(b.minGuaranteed)} sqft</div>
                 </td>
-                <td style={{ ...td, textAlign: 'right', background: 'rgba(139, 58, 42, 0.04)' }} className="num">
-                  <span style={{ fontWeight: 700, color: '#8b3a2a' }}>
+                <td style={{ ...td, textAlign: 'right', background: 'rgba(201,169,110,0.06)' }} className="num">
+                  <span style={{ fontWeight: 700, color: '#C9A96E' }}>
                     {fmt(b.realisticLow)}–{fmt(b.realisticHigh)} sqm
                   </span>
-                  <div style={{ fontSize: 10, color: '#a89c87' }}>
+                  <div style={{ fontSize: 10, color: 'var(--ink-faint)' }}>
                     ≈ {fmtSqft(b.realisticLow)}–{fmtSqft(b.realisticHigh)} sqft
                   </div>
                 </td>
@@ -3640,21 +4177,21 @@ function SlumFlag() {
     <div style={{
       background: 'rgba(192, 140, 48, 0.08)',
       border: '1px solid rgba(192, 140, 48, 0.3)',
-      borderLeft: '3px solid #c08c30',
+      borderLeft: '3px solid #C9A96E',
       borderRadius: 4,
       padding: 18,
       marginBottom: 24,
     }}>
       <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-        <AlertTriangle size={18} color="#c08c30" style={{ flexShrink: 0, marginTop: 2 }} />
+        <AlertTriangle size={18} color="#C9A96E" style={{ flexShrink: 0, marginTop: 2 }} />
         <div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1815' }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>
             Slum encroachment on plot — separate analysis required
           </div>
-          <div style={{ fontSize: 12.5, color: '#3d3528', marginTop: 6, lineHeight: 1.55 }}>
+          <div style={{ fontSize: 12.5, color: 'var(--ink-soft)', marginTop: 6, lineHeight: 1.55 }}>
             If part of your plot has slum encroachment, that portion is governed by Reg 33(10) — not 33(7)(B). Each eligible slum dweller (cut-off 1.1.2000) is entitled to a 27.88 sqm rehab tenement, with sale-component math determined by the SRA on a case-specific basis. This platform does not compute the slum portion. Engage an SRA consultant; the slum side significantly affects developer economics for the whole plot.
           </div>
-          <div className="num" style={{ fontSize: 10, color: '#6b5d47', marginTop: 8, letterSpacing: '0.04em' }}>
+          <div className="num" style={{ fontSize: 10, color: 'var(--ink-soft)', marginTop: 8, letterSpacing: '0.04em' }}>
             [Reg 33(10) — Slum Rehabilitation Scheme]
           </div>
         </div>
@@ -3675,44 +4212,44 @@ function ClusterResult({ result, input }) {
         FSI 4.00 ceiling on the aggregate cluster plot, OR rehab + 50% incentive — whichever is more.
       </SectionTitle>
 
-      <div style={{ background: '#fffefb', border: '1px solid #e7dfd0', borderRadius: 6, padding: 28 }}>
+      <div style={{ background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 6, padding: 28 }}>
         {/* Headline */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, marginBottom: 24 }} className="grid-2">
           <div>
-            <div style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8b3a2a', fontWeight: 600, marginBottom: 6 }}>
+            <div style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#C9A96E', fontWeight: 600, marginBottom: 6 }}>
               Permissible BUA
             </div>
-            <div className="num serif" style={{ fontSize: 36, fontWeight: 700, color: '#1a1815', lineHeight: 1 }}>
-              {fmt(r.permissibleBua)} <span style={{ fontSize: 14, fontWeight: 500, color: '#6b5d47' }}>sqm</span>
+            <div className="num serif" style={{ fontSize: 36, fontWeight: 700, color: 'var(--ink)', lineHeight: 1 }}>
+              {fmt(r.permissibleBua)} <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink-soft)' }}>sqm</span>
             </div>
-            <div className="num" style={{ fontSize: 14, color: '#6b5d47', marginTop: 4 }}>
+            <div className="num" style={{ fontSize: 14, color: 'var(--ink-soft)', marginTop: 4 }}>
               ≈ {fmtSqft(r.permissibleBua)} sq ft
             </div>
-            <div className="num" style={{ fontSize: 12, color: '#6b5d47', marginTop: 8 }}>
+            <div className="num" style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 8 }}>
               Effective FSI: {r.effFsi.toFixed(2)}
             </div>
           </div>
           <div>
-            <div style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#6b5d47', fontWeight: 600, marginBottom: 6 }}>
+            <div style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink-soft)', fontWeight: 600, marginBottom: 6 }}>
               Sale to developer
             </div>
-            <div className="num serif" style={{ fontSize: 36, fontWeight: 700, color: '#8b3a2a', lineHeight: 1 }}>
-              {fmt(r.saleBua)} <span style={{ fontSize: 14, fontWeight: 500, color: '#6b5d47' }}>sqm</span>
+            <div className="num serif" style={{ fontSize: 36, fontWeight: 700, color: '#C9A96E', lineHeight: 1 }}>
+              {fmt(r.saleBua)} <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink-soft)' }}>sqm</span>
             </div>
-            <div className="num" style={{ fontSize: 14, color: '#6b5d47', marginTop: 4 }}>
+            <div className="num" style={{ fontSize: 14, color: 'var(--ink-soft)', marginTop: 4 }}>
               ≈ {fmtSqft(r.saleBua)} sq ft
             </div>
-            <div className="num" style={{ fontSize: 12, color: '#6b5d47', marginTop: 8 }}>
+            <div className="num" style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 8 }}>
               Sale-to-rehab ratio: {r.viabilityRatio.toFixed(2)}
             </div>
           </div>
         </div>
 
         {/* Math breakdown */}
-        <div style={{ background: '#fafaf5', border: '1px solid #e7dfd0', borderRadius: 4, overflow: 'hidden' }}>
+        <div style={{ background: '#111318', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4, overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
-              <tr style={{ background: '#f0e9dd' }}>
+              <tr style={{ background: 'rgba(255,255,255,0.04)' }}>
                 <th style={th}>Cluster computation</th>
                 <th style={{ ...th, textAlign: 'right' }}>Value</th>
                 <th style={{ ...th, textAlign: 'left', width: 70 }}>Unit</th>
@@ -3720,29 +4257,29 @@ function ClusterResult({ result, input }) {
               </tr>
             </thead>
             <tbody>
-              <tr style={{ borderBottom: '1px solid #f5efe2' }}>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                 <td style={td}>Aggregate cluster plot area</td>
                 <td style={{ ...td, textAlign: 'right' }} className="num">{fmt(r.clusterPlot)}</td>
                 <td style={td} className="num">sqm</td>
                 <td style={td} className="num" /></tr>
-              <tr style={{ borderBottom: '1px solid #f5efe2' }}>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                 <td style={td}>Number of buildings in cluster</td>
                 <td style={{ ...td, textAlign: 'right' }} className="num">{r.clusterBuildings}</td>
                 <td style={td} className="num" />
                 <td style={td} className="num">User input</td>
               </tr>
-              <tr style={{ borderBottom: '1px solid #f5efe2' }}>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                 <td style={td}>Aggregate existing BUA</td>
                 <td style={{ ...td, textAlign: 'right' }} className="num">{fmt(r.rehabBase)}</td>
                 <td style={td} className="num">sqm</td>
                 <td style={td} className="num">Society records</td>
               </tr>
-              <tr style={{ borderBottom: '1px solid #f5efe2' }}>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                 <td style={td}>Aggregate residential apartments</td>
                 <td style={{ ...td, textAlign: 'right' }} className="num">{r.clusterApartments}</td>
                 <td style={td} className="num" />
                 <td style={td} className="num" /></tr>
-              <tr style={{ background: '#fffefb', borderBottom: '1px solid #f5efe2' }}>
+              <tr style={{ background: '#13161D', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                 <td style={{ ...td, fontWeight: 600 }}>Cluster minimum check</td>
                 <td style={{ ...td, textAlign: 'right', color: r.meetsMinimum ? '#5a7a4f' : '#a4493a' }} className="num">
                   {r.meetsMinimum ? '✓ Meets' : '✗ Below'}
@@ -3750,52 +4287,52 @@ function ClusterResult({ result, input }) {
                 <td style={td} className="num">{r.minClusterArea} sqm min</td>
                 <td style={td} className="num">Reg 33(9) cl 1.1</td>
               </tr>
-              <tr style={{ background: 'rgba(139, 58, 42, 0.04)' }}>
-                <td colSpan={4} style={{ padding: '10px 18px', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#8b3a2a', fontWeight: 700 }}>
+              <tr style={{ background: 'rgba(201,169,110,0.06)' }}>
+                <td colSpan={4} style={{ padding: '10px 18px', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#C9A96E', fontWeight: 700 }}>
                   Computation
                 </td>
               </tr>
-              <tr style={{ borderBottom: '1px solid #f5efe2' }}>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                 <td style={td}>FSI 4.00 ceiling = Cluster plot × 4.00</td>
                 <td style={{ ...td, textAlign: 'right' }} className="num">{fmt(r.ceilingBua)}</td>
                 <td style={td} className="num">sqm</td>
                 <td style={td} className="num">Reg 33(9) opening</td>
               </tr>
-              <tr style={{ borderBottom: '1px solid #f5efe2' }}>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                 <td style={td}>Rehab + 50% incentive = Existing BUA × 1.5</td>
                 <td style={{ ...td, textAlign: 'right' }} className="num">{fmt(r.rehabBase + r.incentiveBua)}</td>
                 <td style={td} className="num">sqm</td>
                 <td style={td} className="num">Reg 33(9) Appendix</td>
               </tr>
-              <tr style={{ background: 'rgba(139, 58, 42, 0.06)', borderBottom: '1px solid #f5efe2' }}>
+              <tr style={{ background: 'rgba(201,169,110,0.08)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                 <td style={{ ...td, fontWeight: 700 }}>
                   Governing FSI BUA = MAX of above
-                  <div className="num" style={{ fontSize: 10.5, color: '#a89c87', marginTop: 2, fontWeight: 400 }}>
+                  <div className="num" style={{ fontSize: 10.5, color: 'var(--ink-faint)', marginTop: 2, fontWeight: 400 }}>
                     {r.ceilingGoverns ? '→ Ceiling governs (4.00 × cluster plot is higher)' : '→ Rehab+Incentive governs (existing BUA so high it exceeds 4.00 ceiling)'}
                   </div>
                 </td>
-                <td style={{ ...td, textAlign: 'right', fontWeight: 700, color: '#8b3a2a' }} className="num">{fmt(r.schemeFsiBua)}</td>
+                <td style={{ ...td, textAlign: 'right', fontWeight: 700, color: '#C9A96E' }} className="num">{fmt(r.schemeFsiBua)}</td>
                 <td style={td} className="num">sqm</td>
                 <td style={td} className="num">Reg 33(9) opening</td>
               </tr>
-              <tr style={{ borderBottom: '1px solid #f5efe2' }}>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                 <td style={td}>+ Fungible Compensatory Area @ 35% (Reg 31(3))</td>
                 <td style={{ ...td, textAlign: 'right' }} className="num">{fmt(r.fungibleArea)}</td>
                 <td style={td} className="num">sqm</td>
                 <td style={td} className="num">Reg 31(3)</td>
               </tr>
-              <tr style={{ background: 'rgba(139, 58, 42, 0.08)' }}>
+              <tr style={{ background: 'rgba(201,169,110,0.10)' }}>
                 <td style={{ ...td, fontWeight: 700 }}>Permissible BUA</td>
-                <td style={{ ...td, textAlign: 'right', fontWeight: 700, fontSize: 16, color: '#8b3a2a' }} className="num">{fmt(r.permissibleBua)}</td>
+                <td style={{ ...td, textAlign: 'right', fontWeight: 700, fontSize: 16, color: '#C9A96E' }} className="num">{fmt(r.permissibleBua)}</td>
                 <td style={td} className="num">sqm</td>
                 <td style={td} className="num">—</td>
               </tr>
-              <tr style={{ background: '#fafaf5' }}>
-                <td colSpan={4} style={{ padding: '10px 18px', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#6b5d47', fontWeight: 700 }}>
+              <tr style={{ background: '#111318' }}>
+                <td colSpan={4} style={{ padding: '10px 18px', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink-soft)', fontWeight: 700 }}>
                   Rehab vs sale split
                 </td>
               </tr>
-              <tr style={{ borderBottom: '1px solid #f5efe2' }}>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                 <td style={td}>Rehab to existing members across all societies</td>
                 <td style={{ ...td, textAlign: 'right' }} className="num">{fmt(r.rehabBase)}</td>
                 <td style={td} className="num">sqm</td>
@@ -3803,7 +4340,7 @@ function ClusterResult({ result, input }) {
               </tr>
               <tr>
                 <td style={{ ...td, fontWeight: 700 }}>Sale BUA available to developer</td>
-                <td style={{ ...td, textAlign: 'right', fontWeight: 700, color: '#8b3a2a' }} className="num">{fmt(r.saleBua)}</td>
+                <td style={{ ...td, textAlign: 'right', fontWeight: 700, color: '#C9A96E' }} className="num">{fmt(r.saleBua)}</td>
                 <td style={td} className="num">sqm</td>
                 <td style={td} className="num">Permissible − Rehab</td>
               </tr>
@@ -3812,18 +4349,18 @@ function ClusterResult({ result, input }) {
         </div>
 
         {/* Viability verdict */}
-        <div style={{ marginTop: 16, padding: '14px 18px', background: '#fffefb', border: '1px solid #e7dfd0', borderRadius: 4, display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', marginTop: 7, flexShrink: 0, background: !r.meetsMinimum ? '#a4493a' : r.viabilityRatio < 0.6 ? '#c08c30' : '#3d5a4d' }} />
+        <div style={{ marginTop: 16, padding: '14px 18px', background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4, display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', marginTop: 7, flexShrink: 0, background: !r.meetsMinimum ? '#a4493a' : r.viabilityRatio < 0.6 ? '#C9A96E' : '#3d5a4d' }} />
           <div>
-            <div style={{ fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#6b5d47', fontWeight: 600 }}>
+            <div style={{ fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ink-soft)', fontWeight: 600 }}>
               Cluster viability — {r.viabilityRating}
             </div>
-            <div style={{ fontSize: 13.5, color: '#1a1815', marginTop: 4, lineHeight: 1.55 }}>{r.viabilityNote}</div>
+            <div style={{ fontSize: 13.5, color: 'var(--ink)', marginTop: 4, lineHeight: 1.55 }}>{r.viabilityNote}</div>
           </div>
         </div>
 
         {/* Disclosure */}
-        <div style={{ marginTop: 12, padding: '12px 14px', background: 'rgba(139, 58, 42, 0.03)', borderLeft: '3px solid #8b3a2a', borderRadius: 2, fontSize: 12, color: '#3d3528', lineHeight: 1.6 }}>
+        <div style={{ marginTop: 12, padding: '12px 14px', background: 'rgba(201,169,110,0.04)', borderLeft: '3px solid rgba(201,169,110,0.4)', borderRadius: 2, fontSize: 12, color: 'var(--ink-soft)', lineHeight: 1.6 }}>
           <strong>Honest disclosure:</strong> This computation uses aggregate cluster inputs you provided. The standard incentive rate (50%) and 4.00 FSI ceiling are encoded per Reg 33(9). The actual scheme allows variations (60–70% incentive bands at higher consent levels and additional dwellings density) that we have not modelled in MVP. For a stamped feasibility, engage a Licensed Architect with prior cluster experience.
         </div>
       </div>
@@ -3851,7 +4388,7 @@ function SchemeComparison({ r1, r2 }) {
           sale={r1.saleBua}
           fsi={r1.effFsi}
           viability={r1.viabilityRating}
-          colour="#6b5d47"
+          colour="rgba(255,255,255,0.4)"
         />
         <ComparisonCard
           title="Cluster — Reg 33(9)"
@@ -3861,16 +4398,16 @@ function SchemeComparison({ r1, r2 }) {
           sale={r2.saleBua}
           fsi={r2.effFsi}
           viability={r2.viabilityRating}
-          colour="#8b3a2a"
+          colour="#C9A96E"
           highlight={r2.permissibleBua > r1.permissibleBua}
         />
       </div>
 
       {/* Delta */}
-      <div style={{ marginTop: 12, padding: '14px 18px', background: '#fffefb', border: '1px solid #e7dfd0', borderRadius: 4, fontSize: 13, color: '#1a1815', lineHeight: 1.6 }}>
+      <div style={{ marginTop: 12, padding: '14px 18px', background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4, fontSize: 13, color: 'var(--ink)', lineHeight: 1.6 }}>
         <strong>Cluster advantage:</strong>{' '}
         {r2.permissibleBua > r1.permissibleBua ? (
-          <>Cluster yields <span className="num" style={{ fontWeight: 700, color: '#8b3a2a' }}>{fmt(r2.permissibleBua - r1.permissibleBua)} sqm</span> more permissible BUA than standalone — a {(((r2.permissibleBua / r1.permissibleBua) - 1) * 100).toFixed(0)}% uplift. Coordination cost is real but math is favourable.</>
+          <>Cluster yields <span className="num" style={{ fontWeight: 700, color: '#C9A96E' }}>{fmt(r2.permissibleBua - r1.permissibleBua)} sqm</span> more permissible BUA than standalone — a {(((r2.permissibleBua / r1.permissibleBua) - 1) * 100).toFixed(0)}% uplift. Coordination cost is real but math is favourable.</>
         ) : (
           <>Standalone 33(7)(B) is competitive with or better than cluster math at the inputs given. Verify cluster plot data — usually cluster wins when aggregate plot is meaningfully larger than your standalone plot.</>
         )}
@@ -3884,25 +4421,25 @@ function ComparisonCard({ title, subtitle, permissibleBua, rehab, sale, fsi, via
     <div style={{
       padding: 22,
       borderRadius: 6,
-      background: highlight ? 'rgba(139, 58, 42, 0.04)' : '#fffefb',
-      border: `1px solid ${highlight ? colour : '#e7dfd0'}`,
+      background: highlight ? 'rgba(201,169,110,0.06)' : '#13161D',
+      border: `1px solid ${highlight ? colour : 'rgba(255,255,255,0.07)'}`,
       position: 'relative',
     }}>
       {highlight && (
         <div style={{ position: 'absolute', top: -10, left: 16, background: colour, color: 'white', fontSize: 9, fontWeight: 700, padding: '3px 8px', borderRadius: 2, letterSpacing: '0.08em' }}>HIGHER YIELD</div>
       )}
       <div className="serif" style={{ fontSize: 18, fontWeight: 600, color: colour, lineHeight: 1.2 }}>{title}</div>
-      <div style={{ fontSize: 11.5, color: '#6b5d47', marginTop: 4 }}>{subtitle}</div>
+      <div style={{ fontSize: 11.5, color: 'var(--ink-soft)', marginTop: 4 }}>{subtitle}</div>
 
-      <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid #e7dfd0' }}>
-        <div style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#6b5d47', marginBottom: 4 }}>Permissible BUA</div>
-        <div className="num" style={{ fontSize: 24, fontWeight: 700, color: '#1a1815', lineHeight: 1 }}>
-          {fmt(permissibleBua)} <span style={{ fontSize: 12, fontWeight: 500, color: '#6b5d47' }}>sqm</span>
+      <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+        <div style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink-soft)', marginBottom: 4 }}>Permissible BUA</div>
+        <div className="num" style={{ fontSize: 24, fontWeight: 700, color: 'var(--ink)', lineHeight: 1 }}>
+          {fmt(permissibleBua)} <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--ink-soft)' }}>sqm</span>
         </div>
-        <div className="num" style={{ fontSize: 12, color: '#6b5d47', marginTop: 4 }}>≈ {fmtSqft(permissibleBua)} sq ft · FSI {fsi.toFixed(2)}</div>
+        <div className="num" style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 4 }}>≈ {fmtSqft(permissibleBua)} sq ft · FSI {fsi.toFixed(2)}</div>
       </div>
 
-      <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #e7dfd0', display: 'grid', gap: 8 }}>
+      <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.07)', display: 'grid', gap: 8 }}>
         <Row label="Rehab to members" value={`${fmt(rehab)} sqm`} />
         <Row label="Sale to developer" value={`${fmt(sale)} sqm`} highlight />
         <Row label="Viability" value={viability} muted />
@@ -3921,7 +4458,7 @@ function PremiumRecoveryPanel({ result, input }) {
   const asrRate = parseFloat(input.asrLandRate) || 0;
   if (!ps || asrRate === 0) {
     return (
-      <div style={{ marginBottom: 28, padding: '14px 18px', background: '#fafaf5', border: '1px solid #e7dfd0', borderRadius: 4, fontSize: 12, color: '#6b5d47' }}>
+      <div style={{ marginBottom: 28, padding: '14px 18px', background: '#111318', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4, fontSize: 12, color: 'var(--ink-soft)' }}>
         <strong>Premium Recovery Sheet</strong> — enter your ASR Land Rate above to see itemised premium payable to MCGM.
       </div>
     );
@@ -3959,10 +4496,10 @@ function PremiumRecoveryPanel({ result, input }) {
       <SectionTitle eyebrow="Proforma-A Premium Sheet" title="Premiums payable to MCGM / Govt">
         Per MCGM circulars (FY 2023-24). Premium FSI is charged at 50% of ASR under Reg 30(A)(6) — the temporary 50% rebate under GR 14.01.2021 has expired. Fungible premium is split 50% MCGM / 30% State Govt / 20% MSRDC. These are rough estimates — actual recovery sheet from your architect will be authoritative.
       </SectionTitle>
-      <div style={{ background: '#fffefb', border: '1px solid #e7dfd0', borderRadius: 4, overflow: 'hidden' }}>
+      <div style={{ background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
-            <tr style={{ background: '#f0e9dd' }}>
+            <tr style={{ background: 'rgba(255,255,255,0.04)' }}>
               <th style={th}>Premium head</th>
               <th style={{ ...th, textAlign: 'left' }}>Basis</th>
               <th style={{ ...th, textAlign: 'right' }}>Amount (rough)</th>
@@ -3971,20 +4508,20 @@ function PremiumRecoveryPanel({ result, input }) {
           </thead>
           <tbody>
             {rows.map((r, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid #f5efe2', background: r.bold ? 'rgba(139,58,42,0.06)' : 'transparent' }}>
-                <td style={{ ...td, fontWeight: r.bold ? 700 : r.indent ? 400 : 500, paddingLeft: r.indent ? 32 : 18, color: r.bold ? '#8b3a2a' : '#1a1815', fontSize: r.indent ? 11.5 : 13 }}>{r.label}</td>
-                <td style={{ ...td, fontSize: 11, color: '#6b5d47', fontStyle: 'italic' }}>{r.sub}</td>
-                <td style={{ ...td, textAlign: 'right', fontWeight: r.bold ? 700 : 500, color: r.bold ? '#8b3a2a' : '#1a1815' }} className="num">{fmtCurrency(r.value)}</td>
-                <td style={{ ...td, fontSize: 10.5, color: '#8b3a2a' }} className="num">{r.reg}</td>
+              <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', background: r.bold ? 'rgba(201,169,110,0.06)' : 'transparent' }}>
+                <td style={{ ...td, fontWeight: r.bold ? 700 : r.indent ? 400 : 500, paddingLeft: r.indent ? 32 : 18, color: r.bold ? '#C9A96E' : 'var(--ink)', fontSize: r.indent ? 11.5 : 13 }}>{r.label}</td>
+                <td style={{ ...td, fontSize: 11, color: 'var(--ink-soft)', fontStyle: 'italic' }}>{r.sub}</td>
+                <td style={{ ...td, textAlign: 'right', fontWeight: r.bold ? 700 : 500, color: r.bold ? '#C9A96E' : 'var(--ink)' }} className="num">{fmtCurrency(r.value)}</td>
+                <td style={{ ...td, fontSize: 10.5, color: '#C9A96E' }} className="num">{r.reg}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        <div style={{ padding: '10px 18px', fontSize: 11, color: '#6b5d47', borderTop: '1px solid #e7dfd0', fontStyle: 'italic' }}>
+        <div style={{ padding: '10px 18px', fontSize: 11, color: 'var(--ink-soft)', borderTop: '1px solid rgba(255,255,255,0.07)', fontStyle: 'italic' }}>
           ASR rate used: ₹{fmt(asrRate)}/sqm (FSI 1, user input). Construction rate: ₹{fmt(_cRate)}/sqm (SDRR).
           Typically paid in instalments across IOD → Plinth CC → Full CC → OC per GR 03.05.2023.
           Fungible on rehab portion ({fmt(result.fungibleRehabBua)} sqm) is free of premium per Reg 31(3) — not included above.
-          For exact figures use the MCGM AutoDCR Fee Calculator: <a href="https://autodcr.mcgm.gov.in/AutoDCR.SWC.WebUI/Calculator/Main.aspx" target="_blank" rel="noopener noreferrer" style={{ color: '#8b3a2a', fontWeight: 600 }}>Open AutoDCR ↗</a>
+          For exact figures use the MCGM AutoDCR Fee Calculator: <a href="https://autodcr.mcgm.gov.in/AutoDCR.SWC.WebUI/Calculator/Main.aspx" target="_blank" rel="noopener noreferrer" style={{ color: '#C9A96E', fontWeight: 600 }}>Open AutoDCR ↗</a>
         </div>
       </div>
     </div>
@@ -4011,10 +4548,10 @@ function ParkingPanel({ result, input }) {
       <SectionTitle eyebrow="Proforma-A Section II(E)" title="Parking requirement">
         Computed per DCPR 2034 Reg 30 parking norms. For reference — actual parking layout depends on site geometry and architect's basement design.
       </SectionTitle>
-      <div style={{ background: '#fffefb', border: '1px solid #e7dfd0', borderRadius: 4, overflow: 'hidden' }}>
+      <div style={{ background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
-            <tr style={{ background: '#f0e9dd' }}>
+            <tr style={{ background: 'rgba(255,255,255,0.04)' }}>
               <th style={th}>Category</th>
               <th style={{ ...th, textAlign: 'right' }}>Norm</th>
               <th style={{ ...th, textAlign: 'right' }}>Required</th>
@@ -4022,28 +4559,28 @@ function ParkingPanel({ result, input }) {
           </thead>
           <tbody>
             {flatRows.map((r, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid #f5efe2' }}>
+              <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                 <td style={td}>{r.label} — {r.count} flats × {r.carpet} sqm carpet</td>
                 <td style={{ ...td, textAlign: 'right' }} className="num">{r.norm} car/flat</td>
                 <td style={{ ...td, textAlign: 'right' }} className="num">{r.subtotal}</td>
               </tr>
             ))}
-            <tr style={{ borderBottom: '1px solid #f5efe2', background: '#fafaf5' }}>
+            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', background: '#111318' }}>
               <td style={td}>Visitor parking (5% of residential cars)</td>
               <td style={{ ...td, textAlign: 'right' }} className="num">5%</td>
               <td style={{ ...td, textAlign: 'right' }} className="num">{p.visitor}</td>
             </tr>
             {p.shopCars > 0 && (
-              <tr style={{ borderBottom: '1px solid #f5efe2' }}>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                 <td style={td}>Commercial / shop (1 per 40 sqm up to 800 sqm)</td>
                 <td style={{ ...td, textAlign: 'right' }} className="num">1/40 sqm</td>
                 <td style={{ ...td, textAlign: 'right' }} className="num">{p.shopCars}</td>
               </tr>
             )}
-            <tr style={{ borderBottom: '1px solid #f5efe2', background: 'rgba(139,58,42,0.04)' }}>
+            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', background: 'rgba(201,169,110,0.06)' }}>
               <td style={{ ...td, fontWeight: 700 }}>Total Cars</td>
               <td style={{ ...td, textAlign: 'right' }} />
-              <td style={{ ...td, textAlign: 'right', fontWeight: 700, color: '#8b3a2a' }} className="num">{p.total}</td>
+              <td style={{ ...td, textAlign: 'right', fontWeight: 700, color: '#C9A96E' }} className="num">{p.total}</td>
             </tr>
             <tr>
               <td style={td}>Two-wheelers (1 per residential flat)</td>
@@ -4052,7 +4589,7 @@ function ParkingPanel({ result, input }) {
             </tr>
           </tbody>
         </table>
-        <div style={{ padding: '10px 18px', fontSize: 11, color: '#6b5d47', borderTop: '1px solid #e7dfd0', fontStyle: 'italic' }}>
+        <div style={{ padding: '10px 18px', fontSize: 11, color: 'var(--ink-soft)', borderTop: '1px solid rgba(255,255,255,0.07)', fontStyle: 'italic' }}>
           Basement / stilt / podium area used for parking is free of FSI per Reg 31(1). Typically spread across 1–2 basements + podium. Your architect will size the basement to accommodate this.
         </div>
       </div>
@@ -4104,17 +4641,17 @@ function WatchOutFor({ result }) {
 
       <div style={{ display: 'grid', gap: 10 }}>
         {items.map((item, i) => (
-          <details key={i} style={{ background: '#fffefb', border: '1px solid #e7dfd0', borderRadius: 4 }}>
+          <details key={i} style={{ background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4 }}>
             <summary style={{ padding: 16, display: 'flex', justifyContent: 'space-between',
                               alignItems: 'center', gap: 12 }}>
               <div style={{ display: 'flex', gap: 12, alignItems: 'center', flex: 1 }}>
-                <AlertTriangle size={16} color="#c08c30" style={{ flexShrink: 0 }} />
-                <div style={{ fontSize: 13.5, fontWeight: 500, color: '#1a1815' }}>{item.title}</div>
+                <AlertTriangle size={16} color="#C9A96E" style={{ flexShrink: 0 }} />
+                <div style={{ fontSize: 13.5, fontWeight: 500, color: 'var(--ink)' }}>{item.title}</div>
               </div>
-              <ChevronDown size={14} color="#a89c87" />
+              <ChevronDown size={14} color="rgba(255,255,255,0.35)" />
             </summary>
             <div style={{ padding: '0 16px 16px 44px', fontSize: 13,
-                          color: '#3d3528', lineHeight: 1.6 }}>
+                          color: 'var(--ink-soft)', lineHeight: 1.6 }}>
               {item.response}
             </div>
           </details>
@@ -4164,7 +4701,7 @@ function NextSteps() {
       phase: 'B',
       title: 'Society decision & stamped feasibility',
       timeline: '2–4 months',
-      colour: '#8b3a2a',
+      colour: '#C9A96E',
       summary: 'Pass the first GB resolution, hire an architect, and get a proper stamped feasibility. This is the document you take to developers — not a software printout.',
       steps: [
         {
@@ -4254,7 +4791,7 @@ function NextSteps() {
       phase: 'E',
       title: 'Construction, handover & OC',
       timeline: '24–48 months',
-      colour: '#6b5d47',
+      colour: 'rgba(255,255,255,0.4)',
       summary: 'The longest phase. Your job is to monitor milestones, track transit rent payments, and hold the developer accountable to the DA timelines.',
       steps: [
         {
@@ -4314,7 +4851,7 @@ function NextSteps() {
 
       <div style={{ display: 'grid', gap: 12 }}>
         {phases.map((p, pi) => (
-          <details key={pi} style={{ background: '#fffefb', border: '1px solid #e7dfd0', borderRadius: 4 }}>
+          <details key={pi} style={{ background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4 }}>
             <summary style={{ padding: '16px 20px', display: 'flex', alignItems: 'center',
                               gap: 14, cursor: 'pointer', listStyle: 'none' }}>
               <div style={{ width: 32, height: 32, borderRadius: '50%', background: p.colour,
@@ -4323,17 +4860,17 @@ function NextSteps() {
                 {p.phase}
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#1a1815' }}>{p.title}</div>
-                <div style={{ fontSize: 11.5, color: '#6b5d47', marginTop: 2 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>{p.title}</div>
+                <div style={{ fontSize: 11.5, color: 'var(--ink-soft)', marginTop: 2 }}>
                   Typical duration: {p.timeline} · {p.steps.length} steps · {p.docs.length} documents
                 </div>
               </div>
-              <ChevronDown size={14} color="#a89c87" style={{ flexShrink: 0 }} />
+              <ChevronDown size={14} color="rgba(255,255,255,0.35)" style={{ flexShrink: 0 }} />
             </summary>
 
             <div style={{ padding: '0 20px 20px 20px' }}>
-              <div style={{ fontSize: 13, color: '#3d3528', lineHeight: 1.6, marginBottom: 18,
-                            paddingTop: 4, borderTop: '1px solid #f0e9dd', paddingTop: 14 }}>
+              <div style={{ fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.6, marginBottom: 18,
+                            paddingTop: 4, borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 14 }}>
                 {p.summary}
               </div>
 
@@ -4346,7 +4883,7 @@ function NextSteps() {
                 <div style={{ display: 'grid', gap: 10 }}>
                   {p.steps.map((s, si) => (
                     <div key={si} style={{ display: 'flex', gap: 12, padding: '12px 14px',
-                                          background: '#fafaf5', borderRadius: 3,
+                                          background: '#111318', borderRadius: 3,
                                           borderLeft: `3px solid ${p.colour}` }}>
                       <div style={{ width: 22, height: 22, borderRadius: '50%',
                                     background: p.colour, color: '#fffefb',
@@ -4355,8 +4892,8 @@ function NextSteps() {
                         {si + 1}
                       </div>
                       <div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1815' }}>{s.title}</div>
-                        <div style={{ fontSize: 12, color: '#3d3528', marginTop: 5, lineHeight: 1.55 }}>{s.detail}</div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{s.title}</div>
+                        <div style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 5, lineHeight: 1.55 }}>{s.detail}</div>
                       </div>
                     </div>
                   ))}
@@ -4375,8 +4912,8 @@ function NextSteps() {
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
                         <Check size={11} color={p.colour} style={{ flexShrink: 0, marginTop: 1 }} />
                         <div>
-                          <div style={{ fontWeight: 600, color: '#1a1815', fontSize: 11.5 }}>{d.name}</div>
-                          <div style={{ color: '#6b5d47', fontSize: 10.5, marginTop: 2 }}>{d.source}</div>
+                          <div style={{ fontWeight: 600, color: 'var(--ink)', fontSize: 11.5 }}>{d.name}</div>
+                          <div style={{ color: 'var(--ink-soft)', fontSize: 10.5, marginTop: 2 }}>{d.source}</div>
                         </div>
                       </div>
                     </div>
@@ -4388,9 +4925,9 @@ function NextSteps() {
         ))}
       </div>
 
-      <div style={{ marginTop: 14, padding: '12px 16px', background: 'rgba(139,58,42,0.04)',
-                    borderLeft: '3px solid #8b3a2a', borderRadius: 2, fontSize: 12,
-                    color: '#3d3528', lineHeight: 1.6 }}>
+      <div style={{ marginTop: 14, padding: '12px 16px', background: 'rgba(201,169,110,0.06)',
+                    borderLeft: '3px solid #C9A96E', borderRadius: 2, fontSize: 12,
+                    color: 'var(--ink-soft)', lineHeight: 1.6 }}>
         <strong>Timeline reality check.</strong> The above phases overlap in practice. Structural audit and document collection (Phase A) can run in parallel with the GB resolution (Phase B). MCGM approval (Phase D) is often the longest and least predictable — 6 to 18 months is typical. Build this into any developer agreement as a force-majeure type clause so transit rent continues during regulatory delays.
       </div>
     </div>
@@ -4441,16 +4978,16 @@ function Explainers() {
       <SectionTitle eyebrow="Plain-English explanations" title="What does all this mean?">
         For members reading this in a committee group. No regulatory jargon.
       </SectionTitle>
-      <div style={{ background: '#fffefb', border: '1px solid #e7dfd0', borderRadius: 4 }}>
+      <div style={{ background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4 }}>
         {faqs.map((faq, i) => (
-          <details key={i} style={{ borderBottom: i < faqs.length - 1 ? '1px solid #f0e9dd' : 'none' }}>
+          <details key={i} style={{ borderBottom: i < faqs.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none' }}>
             <summary style={{ padding: 16, display: 'flex', justifyContent: 'space-between',
                               alignItems: 'center', gap: 12 }}>
-              <div className="serif" style={{ fontSize: 15, fontWeight: 500, color: '#1a1815' }}>{faq.q}</div>
-              <ChevronDown size={14} color="#a89c87" />
+              <div className="serif" style={{ fontSize: 15, fontWeight: 500, color: 'var(--ink)' }}>{faq.q}</div>
+              <ChevronDown size={14} color="rgba(255,255,255,0.35)" />
             </summary>
             <div style={{ padding: '0 16px 16px 16px', fontSize: 13,
-                          color: '#3d3528', lineHeight: 1.65, maxWidth: 720 }}>
+                          color: 'var(--ink-soft)', lineHeight: 1.65, maxWidth: 720 }}>
               {faq.a}
             </div>
           </details>
