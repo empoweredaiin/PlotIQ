@@ -1691,8 +1691,10 @@ const GlobalStyles = () => (
     .piq-lp-mobile-nav {
       display: none;
       position: sticky; top: 0; z-index: 50;
-      background: #0F1219;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
+      background: rgba(10,12,18,0.72);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
       padding: 0 18px;
       height: 50px;
       align-items: center;
@@ -1773,6 +1775,8 @@ const LandingPage = ({ onStart }) => {
   ];
   const [activeSection, setActiveSection] = useState('platform');
   const mainRef = useRef(null);
+  const hour = new Date().getHours();
+  const isDay = hour >= 6 && hour < 19;
 
   const scrollTo = (id) => {
     setActiveSection(id);
@@ -1797,22 +1801,6 @@ const LandingPage = ({ onStart }) => {
     return () => mainEl.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const windowLights = [
-    [548,80,0.35],[572,80,0.5],[548,110,0.28],[572,110,0.45],
-    [548,160,0.4],[572,160,0.32],[548,200,0.5],[572,200,0.28],
-    [548,260,0.38],[572,260,0.48],[548,310,0.3],[572,310,0.42],
-    [630,100,0.45],[652,100,0.3],[630,140,0.35],[652,140,0.5],
-    [630,190,0.28],[652,190,0.42],[630,240,0.5],[652,240,0.3],
-    [704,130,0.4],[704,170,0.32],[704,220,0.48],
-    [770,170,0.35],[795,170,0.45],[770,210,0.28],
-  ];
-
-  const perspectiveDots = [
-    [200,100,0.35],[380,90,0.45],[540,75,0.55],
-    [720,60,0.65],[900,75,0.55],[1060,90,0.45],
-    [1240,100,0.35],[300,108,0.25],[620,102,0.4],
-    [820,102,0.4],[1140,108,0.25],
-  ];
 
   return (
     <div style={{
@@ -1825,10 +1813,13 @@ const LandingPage = ({ onStart }) => {
       {/* ── SIDEBAR ── */}
       <aside className="piq-lp-sidebar" style={{
         width:218, flexShrink:0,
-        background:'#0F1219',
-        borderRight:`1px solid ${border}`,
+        background:'rgba(10,12,18,0.72)',
+        backdropFilter:'blur(20px)',
+        WebkitBackdropFilter:'blur(20px)',
+        borderRight:`1px solid rgba(255,255,255,0.06)`,
         display:'flex', flexDirection:'column',
         padding:'28px 0 20px',
+        position:'relative', zIndex:50,
       }}>
         <div style={{padding:'0 22px 36px',fontSize:15,fontWeight:700,letterSpacing:'0.04em',color:'#fff'}}>
           PLOTI<span style={{color:gold}}>Q</span>
@@ -1901,115 +1892,56 @@ const LandingPage = ({ onStart }) => {
         {/* ── PLATFORM / HERO ── */}
         <section id="lp-platform" style={{height:'100vh',minHeight:600,position:'relative',overflow:'hidden'}}>
 
-          {/* Sky gradient */}
+          {/* ── Background image layers ── */}
+          <img
+            src="/day_bg.webp"
+            alt=""
+            aria-hidden="true"
+            className="animate-hero-zoom"
+            style={{
+              position:'absolute',inset:0,width:'100%',height:'100%',
+              objectFit:'cover',objectPosition:'center',
+              opacity: isDay ? 1 : 0,
+              transition:'opacity 2.4s ease-in-out',
+              zIndex:0,
+            }}
+          />
+          <img
+            src="/night_bg.webp"
+            alt=""
+            aria-hidden="true"
+            className="animate-hero-zoom"
+            style={{
+              position:'absolute',inset:0,width:'100%',height:'100%',
+              objectFit:'cover',objectPosition:'center',
+              opacity: isDay ? 0 : 1,
+              transition:'opacity 2.4s ease-in-out',
+              zIndex:0,
+            }}
+          />
+
+          {/* ── Atmospheric overlays ── */}
+          {/* Top vignette — darkens sky behind nav */}
           <div style={{
-            position:'absolute',inset:0,
-            background:'linear-gradient(180deg,#1B2133 0%,#141926 28%,#0E1220 62%,#0A0C14 100%)',
+            position:'absolute',inset:0,zIndex:1,pointerEvents:'none',
+            background:'linear-gradient(to bottom, rgba(5,7,14,0.62) 0%, rgba(5,7,14,0.18) 28%, transparent 52%)',
           }}/>
-
-          {/* Atmospheric glow */}
+          {/* Bottom fade — text legibility and section transition */}
           <div style={{
-            position:'absolute',left:'20%',right:'20%',top:'15%',bottom:'25%',
-            background:'radial-gradient(ellipse at 50% 80%,rgba(201,169,110,0.055) 0%,transparent 65%)',
-            pointerEvents:'none',
+            position:'absolute',inset:0,zIndex:1,pointerEvents:'none',
+            background:'linear-gradient(to top, rgba(10,12,20,0.96) 0%, rgba(10,12,20,0.65) 22%, rgba(10,12,20,0.15) 48%, transparent 68%)',
           }}/>
-
-          {/* City silhouette */}
-          <svg style={{position:'absolute',bottom:'90px',left:0,width:'100%',height:'65%'}}
-            viewBox="0 0 1440 480" preserveAspectRatio="xMidYMax meet">
-            <defs>
-              <linearGradient id="bG1" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#1F2840"/><stop offset="100%" stopColor="#0C0E16"/>
-              </linearGradient>
-              <linearGradient id="bG2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#18223A"/><stop offset="100%" stopColor="#0A0C14"/>
-              </linearGradient>
-              <linearGradient id="tG" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#0A160A"/><stop offset="100%" stopColor="#050A05"/>
-              </linearGradient>
-              <filter id="wGlow" x="-30%" y="-30%" width="160%" height="160%">
-                <feGaussianBlur stdDeviation="1.5" result="b"/>
-                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-              </filter>
-              <radialGradient id="aGlow" cx="50%" cy="100%" r="55%">
-                <stop offset="0%" stopColor="#C9A96E" stopOpacity="0.055"/>
-                <stop offset="100%" stopColor="#0A0C14" stopOpacity="0"/>
-              </radialGradient>
-            </defs>
-            <rect x="0" y="0" width="1440" height="480" fill="url(#aGlow)"/>
-            {/* Far background */}
-            <rect x="0" y="280" width="100" height="200" fill="#131826" opacity="0.5"/>
-            <rect x="110" y="250" width="80" height="230" fill="#131826" opacity="0.45"/>
-            <rect x="200" y="300" width="70" height="180" fill="#131826" opacity="0.4"/>
-            <rect x="280" y="270" width="90" height="210" fill="#131826" opacity="0.45"/>
-            {/* Mid-tier */}
-            <rect x="380" y="180" width="75" height="300" fill="url(#bG2)" opacity="0.8"/>
-            <rect x="462" y="210" width="60" height="270" fill="url(#bG2)" opacity="0.75"/>
-            {/* Main tall tower */}
-            <rect x="540" y="30" width="72" height="450" fill="url(#bG1)"/>
-            <rect x="566" y="0" width="20" height="42" fill="#141C2C"/>
-            <rect x="571" y="-10" width="10" height="14" fill="#131A2A"/>
-            {[70,100,130,160,190,220,250,280,310,340,370,400].map((y,i)=>(
-              <line key={`th${i}`} x1="540" y1={y} x2="612" y2={y} stroke="rgba(201,169,110,0.07)" strokeWidth="0.6"/>
-            ))}
-            {[558,576,594].map((x,i)=>(
-              <line key={`tv${i}`} x1={x} y1="30" x2={x} y2="480" stroke="rgba(201,169,110,0.06)" strokeWidth="0.6"/>
-            ))}
-            {/* Second tower */}
-            <rect x="624" y="60" width="62" height="420" fill="url(#bG1)"/>
-            {[90,120,150,180,210,240,270,300,330,360].map((y,i)=>(
-              <line key={`t2h${i}`} x1="624" y1={y} x2="686" y2={y} stroke="rgba(201,169,110,0.06)" strokeWidth="0.6"/>
-            ))}
-            {[640,656,670].map((x,i)=>(
-              <line key={`t2v${i}`} x1={x} y1="60" x2={x} y2="480" stroke="rgba(201,169,110,0.05)" strokeWidth="0.5"/>
-            ))}
-            {/* Third tower */}
-            <rect x="698" y="100" width="54" height="380" fill="url(#bG1)" opacity="0.9"/>
-            {[130,160,190,220,250,280,310,340].map((y,i)=>(
-              <line key={`t3h${i}`} x1="698" y1={y} x2="752" y2={y} stroke="rgba(201,169,110,0.06)" strokeWidth="0.5"/>
-            ))}
-            {/* Fourth tower */}
-            <rect x="762" y="140" width="68" height="340" fill="url(#bG2)" opacity="0.8"/>
-            {[170,200,230,260,290,320,350].map((y,i)=>(
-              <line key={`t4h${i}`} x1="762" y1={y} x2="830" y2={y} stroke="rgba(201,169,110,0.05)" strokeWidth="0.5"/>
-            ))}
-            {/* Far right */}
-            <rect x="900" y="220" width="85" height="260" fill="url(#bG2)" opacity="0.6"/>
-            <rect x="995" y="250" width="70" height="230" fill="#131826" opacity="0.5"/>
-            <rect x="1075" y="280" width="90" height="200" fill="#131826" opacity="0.45"/>
-            <rect x="1175" y="260" width="80" height="220" fill="#131826" opacity="0.4"/>
-            <rect x="1265" y="300" width="175" height="180" fill="#131826" opacity="0.35"/>
-            {/* Window lights */}
-            {windowLights.map(([x,y,op],i)=>(
-              <rect key={`w${i}`} x={x} y={y} width="10" height="6"
-                fill={`rgba(201,169,110,${op})`} rx="1" filter="url(#wGlow)"/>
-            ))}
-            {/* Trees */}
-            <ellipse cx="340" cy="432" rx="42" ry="30" fill="url(#tG)"/>
-            <ellipse cx="370" cy="442" rx="35" ry="24" fill="url(#tG)"/>
-            <rect x="350" y="440" width="10" height="40" fill="url(#tG)"/>
-            <ellipse cx="860" cy="428" rx="48" ry="32" fill="url(#tG)"/>
-            <ellipse cx="895" cy="436" rx="38" ry="26" fill="url(#tG)"/>
-            <rect x="873" y="436" width="10" height="44" fill="url(#tG)"/>
-            <ellipse cx="1140" cy="435" rx="35" ry="24" fill="url(#tG)" opacity="0.7"/>
-          </svg>
-
-          {/* Golden perspective grid */}
-          <svg style={{position:'absolute',bottom:0,left:0,width:'100%',height:'120px'}}
-            viewBox="0 0 1440 120" preserveAspectRatio="none">
-            {[-200,0,200,400,600,720,840,1000,1200,1440,1640].map((x,i)=>(
-              <line key={`pl${i}`} x1={x} y1={120} x2={720} y2={0}
-                stroke="rgba(201,169,110,0.13)" strokeWidth="0.6"/>
-            ))}
-            {[30,60,90].map((y,i)=>(
-              <line key={`hl${i}`} x1={0} y1={y} x2={1440} y2={y}
-                stroke="rgba(201,169,110,0.07)" strokeWidth="0.5"/>
-            ))}
-            {perspectiveDots.map(([x,y,op],i)=>(
-              <circle key={`d${i}`} cx={x} cy={y} r="2.5" fill={`rgba(201,169,110,${op})`}/>
-            ))}
-          </svg>
-
+          {/* Subtle edge vignette */}
+          <div style={{
+            position:'absolute',inset:0,zIndex:1,pointerEvents:'none',
+            background:'radial-gradient(ellipse 110% 100% at 50% 50%, transparent 42%, rgba(5,7,14,0.38) 100%)',
+          }}/>
+          {/* Gold warmth bloom — anchors content */}
+          <div style={{
+            position:'absolute',bottom:'12%',left:'4%',right:'55%',height:'40%',
+            zIndex:1,pointerEvents:'none',
+            background:'radial-gradient(ellipse at 30% 80%, rgba(201,169,110,0.06) 0%, transparent 70%)',
+          }}/>
 
           {/* Hero text */}
           <div className="piq-hero-content" style={{position:'relative',zIndex:2,padding:'70px 52px 80px'}}>
@@ -2027,6 +1959,7 @@ const LandingPage = ({ onStart }) => {
               fontSize:'clamp(44px,4.8vw,72px)',
               fontWeight:700,letterSpacing:'-0.025em',color:'#FFFFFF',
               fontFamily:'"Source Serif 4",Georgia,serif',
+              textShadow:'0 2px 24px rgba(0,0,0,0.55)',
             }}>
               Understand.<br/>
               Evaluate.<br/>
@@ -2077,8 +2010,11 @@ const LandingPage = ({ onStart }) => {
         {/* Feature strip */}
         <div className="piq-feature-strip" style={{
           display:'grid',gridTemplateColumns:'repeat(4,1fr)',
-          borderTop:`1px solid ${border}`,
-          borderBottom:`1px solid ${border}`,
+          background:'rgba(10,12,18,0.78)',
+          backdropFilter:'blur(16px)',
+          WebkitBackdropFilter:'blur(16px)',
+          borderTop:'1px solid rgba(255,255,255,0.07)',
+          borderBottom:'1px solid rgba(255,255,255,0.07)',
         }}>
           {[
             {
