@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { Check, X, AlertTriangle, Plus, Trash2, ChevronDown, Printer, Eye, EyeOff, MapPin, LayoutGrid, Map, Layers, TrendingUp, Target, FileText, Bell } from 'lucide-react';
+import { Check, X, AlertTriangle, Plus, Trash2, ChevronDown, Printer, Eye, EyeOff, MapPin, LayoutGrid, Map, Layers, TrendingUp, Target, FileText } from 'lucide-react';
 import './design/tokens.css';
 import SiteIntelligencePage from './components/SiteIntelligencePage';
 
@@ -1775,8 +1775,10 @@ const LandingPage = ({ onStart }) => {
   ];
   const [activeSection, setActiveSection] = useState('platform');
   const mainRef = useRef(null);
-  const hour = new Date().getHours();
-  const isDay = hour >= 6 && hour < 19;
+  const [isDay, setIsDay] = useState(() => {
+    const h = new Date().getHours();
+    return h >= 6 && h < 19;
+  });
 
   const scrollTo = (id) => {
     setActiveSection(id);
@@ -1875,19 +1877,25 @@ const LandingPage = ({ onStart }) => {
           }}>Start →</button>
         </div>
 
-        {/* Top bar (bell icon) */}
-        <div style={{position:'absolute',top:18,right:20,zIndex:20}}>
-          <div style={{
+        {/* Day / Night toggle */}
+        <button
+          onClick={() => setIsDay(d => !d)}
+          title={isDay ? 'Switch to night' : 'Switch to day'}
+          style={{
+            position:'absolute',top:18,right:20,zIndex:20,
             width:38,height:38,borderRadius:'50%',
-            background:'rgba(0,0,0,0.55)',border:`1px solid ${border}`,
-            backdropFilter:'blur(8px)',
+            background:'rgba(255,255,255,0.07)',
+            border:'1px solid rgba(255,255,255,0.12)',
+            backdropFilter:'blur(12px)',
+            WebkitBackdropFilter:'blur(12px)',
             display:'flex',alignItems:'center',justifyContent:'center',
-            cursor:'pointer',position:'relative',
-          }}>
-            <Bell size={15} color={textMuted}/>
-            <div style={{position:'absolute',top:8,right:8,width:6,height:6,borderRadius:'50%',background:gold}}/>
-          </div>
-        </div>
+            cursor:'pointer',
+            fontSize:15,lineHeight:1,
+            transition:'background 0.2s, border-color 0.2s',
+          }}
+        >
+          {isDay ? '🌙' : '☀️'}
+        </button>
 
         {/* ── PLATFORM / HERO ── */}
         <section id="lp-platform" style={{height:'100vh',minHeight:600,position:'relative',overflow:'hidden'}}>
