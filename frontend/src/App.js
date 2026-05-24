@@ -1688,13 +1688,16 @@ const GlobalStyles = () => (
   <style>{`
     /* ── Landing sidebar ── */
     .piq-lp-sidebar { display: flex !important; }
+    .piq-lp-sidebar nav > div:hover { background: rgba(255,255,255,0.025) !important; }
+    .piq-feature-strip > div { transition: background 0.4s ease; }
+    .piq-feature-strip > div:hover { background: rgba(255,255,255,0.018); }
     .piq-lp-mobile-nav {
       display: none;
       position: sticky; top: 0; z-index: 50;
-      background: rgba(10,12,18,0.72);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(6,8,14,0.50);
+      backdrop-filter: blur(32px);
+      -webkit-backdrop-filter: blur(32px);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
       padding: 0 18px;
       height: 50px;
       align-items: center;
@@ -1729,7 +1732,7 @@ const GlobalStyles = () => (
       .piq-lp-mobile-nav { display: flex !important; }
       .piq-hero-toggle { display: none !important; }
       .piq-lp-main { padding-top: 0 !important; }
-      .piq-hero-content { padding: 40px 20px 60px !important; }
+      .piq-hero-content { padding: 52px 20px 72px !important; }
       .piq-feature-strip { grid-template-columns: 1fr 1fr !important; }
       .piq-lp-section { padding: 48px 20px !important; }
       .piq-about-grid { grid-template-columns: 1fr !important; }
@@ -1764,8 +1767,8 @@ const LandingPage = ({ onStart }) => {
   const gold = '#C9A96E';
   const bg = '#0D0F14';
   const border = 'rgba(255,255,255,0.07)';
-  const textMuted = 'rgba(255,255,255,0.45)';
-  const textFaint = 'rgba(255,255,255,0.22)';
+  const textMuted = 'rgba(255,255,255,0.38)';
+  const textFaint = 'rgba(255,255,255,0.17)';
 
   const navItems = [
     { id: 'platform', label: 'Platform' },
@@ -1816,10 +1819,10 @@ const LandingPage = ({ onStart }) => {
       {/* ── SIDEBAR ── */}
       <aside className="piq-lp-sidebar" style={{
         width:218, flexShrink:0,
-        background:'rgba(10,12,18,0.72)',
-        backdropFilter:'blur(20px)',
-        WebkitBackdropFilter:'blur(20px)',
-        borderRight:`1px solid rgba(255,255,255,0.06)`,
+        background:'rgba(6,8,14,0.48)',
+        backdropFilter:'blur(34px)',
+        WebkitBackdropFilter:'blur(34px)',
+        borderRight:`1px solid rgba(255,255,255,0.04)`,
         display:'flex', flexDirection:'column',
         padding:'28px 0 20px',
         position:'relative', zIndex:50,
@@ -1837,7 +1840,7 @@ const LandingPage = ({ onStart }) => {
               color:activeSection===item.id?'#fff':textMuted,
               fontSize:13,fontWeight:activeSection===item.id?600:400,
               cursor:'pointer',
-              transition:'color 0.15s,background 0.15s',
+              transition:'color 0.3s ease,background 0.3s ease',
             }}>
               {item.label}
             </div>
@@ -1846,12 +1849,13 @@ const LandingPage = ({ onStart }) => {
         <div style={{padding:'14px 22px 0',borderTop:`1px solid ${border}`}}>
           <button onClick={onStart} style={{
             width:'100%',padding:'10px 14px',
-            background:'rgba(201,169,110,0.10)',
-            border:`1px solid rgba(201,169,110,0.25)`,
+            background:'rgba(201,169,110,0.07)',
+            border:`1px solid rgba(201,169,110,0.18)`,
             borderRadius:4,color:gold,
-            fontSize:12,fontWeight:600,
+            fontSize:12,fontWeight:500,
             cursor:'pointer',fontFamily:'inherit',
-            letterSpacing:'0.04em',
+            letterSpacing:'0.03em',
+            transition:'background 0.5s ease, border-color 0.5s ease',
           }}>
             Start Assessment →
           </button>
@@ -1877,21 +1881,22 @@ const LandingPage = ({ onStart }) => {
               title={isDay ? 'Switch to night' : 'Switch to day'}
               style={{
                 width:32,height:32,borderRadius:'50%',
-                background:'rgba(255,255,255,0.07)',
-                border:'1px solid rgba(255,255,255,0.12)',
-                backdropFilter:'blur(12px)',
-                WebkitBackdropFilter:'blur(12px)',
+                background:'rgba(255,255,255,0.04)',
+                border:'1px solid rgba(255,255,255,0.07)',
+                backdropFilter:'blur(18px)',
+                WebkitBackdropFilter:'blur(18px)',
                 display:'flex',alignItems:'center',justifyContent:'center',
                 cursor:'pointer',fontSize:14,lineHeight:1,
-                transition:'background 0.2s',
+                transition:'background 0.4s ease',
               }}
             >
               {isDay ? '🌙' : '☀️'}
             </button>
             <button onClick={onStart} style={{
-              padding:'7px 14px',background:'rgba(201,169,110,0.10)',
-              border:`1px solid rgba(201,169,110,0.25)`,borderRadius:4,color:gold,
-              fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit',letterSpacing:'0.04em',
+              padding:'7px 14px',background:'rgba(201,169,110,0.07)',
+              border:`1px solid rgba(201,169,110,0.18)`,borderRadius:4,color:gold,
+              fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:'inherit',letterSpacing:'0.03em',
+              transition:'background 0.5s ease',
             }}>Start →</button>
           </div>
         </div>
@@ -1904,14 +1909,14 @@ const LandingPage = ({ onStart }) => {
           style={{
             position:'absolute',top:18,right:20,zIndex:20,
             width:38,height:38,borderRadius:'50%',
-            background:'rgba(255,255,255,0.07)',
-            border:'1px solid rgba(255,255,255,0.12)',
-            backdropFilter:'blur(12px)',
-            WebkitBackdropFilter:'blur(12px)',
+            background:'rgba(255,255,255,0.04)',
+            border:'1px solid rgba(255,255,255,0.07)',
+            backdropFilter:'blur(18px)',
+            WebkitBackdropFilter:'blur(18px)',
             display:'flex',alignItems:'center',justifyContent:'center',
             cursor:'pointer',
             fontSize:15,lineHeight:1,
-            transition:'background 0.2s, border-color 0.2s',
+            transition:'background 0.4s ease, border-color 0.4s ease',
           }}
         >
           {isDay ? '🌙' : '☀️'}
@@ -1972,22 +1977,22 @@ const LandingPage = ({ onStart }) => {
           }}/>
 
           {/* Hero text */}
-          <div className="piq-hero-content" style={{position:'relative',zIndex:2,padding:'70px 52px 80px'}}>
+          <div className="piq-hero-content" style={{position:'relative',zIndex:2,padding:'92px 52px 108px'}}>
             <div style={{
               display:'inline-flex',alignItems:'center',gap:4,
-              fontSize:10.5,letterSpacing:'0.18em',textTransform:'uppercase',
-              color:textMuted,marginBottom:22,fontWeight:500,
+              fontSize:10,letterSpacing:'0.2em',textTransform:'uppercase',
+              color:'rgba(255,255,255,0.30)',marginBottom:32,fontWeight:400,
             }}>
-              <span style={{color:gold,borderBottom:`1px solid ${gold}`,paddingBottom:'2px'}}>URBAN</span>
+              <span style={{color:gold,borderBottom:`1px solid rgba(201,169,110,0.40)`,paddingBottom:'2px'}}>URBAN</span>
               {' '}DEVELOPMENT INTELLIGENCE
             </div>
 
             <h1 style={{
-              margin:0,lineHeight:1.04,
-              fontSize:'clamp(44px,4.8vw,72px)',
-              fontWeight:700,letterSpacing:'-0.025em',color:'#FFFFFF',
+              margin:0,lineHeight:1.07,
+              fontSize:'clamp(46px,5.2vw,78px)',
+              fontWeight:600,letterSpacing:'-0.03em',color:'#FFFFFF',
               fontFamily:'"Source Serif 4",Georgia,serif',
-              textShadow:'0 2px 24px rgba(0,0,0,0.55)',
+              textShadow:'0 2px 36px rgba(0,0,0,0.62)',
             }}>
               Understand.<br/>
               Evaluate.<br/>
@@ -1995,40 +2000,40 @@ const LandingPage = ({ onStart }) => {
             </h1>
 
             <p style={{
-              marginTop:18,fontSize:14,lineHeight:1.75,
-              color:textMuted,maxWidth:400,
-              fontFamily:'"Source Sans 3",sans-serif',fontWeight:400,
+              marginTop:28,fontSize:13.5,lineHeight:1.9,
+              color:'rgba(255,255,255,0.34)',maxWidth:350,
+              fontFamily:'"Source Sans 3",sans-serif',fontWeight:300,
             }}>
               PlotIQ transforms regulatory complexity, spatial intelligence and feasibility logic into structured assessments you can trust.
             </p>
 
-            <div className="piq-lp-cta-row" style={{display:'flex',gap:13,marginTop:30,alignItems:'center'}}>
+            <div className="piq-lp-cta-row" style={{display:'flex',gap:14,marginTop:42,alignItems:'center'}}>
               <button onClick={onStart} style={{
-                padding:'13px 26px',
-                background:'#FFFFFF',color:bg,
-                border:'none',borderRadius:6,
-                fontSize:13.5,fontWeight:700,
-                cursor:'pointer',letterSpacing:'-0.01em',
+                padding:'12px 26px',
+                background:'rgba(201,169,110,0.09)',
+                color:gold,
+                border:`1px solid rgba(201,169,110,0.26)`,
+                borderRadius:4,
+                fontSize:13,fontWeight:500,
+                cursor:'pointer',letterSpacing:'0.02em',
                 display:'flex',alignItems:'center',gap:9,
+                backdropFilter:'blur(10px)',
+                WebkitBackdropFilter:'blur(10px)',
+                transition:'background 0.5s ease, border-color 0.5s ease',
               }}>
-                Start New Assessment <span>→</span>
+                Start New Assessment →
               </button>
               <button onClick={() => scrollTo('services')} style={{
-                padding:'13px 20px',
+                padding:'12px 20px',
                 background:'transparent',
-                border:'1px solid rgba(255,255,255,0.14)',
-                color:'#fff',borderRadius:6,
-                fontSize:13.5,fontWeight:500,
-                cursor:'pointer',
-                display:'flex',alignItems:'center',gap:10,
+                border:'1px solid rgba(255,255,255,0.07)',
+                color:'rgba(255,255,255,0.42)',borderRadius:4,
+                fontSize:13,fontWeight:400,
+                cursor:'pointer',letterSpacing:'0.01em',
+                display:'flex',alignItems:'center',gap:8,
+                transition:'border-color 0.45s ease, color 0.45s ease',
               }}>
-                Explore Services
-                <span style={{
-                  width:26,height:26,borderRadius:'50%',
-                  border:'1px solid rgba(255,255,255,0.18)',
-                  display:'inline-flex',alignItems:'center',justifyContent:'center',
-                  fontSize:12,lineHeight:1,
-                }}>→</span>
+                Explore Services →
               </button>
             </div>
           </div>
@@ -2038,11 +2043,11 @@ const LandingPage = ({ onStart }) => {
         {/* Feature strip */}
         <div className="piq-feature-strip" style={{
           display:'grid',gridTemplateColumns:'repeat(4,1fr)',
-          background:'rgba(10,12,18,0.78)',
-          backdropFilter:'blur(16px)',
-          WebkitBackdropFilter:'blur(16px)',
-          borderTop:'1px solid rgba(255,255,255,0.07)',
-          borderBottom:'1px solid rgba(255,255,255,0.07)',
+          background:'rgba(6,8,14,0.60)',
+          backdropFilter:'blur(24px)',
+          WebkitBackdropFilter:'blur(24px)',
+          borderTop:'1px solid rgba(255,255,255,0.04)',
+          borderBottom:'1px solid rgba(255,255,255,0.04)',
         }}>
           {[
             {
@@ -2082,8 +2087,8 @@ const LandingPage = ({ onStart }) => {
                 {f.icon}
               </div>
               <div>
-                <div style={{fontSize:12.5,fontWeight:700,color:'#fff',marginBottom:5,lineHeight:1.2}}>{f.title}</div>
-                <div style={{fontSize:11.5,color:textMuted,lineHeight:1.6}}>{f.desc}</div>
+                <div style={{fontSize:12,fontWeight:600,color:'rgba(255,255,255,0.82)',marginBottom:6,lineHeight:1.2}}>{f.title}</div>
+                <div style={{fontSize:11,color:'rgba(255,255,255,0.32)',lineHeight:1.68}}>{f.desc}</div>
               </div>
             </div>
           ))}
@@ -2092,11 +2097,11 @@ const LandingPage = ({ onStart }) => {
         {/* ── ABOUT ── */}
         <section id="lp-about" className="piq-lp-section" style={{padding:'80px 60px',borderBottom:`1px solid ${border}`,background:'#0D0F14'}}>
           <div style={{maxWidth:820}}>
-            <div style={{fontSize:10,letterSpacing:'0.18em',textTransform:'uppercase',color:gold,marginBottom:18,fontWeight:600}}>About PlotIQ</div>
-            <h2 style={{margin:'0 0 24px',fontSize:'clamp(28px,3vw,44px)',fontWeight:700,letterSpacing:'-0.02em',color:'#fff',fontFamily:'"Source Serif 4",Georgia,serif',lineHeight:1.15}}>
+            <div style={{fontSize:10,letterSpacing:'0.2em',textTransform:'uppercase',color:gold,marginBottom:22,fontWeight:500,opacity:0.85}}>About PlotIQ</div>
+            <h2 style={{margin:'0 0 28px',fontSize:'clamp(28px,3vw,44px)',fontWeight:600,letterSpacing:'-0.022em',color:'#fff',fontFamily:'"Source Serif 4",Georgia,serif',lineHeight:1.15}}>
               Mumbai's regulatory framework is complex by design.<br/>We make it legible.
             </h2>
-            <p style={{fontSize:14.5,lineHeight:1.8,color:textMuted,maxWidth:640,margin:'0 0 48px'}}>
+            <p style={{fontSize:14,lineHeight:1.86,color:textMuted,maxWidth:600,margin:'0 0 52px',fontWeight:300}}>
               PlotIQ is a regulatory and spatial intelligence platform built specifically for Mumbai's Comprehensive Development Control and Promotion Regulations 2034. Every FSI slab, premium schedule, incentive BUA formula, and TDR rule is encoded directly from the gazette — so every output is traceable back to a specific regulation, not a consultant's estimate.
             </p>
             <div className="piq-about-grid" style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:1,background:border,border:`1px solid ${border}`,borderRadius:4,overflow:'hidden'}}>
@@ -2116,11 +2121,11 @@ const LandingPage = ({ onStart }) => {
 
         {/* ── SERVICES ── */}
         <section id="lp-services" className="piq-lp-section" style={{padding:'80px 60px',borderBottom:`1px solid ${border}`,background:'#0A0C11'}}>
-          <div style={{fontSize:10,letterSpacing:'0.18em',textTransform:'uppercase',color:gold,marginBottom:18,fontWeight:600}}>What We Do</div>
-          <h2 style={{margin:'0 0 10px',fontSize:'clamp(26px,2.8vw,40px)',fontWeight:700,letterSpacing:'-0.02em',color:'#fff',fontFamily:'"Source Serif 4",Georgia,serif',lineHeight:1.15}}>
+          <div style={{fontSize:10,letterSpacing:'0.2em',textTransform:'uppercase',color:gold,marginBottom:22,fontWeight:500,opacity:0.85}}>What We Do</div>
+          <h2 style={{margin:'0 0 14px',fontSize:'clamp(26px,2.8vw,40px)',fontWeight:600,letterSpacing:'-0.022em',color:'#fff',fontFamily:'"Source Serif 4",Georgia,serif',lineHeight:1.15}}>
             End-to-end support for society redevelopment.
           </h2>
-          <p style={{fontSize:14,lineHeight:1.75,color:textMuted,maxWidth:580,margin:'0 0 48px'}}>
+          <p style={{fontSize:14,lineHeight:1.84,color:textMuted,maxWidth:560,margin:'0 0 52px',fontWeight:300}}>
             From the first committee discussion to Occupancy Certificate — we provide the intelligence, documents, and advisory support that turn regulatory complexity into a clear path forward.
           </p>
           <div style={{display:'grid',gap:3}}>
@@ -2176,8 +2181,8 @@ const LandingPage = ({ onStart }) => {
 
         {/* ── USE CASES ── */}
         <section id="lp-usecases" className="piq-lp-section" style={{padding:'80px 60px',borderBottom:`1px solid ${border}`,background:'#0D0F14'}}>
-          <div style={{fontSize:10,letterSpacing:'0.18em',textTransform:'uppercase',color:gold,marginBottom:18,fontWeight:600}}>Who It's For</div>
-          <h2 style={{margin:'0 0 48px',fontSize:'clamp(26px,2.8vw,40px)',fontWeight:700,letterSpacing:'-0.02em',color:'#fff',fontFamily:'"Source Serif 4",Georgia,serif',lineHeight:1.15}}>
+          <div style={{fontSize:10,letterSpacing:'0.2em',textTransform:'uppercase',color:gold,marginBottom:22,fontWeight:500,opacity:0.85}}>Who It's For</div>
+          <h2 style={{margin:'0 0 52px',fontSize:'clamp(26px,2.8vw,40px)',fontWeight:600,letterSpacing:'-0.022em',color:'#fff',fontFamily:'"Source Serif 4",Georgia,serif',lineHeight:1.15}}>
             Built for every stakeholder in the redevelopment chain.
           </h2>
           <div className="piq-usecases-grid" style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:16}}>
@@ -2224,11 +2229,11 @@ const LandingPage = ({ onStart }) => {
 
         {/* ── PRICING ── */}
         <section id="lp-pricing" className="piq-lp-section" style={{padding:'80px 60px',background:'#0A0C11'}}>
-          <div style={{fontSize:10,letterSpacing:'0.18em',textTransform:'uppercase',color:gold,marginBottom:18,fontWeight:600}}>Access</div>
-          <h2 style={{margin:'0 0 10px',fontSize:'clamp(26px,2.8vw,40px)',fontWeight:700,letterSpacing:'-0.02em',color:'#fff',fontFamily:'"Source Serif 4",Georgia,serif',lineHeight:1.15}}>
+          <div style={{fontSize:10,letterSpacing:'0.2em',textTransform:'uppercase',color:gold,marginBottom:22,fontWeight:500,opacity:0.85}}>Access</div>
+          <h2 style={{margin:'0 0 14px',fontSize:'clamp(26px,2.8vw,40px)',fontWeight:600,letterSpacing:'-0.022em',color:'#fff',fontFamily:'"Source Serif 4",Georgia,serif',lineHeight:1.15}}>
             Start with the calculation. Engage for the full picture.
           </h2>
-          <p style={{fontSize:14,lineHeight:1.75,color:textMuted,maxWidth:520,margin:'0 0 52px'}}>
+          <p style={{fontSize:14,lineHeight:1.84,color:textMuted,maxWidth:500,margin:'0 0 56px',fontWeight:300}}>
             The assessment tool is free for all. Advisory retainers are by engagement.
           </p>
           <div className="piq-pricing-grid" style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16,maxWidth:880}}>
@@ -2262,7 +2267,7 @@ const LandingPage = ({ onStart }) => {
                     </div>
                   ))}
                 </div>
-                <button onClick={t.ctaAction} style={{width:'100%',padding:'11px',background:t.highlight?gold:'rgba(255,255,255,0.06)',color:t.highlight?'#0D0F14':'#fff',border:t.highlight?'none':`1px solid ${border}`,borderRadius:4,fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+                <button onClick={t.ctaAction} style={{width:'100%',padding:'11px',background:t.highlight?'rgba(201,169,110,0.80)':'rgba(255,255,255,0.04)',color:t.highlight?'#0D0F14':'rgba(255,255,255,0.58)',border:t.highlight?'none':`1px solid ${border}`,borderRadius:4,fontSize:13,fontWeight:t.highlight?600:500,cursor:'pointer',fontFamily:'inherit',transition:'background 0.45s ease, opacity 0.45s ease'}}>
                   {t.ctaLabel}
                 </button>
               </div>

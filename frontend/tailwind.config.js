@@ -6,11 +6,11 @@ module.exports = {
       keyframes: {
         heroZoom: {
           '0%':   { transform: 'scale(1)' },
-          '100%': { transform: 'scale(1.08)' },
+          '100%': { transform: 'scale(1.06)' },
         },
       },
       animation: {
-        'hero-zoom': 'heroZoom 28s ease-in-out infinite alternate',
+        'hero-zoom': 'heroZoom 38s ease-in-out infinite alternate',
       },
     },
   },
