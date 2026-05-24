@@ -1727,6 +1727,7 @@ const GlobalStyles = () => (
       /* Landing */
       .piq-lp-sidebar { display: none !important; }
       .piq-lp-mobile-nav { display: flex !important; }
+      .piq-hero-toggle { display: none !important; }
       .piq-lp-main { padding-top: 0 !important; }
       .piq-hero-content { padding: 40px 20px 60px !important; }
       .piq-feature-strip { grid-template-columns: 1fr 1fr !important; }
@@ -1870,15 +1871,34 @@ const LandingPage = ({ onStart }) => {
           <div style={{fontSize:15,fontWeight:700,letterSpacing:'0.04em',color:'#fff'}}>
             PLOTI<span style={{color:gold}}>Q</span>
           </div>
-          <button onClick={onStart} style={{
-            padding:'7px 14px',background:'rgba(201,169,110,0.10)',
-            border:`1px solid rgba(201,169,110,0.25)`,borderRadius:4,color:gold,
-            fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit',letterSpacing:'0.04em',
-          }}>Start →</button>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <button
+              onClick={() => setIsDay(d => !d)}
+              title={isDay ? 'Switch to night' : 'Switch to day'}
+              style={{
+                width:32,height:32,borderRadius:'50%',
+                background:'rgba(255,255,255,0.07)',
+                border:'1px solid rgba(255,255,255,0.12)',
+                backdropFilter:'blur(12px)',
+                WebkitBackdropFilter:'blur(12px)',
+                display:'flex',alignItems:'center',justifyContent:'center',
+                cursor:'pointer',fontSize:14,lineHeight:1,
+                transition:'background 0.2s',
+              }}
+            >
+              {isDay ? '🌙' : '☀️'}
+            </button>
+            <button onClick={onStart} style={{
+              padding:'7px 14px',background:'rgba(201,169,110,0.10)',
+              border:`1px solid rgba(201,169,110,0.25)`,borderRadius:4,color:gold,
+              fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit',letterSpacing:'0.04em',
+            }}>Start →</button>
+          </div>
         </div>
 
-        {/* Day / Night toggle */}
+        {/* Day / Night toggle — desktop only */}
         <button
+          className="piq-hero-toggle"
           onClick={() => setIsDay(d => !d)}
           title={isDay ? 'Switch to night' : 'Switch to day'}
           style={{
