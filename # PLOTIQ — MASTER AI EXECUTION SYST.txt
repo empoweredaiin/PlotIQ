@@ -1,0 +1,708 @@
+# PLOTIQ — MASTER AI EXECUTION SYSTEM
+## KravonStudios Strategic Prompt Architecture
+### Version 1.0
+
+---
+
+# PURPOSE
+
+This document acts as:
+- the permanent AI operating system for PlotIQ,
+- the worldview layer,
+- the UX philosophy layer,
+- the product architecture layer,
+- the visual direction layer,
+- and the execution orchestration system.
+
+This file is intended to be:
+- stored as `.md`,
+- loaded into Claude/GPT context via VS Code,
+- and reused as the institutional design constitution for PlotIQ.
+
+---
+
+# CORE STRATEGIC POSITIONING
+
+PlotIQ is NOT:
+- a startup SaaS,
+- a flashy AI platform,
+- a proptech dashboard,
+- a marketplace,
+- a productivity application,
+- or a redevelopment calculator.
+
+PlotIQ IS:
+> computational regulatory intelligence infrastructure for urban development.
+
+The company encodes:
+- redevelopment regulations,
+- entitlement systems,
+- feasibility logic,
+- incentives,
+- procedural workflows,
+- approvals,
+- urban constraints,
+- and development intelligence
+
+into:
+- understandable intelligence,
+- structured assessments,
+- explainable outputs,
+- and institutional-grade redevelopment understanding.
+
+---
+
+# CORE PRODUCT THESIS
+
+PlotIQ does not merely produce calculations.
+
+It produces:
+> structured understanding.
+
+The emotional unlock for users is:
+> “Now we finally understand the proposal properly.”
+
+And deeper:
+> “We are no longer informationally dependent.”
+
+PlotIQ reduces:
+- opacity,
+- interpretive uncertainty,
+- dependency asymmetry,
+- procedural confusion,
+- and fragmented feasibility understanding.
+
+The system provides:
+- regulatory clarity,
+- entitlement understanding,
+- negotiation intelligence,
+- procedural confidence,
+- and explainable feasibility intelligence.
+
+---
+
+# LONG TERM VISION
+
+PlotIQ is ultimately building:
+> computational regulatory intelligence infrastructure for urban development.
+
+The long-term ambition is NOT:
+- SaaS engagement metrics,
+- marketplace volume,
+- startup growth theatrics,
+- or dashboard usage.
+
+The ambition IS:
+- institutional trust,
+- procedural adoption,
+- intelligence dependency,
+- methodological authority,
+- and infrastructural relevance.
+
+The ideal future market behavior is:
+> “Get a PlotIQ before proceeding.”
+
+At that point:
+PlotIQ stops behaving like software.
+
+And starts behaving like:
+> infrastructure.
+
+---
+
+# PRODUCT PHILOSOPHY
+
+PlotIQ should behave like:
+> a calm regulatory intelligence environment.
+
+NOT:
+> software trying to appear intelligent.
+
+The product must prioritize:
+- explainability,
+- procedural trust,
+- traceability,
+- layered understanding,
+- evidence hierarchy,
+- cognitive clarity,
+- and defensible outputs.
+
+The product must avoid:
+- AI theatrics,
+- dashboard overload,
+- startup interaction patterns,
+- excessive futurism,
+- hype language,
+- and visual noise.
+
+Users should never feel:
+> “the machine generated this.”
+
+They should feel:
+> “this assessment is structured, inspectable, and understandable.”
+
+---
+
+# NEUTRALITY DOCTRINE
+
+Neutrality is sacred.
+
+PlotIQ must never feel:
+- emotionally manipulative,
+- commercially biased,
+- politically charged,
+- anti-developer,
+- sensationalized,
+- or startup-performative.
+
+The system reports:
+- logic,
+- assessments,
+- feasibility conditions,
+- entitlement structures,
+- and procedural outcomes.
+
+It does NOT:
+- persuade emotionally,
+- posture,
+- dramatize,
+- over-market,
+- or perform intelligence theatrically.
+
+Trust must emerge from:
+- consistency,
+- transparency,
+- traceability,
+- procedural rhythm,
+- methodological rigor,
+- and calmness.
+
+---
+
+# TRUST MODEL
+
+PlotIQ builds trust through:
+- explainability,
+- report quality,
+- clause traceability,
+- structured assessments,
+- institutional pacing,
+- procedural familiarity,
+- and evidence hierarchy.
+
+The system should expose:
+- assumptions,
+- clause references,
+- feasibility logic,
+- confidence conditions,
+- and procedural pathways.
+
+Transparency is a feature.
+Not a liability.
+
+---
+
+# USER EXPERIENCE PHILOSOPHY
+
+The system should feel:
+> familiar enough to trust immediately.
+
+Users already trust:
+- feasibility studies,
+- engineering reports,
+- valuation documents,
+- redevelopment paperwork,
+- legal annexures,
+- and institutional assessments.
+
+PlotIQ should NOT reinvent these formats.
+
+It should:
+- modernize them,
+- structure them,
+- improve readability,
+- improve traceability,
+- and reduce confusion.
+
+The product should feel like:
+> “the best version of a format they already trust.”
+
+---
+
+# INTERFACE PHILOSOPHY
+
+PlotIQ should NOT feel like:
+- a startup dashboard,
+- a productivity app,
+- a fintech platform,
+- a generic SaaS product,
+- or an AI copilot.
+
+It should feel like:
+> a modern institutional assessment instrument.
+
+The interface must prioritize:
+- procedural pacing,
+- staged cognition,
+- evidence hierarchy,
+- readability,
+- structured density,
+- and spatial calmness.
+
+The interface should disappear behind understanding.
+
+---
+
+# COGNITIVE LOAD PRINCIPLE
+
+The current system exposes too much complexity directly.
+
+The future system must:
+- progressively reveal intelligence,
+- reduce cognitive burden,
+- hide unnecessary system logic,
+- and prioritize interpretation over computation.
+
+The user should first understand:
+> “What does this mean?”
+
+Before:
+> “How was this computed?”
+
+---
+
+# INFORMATION HIERARCHY
+
+Always prioritize information in this order:
+
+1. Context
+2. Key Assessment
+3. Entitlement Summary
+4. Interpretation
+5. Supporting Logic
+6. Clause References
+7. Assumptions
+8. Advanced Computation
+
+---
+
+# UX PRINCIPLES
+
+Avoid:
+- giant forms,
+- nested scrollbars,
+- dashboard clutter,
+- exposed engineering logic,
+- fragmented workflows,
+- giant sidebars,
+- and input-heavy experiences.
+
+The user should feel:
+> “The platform understands the site before I do.”
+
+The product should transition from:
+> “form filling”
+
+to:
+> “guided intelligence exploration.”
+
+---
+
+# UX RESTRUCTURING PRINCIPLES
+
+The experience should begin with:
+- Google Maps links,
+- CTS numbers,
+- addresses,
+- or parcel selection.
+
+The system should infer:
+- zoning,
+- road width,
+- parcel intelligence,
+- redevelopment context,
+- and spatial conditions.
+
+The platform should only ask:
+the minimum additional information necessary.
+
+---
+
+# WORKSPACE PHILOSOPHY
+
+The app should behave like:
+> one continuous intelligence workspace.
+
+NOT:
+> disconnected pages or dashboards.
+
+Avoid:
+- double scrollbars,
+- nested scrolling containers,
+- fragmented panel logic.
+
+The experience should feel:
+- calm,
+- spatial,
+- contextual,
+- and continuously understandable.
+
+---
+
+# PRODUCT MODULES
+
+The system should be modularized into:
+
+1. Site Discovery
+2. Spatial Intelligence
+3. Regulatory Intelligence
+4. Buildability & Massing
+5. Feasibility Intelligence
+6. Strategic Intelligence
+7. Assessment Reports
+
+Each module must:
+- feel institutionally consistent,
+- progressively reveal depth,
+- maintain procedural calmness,
+- preserve cognitive clarity,
+- and remain independently scalable.
+
+---
+
+# SPATIAL INTELLIGENCE PHILOSOPHY
+
+Spatial interaction must become central.
+
+The system should visually communicate:
+- land,
+- adjacency,
+- zoning,
+- density,
+- buildability,
+- and urban morphology.
+
+Maps should NOT be decorative.
+
+They are:
+> intelligence infrastructure.
+
+---
+
+# REGULATORY INTELLIGENCE PHILOSOPHY
+
+Users should not feel:
+> “I am using regulations.”
+
+They should feel:
+> “The system understands regulations.”
+
+The platform should expose:
+- implications,
+- opportunities,
+- constraints,
+- and assessments.
+
+NOT:
+- raw computational structures.
+
+---
+
+# AI PHILOSOPHY
+
+AI should remain:
+- quiet,
+- contextual,
+- embedded,
+- and explainable.
+
+Avoid:
+- chat-first workflows,
+- AI gimmicks,
+- copilots,
+- and performative automation.
+
+AI should behave like:
+> a calm expert urban analyst.
+
+NOT:
+> a chatbot.
+
+---
+
+# REPORT PHILOSOPHY
+
+The report/PDF is NOT:
+> an export feature.
+
+It IS:
+- a trust artifact,
+- a circulation layer,
+- a meeting-room object,
+- an institutional document,
+- and a procedural assessment surface.
+
+Reports should feel:
+- printable,
+- citable,
+- defensible,
+- explainable,
+- calm,
+- serious,
+- and structured.
+
+---
+
+# VISUAL PHILOSOPHY
+
+The visual direction should sit at the intersection of:
+> Dieter Rams × Nikhil Tengle
+
+Meaning:
+- reduction,
+- hierarchy,
+- restraint,
+- editorial rhythm,
+- architectural spacing,
+- institutional warmth,
+- and computational clarity.
+
+The interface should feel:
+- quiet,
+- tactile,
+- serious,
+- engineered,
+- inevitable,
+- and document-native.
+
+NOT:
+- futuristic,
+- hyper-polished,
+- startup-minimal,
+- or AI-performative.
+
+---
+
+# TYPOGRAPHY SYSTEM
+
+Primary direction:
+- Source Serif 4 → interpretation & narrative
+- JetBrains Mono → computation & metadata
+
+Typography should communicate:
+- procedural authority,
+- inspectability,
+- seriousness,
+- and institutional calmness.
+
+Avoid:
+- fintech typography,
+- startup sans-serif overload,
+- and productivity-app aesthetics.
+
+---
+
+# COLOR PHILOSOPHY
+
+The palette should remain:
+- warm,
+- low saturation,
+- restrained,
+- paper-oriented,
+- archival,
+- and procedural.
+
+Accent colors should only indicate:
+- warnings,
+- key figures,
+- comparisons,
+- and procedural emphasis.
+
+Avoid:
+- gradients,
+- startup palettes,
+- decorative UI color usage,
+- and celebratory aesthetics.
+
+---
+
+# WEBSITE PHILOSOPHY
+
+The website should NOT feel like:
+- a startup landing page,
+- a SaaS marketing site,
+- a proptech homepage,
+- or a feature showcase.
+
+It should feel like:
+> a modern institutional redevelopment intelligence environment.
+
+The website should communicate:
+- methodological rigor,
+- explainability,
+- assessment intelligence,
+- and infrastructural seriousness.
+
+The website should feel:
+- editorial,
+- architectural,
+- restrained,
+- cinematic only when necessary,
+- and procedurally calm.
+
+---
+
+# WEBSITE STRUCTURE
+
+The website should include:
+
+1. Hero
+2. Market Failure
+3. Intelligence Layers
+4. Experience Philosophy
+5. Workspace Architecture
+6. Way Ahead
+7. User Segments
+8. Trust Layer
+9. Final Manifesto
+
+---
+
+# WEBSITE HERO DIRECTION
+
+The hero should NOT:
+- over-market,
+- over-hype,
+- or use generic AI language.
+
+The hero should communicate:
+> regulatory intelligence infrastructure for urban development.
+
+The visual system should use:
+- parcel overlays,
+- zoning intelligence,
+- spatial layers,
+- procedural visuals,
+- and urban assessment imagery.
+
+NOT:
+- generic dashboard screenshots.
+
+---
+
+# “WAY AHEAD” PHILOSOPHY
+
+The “Way Ahead” section is critical.
+
+This section transforms PlotIQ from:
+- a product,
+to:
+- infrastructure vision.
+
+The narrative should communicate:
+- computational urban systems,
+- intelligence-led redevelopment,
+- regulatory computation,
+- institutional feasibility environments,
+- and long-term infrastructural thinking.
+
+---
+
+# DESIGN SYSTEM PRINCIPLES
+
+The design system must define:
+- typography,
+- spacing,
+- hierarchy,
+- density,
+- motion,
+- color usage,
+- interaction behavior,
+- and procedural rhythm.
+
+The system should prioritize:
+- calmness,
+- readability,
+- and institutional trust.
+
+---
+
+# FRONTEND ARCHITECTURE PRINCIPLES
+
+The frontend must be:
+- modular,
+- domain-driven,
+- scalable,
+- explainability-first,
+- and cognitively structured.
+
+Separate:
+- UI state,
+- regulatory state,
+- spatial state,
+- feasibility state,
+- AI state,
+- and reporting systems.
+
+Avoid:
+- monolithic logic,
+- tightly coupled workflows,
+- and feature-by-feature architecture.
+
+---
+
+# TASK EXECUTION PROTOCOL
+
+Whenever generating outputs:
+- maintain neutrality,
+- maintain procedural calmness,
+- avoid startup patterns,
+- avoid AI theatrics,
+- preserve explainability,
+- prioritize cognitive clarity,
+- and maintain institutional coherence.
+
+---
+
+# EXECUTION TASK TYPES
+
+Possible task types include:
+- website generation,
+- UX redesign,
+- design system creation,
+- frontend architecture planning,
+- report system design,
+- modularization,
+- interaction design,
+- wireframing,
+- AI integration strategy,
+- and spatial intelligence workflows.
+
+---
+
+# STRESS TESTING PROTOCOL
+
+After generating any output:
+critique it brutally.
+
+Check for:
+- startup aesthetic leakage,
+- AI gimmick leakage,
+- hype language,
+- cognitive overload,
+- procedural inconsistency,
+- weak hierarchy,
+- implementation unreality,
+- and over-intellectualization.
+
+Then refine accordingly.
+
+---
+
+# FINAL CREATIVE PRINCIPLE
+
+Everything should make sophisticated stakeholders feel:
+> “This is not software trying to look intelligent.”
+
+But instead:
+> “This is a serious regulatory assessment system designed with procedural rigor, institutional calmness, and explainable computational intelligence.”

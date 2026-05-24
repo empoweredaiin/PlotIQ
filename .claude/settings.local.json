@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm start *)",
+      "Bash(powershell -Command \"until \\(Invoke-WebRequest http://localhost:3000 -UseBasicParsing -ErrorAction SilentlyContinue\\) { Start-Sleep 2 }; Write-Output 'ready'\")",
+      "PowerShell(Get-Process node -ErrorAction SilentlyContinue)",
+      "PowerShell(Invoke-WebRequest http://localhost:3000 -UseBasicParsing)",
+      "PowerShell($r = Invoke-WebRequest -Uri \"http://localhost:3000\" -TimeoutSec 5 -UseBasicParsing; \"Status: $\\($r.StatusCode\\)\")",
+      "Bash(npm run *)",
+      "PowerShell(Set-Location \"C:\\\\Users\\\\Nikhil\\\\plotiq\\\\frontend\"; npm run build; Write-Host \"Exit: $LASTEXITCODE\")",
+      "PowerShell(Set-Location \"C:\\\\Users\\\\Nikhil\\\\plotiq\\\\frontend\"; node_modules\\\\.bin\\\\react-scripts build; Write-Host \"Exit: $LASTEXITCODE\")"
+    ]
+  }
+}
