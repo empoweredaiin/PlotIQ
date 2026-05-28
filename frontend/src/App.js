@@ -72,11 +72,11 @@ export default function App() {
     ],
     asrLandRate: 200000,
     constructionRate: 27500,
-    devOfferRehab: 0,        // sqft carpet Ã¢â‚¬â€ what developer offers society members
-    devOfferSale: 0,         // sqft carpet Ã¢â‚¬â€ what developer keeps as sale
+    devOfferRehab: 0,        // sqft carpet — what developer offers society members
+    devOfferSale: 0,         // sqft carpet — what developer keeps as sale
     devOfferFileName: '',    // filename of uploaded offer doc (archival only)
     memberIncentiveShare: 80,
-    // FSI loading sliders Ã¢â‚¬â€ fraction of permissible (0..1, default 1 = full)
+    // FSI loading sliders — fraction of permissible (0..1, default 1 = full)
     premiumFsiLoad: 1.0,
     tdrLoad: 1.0,
     fungibleLoad: 1.0,
@@ -249,7 +249,7 @@ export default function App() {
       fontFamily:'"Source Sans 3",-apple-system,sans-serif',
     }}>
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ SIDEBAR Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ── SIDEBAR ── */}
       <aside className="piq-tool-sidebar" style={{
         width:218,flexShrink:0,background:'#0F1219',
         borderRight:`1px solid ${_border}`,
@@ -264,7 +264,7 @@ export default function App() {
             background:'transparent',border:`1px solid ${_border}`,borderRadius:3,
             color:_faint,fontSize:9,letterSpacing:'0.08em',padding:'3px 6px',
             cursor:'pointer',fontFamily:'inherit',
-          }}>Ã¢â€ Â BACK</button>
+          }}>← BACK</button>
         </div>
 
         <div style={{padding:'0 22px 14px',borderBottom:`1px solid ${_border}`,marginBottom:8}}>
@@ -277,7 +277,7 @@ export default function App() {
           ) : (
             <>
               <div style={{fontSize:9,letterSpacing:'0.14em',textTransform:'uppercase',color:_faint,marginBottom:4}}>NEW ASSESSMENT</div>
-              <div style={{fontSize:11.5,color:_muted}}>Fill in plot details Ã¢â€ â€™</div>
+              <div style={{fontSize:11.5,color:_muted}}>Fill in plot details →</div>
             </>
           )}
         </div>
@@ -301,11 +301,11 @@ export default function App() {
 
         <div style={{padding:'14px 22px 0',borderTop:`1px solid ${_border}`}}>
           <div style={{fontSize:9,letterSpacing:'0.14em',textTransform:'uppercase',color:_faint,marginBottom:4}}>PLOTIQ</div>
-          <div style={{fontSize:11,color:_muted,lineHeight:1.5}}>DCPR 2034 Ã‚Â· Mumbai</div>
+          <div style={{fontSize:11,color:_muted,lineHeight:1.5}}>DCPR 2034 · Mumbai</div>
         </div>
       </aside>
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ MAIN Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ── MAIN ── */}
       <div style={{flex:1,minWidth:0,display:'flex',flexDirection:'column',overflow:'hidden'}}>
 
         {/* Topbar */}
@@ -340,7 +340,7 @@ export default function App() {
             {appTab==='results' && result.fsiSlab && (
               <div className="piq-topbar-stats" style={{display:'flex',gap:18}}>
                 {[
-                  {val:`${input.plotArea} mÃ‚Â²`,label:'Plot'},
+                  {val:`${input.plotArea} m²`,label:'Plot'},
                   {val:result.fsiSlab.basic.toFixed(2),label:'Base FSI'},
                   result.fsiSlab.tdr>0 ? {val:result.fsiSlab.tdr.toFixed(2),label:'TDR'} : null,
                 ].filter(Boolean).map(item=>(
@@ -364,7 +364,7 @@ export default function App() {
         <div className="redev-app" style={{flex:1,minHeight:0,display:'flex',flexDirection:'column',overflow:'hidden'}}>
           <Styles />
           <GlobalStyles />
-          {/* Mobile workspace nav Ã¢â‚¬â€ shown only on small screens in Results tab */}
+          {/* Mobile workspace nav — shown only on small screens in Results tab */}
           {appTab === 'results' && (
             <div className="piq-mobile-workspace-nav">
               {workspaceNav.map(item=>(
@@ -379,7 +379,7 @@ export default function App() {
           <div style={{flex:1,minHeight:0,display:'flex',overflow:'hidden'}}>
 
           {appTab === 'input' ? (
-            /* Ã¢â€â‚¬Ã¢â€â‚¬ INPUT TAB Ã¢â‚¬â€ full-width form Ã¢â€â‚¬Ã¢â€â‚¬ */
+            /* ── INPUT TAB — full-width form ── */
             <main className="piq-input-tab-inner" style={{flex:1,overflowY:'auto',padding:'32px 40px',display:'flex',justifyContent:'center'}}>
               <div className="piq-input-col" style={{width:'100%',maxWidth:660}}>
                 <InputPanel
@@ -402,12 +402,12 @@ export default function App() {
                     border:'none',borderRadius:4,fontSize:13,fontWeight:700,
                     letterSpacing:'0.05em',cursor:'pointer',fontFamily:'inherit',
                     display:'flex',alignItems:'center',gap:8,
-                  }}>Calculate <span style={{fontSize:16,lineHeight:1}}>Ã¢â€ â€™</span></button>
+                  }}>Calculate <span style={{fontSize:16,lineHeight:1}}>→</span></button>
                 </div>
               </div>
             </main>
           ) : (
-            /* Ã¢â€â‚¬Ã¢â€â‚¬ RESULTS TAB Ã¢â‚¬â€ workspace modules Ã¢â€â‚¬Ã¢â€â‚¬ */
+            /* ── RESULTS TAB — workspace modules ── */
             <main className="piq-results-tab" style={{flex:1,overflowY:'auto',padding:'24px 28px',display:'grid',gap:20,alignContent:'start'}}>
               <div style={{display:'flex',justifyContent:'flex-end'}}>
                 <button onClick={()=>setAppTab('input')} style={{
@@ -415,7 +415,7 @@ export default function App() {
                   border:`1px solid ${_border}`,borderRadius:4,
                   color:_muted,fontSize:10,fontWeight:600,letterSpacing:'0.07em',
                   cursor:'pointer',fontFamily:'inherit',textTransform:'uppercase',
-                }}>Ã¢â€ Â Edit inputs</button>
+                }}>← Edit inputs</button>
               </div>
               {renderWorkspaceContent()}
               {workspacePage !== 'reports' && <PrintBar />}
@@ -605,7 +605,7 @@ const Styles = () => (
 // ============================================================================
 const GlobalStyles = () => (
   <style>{`
-    /* Ã¢â€â‚¬Ã¢â€â‚¬ Landing sidebar Ã¢â€â‚¬Ã¢â€â‚¬ */
+    /* ── Landing sidebar ── */
     .piq-lp-sidebar { display: flex !important; }
     .piq-lp-sidebar nav > div:hover { background: rgba(255,255,255,0.025) !important; }
     .piq-feature-strip > div { transition: background 0.4s ease; }
@@ -624,7 +624,7 @@ const GlobalStyles = () => (
       flex-shrink: 0;
     }
 
-    /* Ã¢â€â‚¬Ã¢â€â‚¬ Tool sidebar Ã¢â€â‚¬Ã¢â€â‚¬ */
+    /* ── Tool sidebar ── */
     .piq-tool-sidebar { display: flex !important; }
     .piq-mobile-workspace-nav {
       display: none;
@@ -735,7 +735,7 @@ const LandingPage = ({ onStart }) => {
     }}>
       <GlobalStyles />
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ SIDEBAR Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ── SIDEBAR ── */}
       <aside className="piq-lp-sidebar" style={{
         width:218, flexShrink:0,
         background:'rgba(6,8,14,0.48)',
@@ -776,12 +776,12 @@ const LandingPage = ({ onStart }) => {
             letterSpacing:'0.03em',
             transition:'background 0.5s ease, border-color 0.5s ease',
           }}>
-            Start Assessment Ã¢â€ â€™
+            Start Assessment →
           </button>
         </div>
       </aside>
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ MAIN (scrollable) Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ── MAIN (scrollable) ── */}
       <main ref={mainRef} className="piq-lp-main" style={{
         flex:1,minWidth:0,
         overflowY:'auto',
@@ -809,18 +809,18 @@ const LandingPage = ({ onStart }) => {
                 transition:'background 0.4s ease',
               }}
             >
-              {isDay ? 'Ã°Å¸Å’â„¢' : 'Ã¢Ëœâ‚¬Ã¯Â¸Â'}
+              {isDay ? '🌙' : '☀️'}
             </button>
             <button onClick={onStart} style={{
               padding:'7px 14px',background:'rgba(201,169,110,0.07)',
               border:`1px solid rgba(201,169,110,0.18)`,borderRadius:4,color:gold,
               fontSize:12,fontWeight:500,cursor:'pointer',fontFamily:'inherit',letterSpacing:'0.03em',
               transition:'background 0.5s ease',
-            }}>Start Ã¢â€ â€™</button>
+            }}>Start →</button>
           </div>
         </div>
 
-        {/* Day / Night toggle Ã¢â‚¬â€ desktop only */}
+        {/* Day / Night toggle — desktop only */}
         <button
           className="piq-hero-toggle"
           onClick={() => setIsDay(d => !d)}
@@ -838,13 +838,13 @@ const LandingPage = ({ onStart }) => {
             transition:'background 0.4s ease, border-color 0.4s ease',
           }}
         >
-          {isDay ? 'Ã°Å¸Å’â„¢' : 'Ã¢Ëœâ‚¬Ã¯Â¸Â'}
+          {isDay ? '🌙' : '☀️'}
         </button>
 
-        {/* Ã¢â€â‚¬Ã¢â€â‚¬ PLATFORM / HERO Ã¢â€â‚¬Ã¢â€â‚¬ */}
+        {/* ── PLATFORM / HERO ── */}
         <section id="lp-platform" style={{height:'100vh',minHeight:600,position:'relative',overflow:'hidden'}}>
 
-          {/* Ã¢â€â‚¬Ã¢â€â‚¬ Background image layers Ã¢â€â‚¬Ã¢â€â‚¬ */}
+          {/* ── Background image layers ── */}
           <img
             src="/day_bg.webp"
             alt=""
@@ -872,13 +872,13 @@ const LandingPage = ({ onStart }) => {
             }}
           />
 
-          {/* Ã¢â€â‚¬Ã¢â€â‚¬ Atmospheric overlays Ã¢â€â‚¬Ã¢â€â‚¬ */}
-          {/* Top vignette Ã¢â‚¬â€ darkens sky behind nav */}
+          {/* ── Atmospheric overlays ── */}
+          {/* Top vignette — darkens sky behind nav */}
           <div style={{
             position:'absolute',inset:0,zIndex:1,pointerEvents:'none',
             background:'linear-gradient(to bottom, rgba(5,7,14,0.62) 0%, rgba(5,7,14,0.18) 28%, transparent 52%)',
           }}/>
-          {/* Bottom fade Ã¢â‚¬â€ text legibility and section transition */}
+          {/* Bottom fade — text legibility and section transition */}
           <div style={{
             position:'absolute',inset:0,zIndex:1,pointerEvents:'none',
             background:'linear-gradient(to top, rgba(10,12,20,0.96) 0%, rgba(10,12,20,0.65) 22%, rgba(10,12,20,0.15) 48%, transparent 68%)',
@@ -888,7 +888,7 @@ const LandingPage = ({ onStart }) => {
             position:'absolute',inset:0,zIndex:1,pointerEvents:'none',
             background:'radial-gradient(ellipse 110% 100% at 50% 50%, transparent 42%, rgba(5,7,14,0.38) 100%)',
           }}/>
-          {/* Gold warmth bloom Ã¢â‚¬â€ anchors content */}
+          {/* Gold warmth bloom — anchors content */}
           <div style={{
             position:'absolute',bottom:'12%',left:'4%',right:'55%',height:'40%',
             zIndex:1,pointerEvents:'none',
@@ -940,7 +940,7 @@ const LandingPage = ({ onStart }) => {
                 WebkitBackdropFilter:'blur(10px)',
                 transition:'background 0.5s ease, border-color 0.5s ease',
               }}>
-                Start New Assessment Ã¢â€ â€™
+                Start New Assessment →
               </button>
               <button onClick={() => scrollTo('services')} style={{
                 padding:'12px 20px',
@@ -952,7 +952,7 @@ const LandingPage = ({ onStart }) => {
                 display:'flex',alignItems:'center',gap:8,
                 transition:'border-color 0.45s ease, color 0.45s ease',
               }}>
-                Explore Services Ã¢â€ â€™
+                Explore Services →
               </button>
             </div>
           </div>
@@ -971,12 +971,12 @@ const LandingPage = ({ onStart }) => {
           {[
             {
               title:'Spatial Intelligence',
-              desc:'Map your plot\'s zoning, FSI envelope, road access, and surrounding land uses Ã¢â‚¬â€ derived from cadastral and regulatory data.',
+              desc:'Map your plot\'s zoning, FSI envelope, road access, and surrounding land uses — derived from cadastral and regulatory data.',
               icon:<svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>,
             },
             {
               title:'Regulatory Intelligence',
-              desc:'Navigate DCPR 2034, TDR entitlements, premium FSI, and development restrictions Ã¢â‚¬â€ with a cited rule reference for every output.',
+              desc:'Navigate DCPR 2034, TDR entitlements, premium FSI, and development restrictions — with a cited rule reference for every output.',
               icon:<svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>,
             },
             {
@@ -1013,7 +1013,7 @@ const LandingPage = ({ onStart }) => {
           ))}
         </div>
 
-        {/* Ã¢â€â‚¬Ã¢â€â‚¬ ABOUT Ã¢â€â‚¬Ã¢â€â‚¬ */}
+        {/* ── ABOUT ── */}
         <section id="lp-about" className="piq-lp-section" style={{padding:'80px 60px',borderBottom:`1px solid ${border}`,background:'#0D0F14'}}>
           <div style={{maxWidth:820}}>
             <div style={{fontSize:10,letterSpacing:'0.2em',textTransform:'uppercase',color:gold,marginBottom:22,fontWeight:500,opacity:0.85}}>About PlotIQ</div>
@@ -1021,13 +1021,13 @@ const LandingPage = ({ onStart }) => {
               Mumbai's regulatory framework is complex by design.<br/>We make it legible.
             </h2>
             <p style={{fontSize:14,lineHeight:1.86,color:textMuted,maxWidth:600,margin:'0 0 52px',fontWeight:300}}>
-              PlotIQ is a regulatory and spatial intelligence platform built specifically for Mumbai's Comprehensive Development Control and Promotion Regulations 2034. Every FSI slab, premium schedule, incentive BUA formula, and TDR rule is encoded directly from the gazette Ã¢â‚¬â€ so every output is traceable back to a specific regulation, not a consultant's estimate.
+              PlotIQ is a regulatory and spatial intelligence platform built specifically for Mumbai's Comprehensive Development Control and Promotion Regulations 2034. Every FSI slab, premium schedule, incentive BUA formula, and TDR rule is encoded directly from the gazette — so every output is traceable back to a specific regulation, not a consultant's estimate.
             </p>
             <div className="piq-about-grid" style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:1,background:border,border:`1px solid ${border}`,borderRadius:4,overflow:'hidden'}}>
               {[
                 {val:'DCPR 2034',label:'Primary regulation encoded'},
                 {val:'Reg 33(7)(B)',label:'Core redevelopment scheme'},
-                {val:'33(7)(A) Ã‚Â· 33(9)',label:'Alternate schemes supported'},
+                {val:'33(7)(A) · 33(9)',label:'Alternate schemes supported'},
               ].map((s,i)=>(
                 <div key={i} style={{padding:'22px 24px',background:'#13161D'}}>
                   <div style={{fontSize:18,fontWeight:700,color:'#fff',fontFamily:'"JetBrains Mono",monospace',marginBottom:6,letterSpacing:'-0.02em'}}>{s.val}</div>
@@ -1038,45 +1038,45 @@ const LandingPage = ({ onStart }) => {
           </div>
         </section>
 
-        {/* Ã¢â€â‚¬Ã¢â€â‚¬ SERVICES Ã¢â€â‚¬Ã¢â€â‚¬ */}
+        {/* ── SERVICES ── */}
         <section id="lp-services" className="piq-lp-section" style={{padding:'80px 60px',borderBottom:`1px solid ${border}`,background:'#0A0C11'}}>
           <div style={{fontSize:10,letterSpacing:'0.2em',textTransform:'uppercase',color:gold,marginBottom:22,fontWeight:500,opacity:0.85}}>What We Do</div>
           <h2 style={{margin:'0 0 14px',fontSize:'clamp(26px,2.8vw,40px)',fontWeight:600,letterSpacing:'-0.022em',color:'#fff',fontFamily:'"Source Serif 4",Georgia,serif',lineHeight:1.15}}>
             End-to-end support for society redevelopment.
           </h2>
           <p style={{fontSize:14,lineHeight:1.84,color:textMuted,maxWidth:560,margin:'0 0 52px',fontWeight:300}}>
-            From the first committee discussion to Occupancy Certificate Ã¢â‚¬â€ we provide the intelligence, documents, and advisory support that turn regulatory complexity into a clear path forward.
+            From the first committee discussion to Occupancy Certificate — we provide the intelligence, documents, and advisory support that turn regulatory complexity into a clear path forward.
           </p>
           <div style={{display:'grid',gap:3}}>
             {[
               {
                 phase:'01',colour:'#5a7a4f',
                 title:'Document Readiness Audit',
-                summary:'Before you engage a developer or architect, we audit your property card, OC / CC status, approved plans, and structural reports Ã¢â‚¬â€ and produce a gap list of exactly what is missing and where to obtain it.',
+                summary:'Before you engage a developer or architect, we audit your property card, OC / CC status, approved plans, and structural reports — and produce a gap list of exactly what is missing and where to obtain it.',
                 tags:['Property card & Index II','OC / CC confirmation','Approved plan status check','Structural audit guidance','RTI filing support'],
               },
               {
                 phase:'02',colour:gold,
                 title:'Regulatory Feasibility Report',
-                summary:'We compute your FSI entitlement under DCPR 2034, produce a Proforma-A aligned area statement, and make explicit what carpet area every member is owed Ã¢â‚¬â€ before any developer conversation begins.',
+                summary:'We compute your FSI entitlement under DCPR 2034, produce a Proforma-A aligned area statement, and make explicit what carpet area every member is owed — before any developer conversation begins.',
                 tags:['FSI under Reg 33(7)(B) / 33(7)(A) / 33(9)','Incentive BUA & premium FSI build-up','Rehab vs. sale split analysis','Scheme benchmarking','GB resolution scope guidance'],
               },
               {
                 phase:'03',colour:'#3d5a4d',
                 title:'RFP Preparation & Developer Evaluation',
-                summary:'We write the RFP that goes to developers, define the offer evaluation matrix, and benchmark every incoming proposal against your regulatory floor Ã¢â‚¬â€ so no developer can mislead you on numbers.',
+                summary:'We write the RFP that goes to developers, define the offer evaluation matrix, and benchmark every incoming proposal against your regulatory floor — so no developer can mislead you on numbers.',
                 tags:['Standardised RFP with feasibility floor','Offer comparison matrix','Developer RERA & KYC verification','Corpus / rent / carpet benchmarking','GBR 3 resolution support'],
               },
               {
                 phase:'04',colour:'#4a3a8a',
                 title:'Agreement Review & MCGM Filing Support',
                 summary:'We review the Development Agreement against your feasibility numbers, flag deviations from regulation, and support your architect through the IOD / Development Permission filing.',
-                tags:['DA clause review vs. Proforma-A','Premium payment verification','NOC checklist Ã¢â‚¬â€ Fire, AAI, Tree','MCGM submission tracking','IOD / DP milestone reporting'],
+                tags:['DA clause review vs. Proforma-A','Premium payment verification','NOC checklist — Fire, AAI, Tree','MCGM submission tracking','IOD / DP milestone reporting'],
               },
               {
                 phase:'05',colour:'rgba(255,255,255,0.3)',
                 title:'Construction Monitoring & OC Verification',
-                summary:'We track milestone payments, monitor DA compliance, and verify flat measurements against what was promised before members accept possession Ã¢â‚¬â€ the phase most societies hand off entirely.',
+                summary:'We track milestone payments, monitor DA compliance, and verify flat measurements against what was promised before members accept possession — the phase most societies hand off entirely.',
                 tags:['Transit rent standing instruction audit','Slab-by-slab progress reporting','Milestone vs. DA schedule','Flat measurement verification','OC & sinking fund handover checklist'],
               },
             ].map((s,i)=>(
@@ -1098,7 +1098,7 @@ const LandingPage = ({ onStart }) => {
           </div>
         </section>
 
-        {/* Ã¢â€â‚¬Ã¢â€â‚¬ USE CASES Ã¢â€â‚¬Ã¢â€â‚¬ */}
+        {/* ── USE CASES ── */}
         <section id="lp-usecases" className="piq-lp-section" style={{padding:'80px 60px',borderBottom:`1px solid ${border}`,background:'#0D0F14'}}>
           <div style={{fontSize:10,letterSpacing:'0.2em',textTransform:'uppercase',color:gold,marginBottom:22,fontWeight:500,opacity:0.85}}>Who It's For</div>
           <h2 style={{margin:'0 0 52px',fontSize:'clamp(26px,2.8vw,40px)',fontWeight:600,letterSpacing:'-0.022em',color:'#fff',fontFamily:'"Source Serif 4",Georgia,serif',lineHeight:1.15}}>
@@ -1108,12 +1108,12 @@ const LandingPage = ({ onStart }) => {
             {[
               {
                 type:'Housing Societies',badge:'Primary',
-                desc:'Understand your FSI entitlement and incentive BUA before you invite a single developer. Walk into every negotiation knowing the regulatory floor Ã¢â‚¬â€ not discovering it after you\'ve signed.',
+                desc:'Understand your FSI entitlement and incentive BUA before you invite a single developer. Walk into every negotiation knowing the regulatory floor — not discovering it after you\'ve signed.',
                 points:['Know what area each member is owed','Identify missing documents before they block you','Prepare a credible RFP, not just a conversation'],
               },
               {
                 type:'Architects & PMCs',badge:'Professional',
-                desc:'Generate FSI computations, area statements and scheme comparisons in minutes. PlotIQ handles the DCPR arithmetic Ã¢â‚¬â€ you focus on the design and the client relationship.',
+                desc:'Generate FSI computations, area statements and scheme comparisons in minutes. PlotIQ handles the DCPR arithmetic — you focus on the design and the client relationship.',
                 points:['Proforma-A aligned area statement output','33(7)(B) / 33(7)(A) / 33(9) side-by-side','Verify mode for cross-checking your own calcs'],
               },
               {
@@ -1123,7 +1123,7 @@ const LandingPage = ({ onStart }) => {
               },
               {
                 type:'Lenders & Investors',badge:'Finance',
-                desc:'Validate FSI claims in developer proposals before committing capital. PlotIQ produces an independent area statement from the regulation Ã¢â‚¬â€ not from the developer\'s architect.',
+                desc:'Validate FSI claims in developer proposals before committing capital. PlotIQ produces an independent area statement from the regulation — not from the developer\'s architect.',
                 points:['Independent FSI entitlement verification','Viability ratio and GDV benchmarking','Development timeline and risk flag summary'],
               },
             ].map((uc,i)=>(
@@ -1136,7 +1136,7 @@ const LandingPage = ({ onStart }) => {
                 <div style={{display:'grid',gap:9}}>
                   {uc.points.map((pt,j)=>(
                     <div key={j} style={{display:'flex',gap:10,alignItems:'flex-start'}}>
-                      <span style={{color:gold,fontSize:9,marginTop:4,flexShrink:0}}>Ã¢â€”â€ </span>
+                      <span style={{color:gold,fontSize:9,marginTop:4,flexShrink:0}}>◆</span>
                       <span style={{fontSize:12,color:textMuted,lineHeight:1.5}}>{pt}</span>
                     </div>
                   ))}
@@ -1146,7 +1146,7 @@ const LandingPage = ({ onStart }) => {
           </div>
         </section>
 
-        {/* Ã¢â€â‚¬Ã¢â€â‚¬ PRICING Ã¢â€â‚¬Ã¢â€â‚¬ */}
+        {/* ── PRICING ── */}
         <section id="lp-pricing" className="piq-lp-section" style={{padding:'80px 60px',background:'#0A0C11'}}>
           <div style={{fontSize:10,letterSpacing:'0.2em',textTransform:'uppercase',color:gold,marginBottom:22,fontWeight:500,opacity:0.85}}>Access</div>
           <h2 style={{margin:'0 0 14px',fontSize:'clamp(26px,2.8vw,40px)',fontWeight:600,letterSpacing:'-0.022em',color:'#fff',fontFamily:'"Source Serif 4",Georgia,serif',lineHeight:1.15}}>
@@ -1163,13 +1163,13 @@ const LandingPage = ({ onStart }) => {
                 features:['Reg 33(7)(B) / 33(7)(A) / 33(9) computation','Area statement & rehab / sale split','Premium FSI and TDR scenarios','Developer negotiation flags','Printable advisory report'],
               },
               {
-                tier:'Professional',price:'Ã¢â€šÂ¹ 25,000',priceNote:'per engagement',highlight:true,ctaLabel:'Request Engagement',ctaAction:()=>window.location.href='mailto:nik.tengle167@gmail.com?subject=PlotIQ%20Professional%20Engagement&body=I%20would%20like%20to%20discuss%20a%20Professional%20engagement%20for%20my%20society.',
+                tier:'Professional',price:'₹ 25,000',priceNote:'per engagement',highlight:true,ctaLabel:'Request Engagement',ctaAction:()=>window.location.href='mailto:nik.tengle167@gmail.com?subject=PlotIQ%20Professional%20Engagement&body=I%20would%20like%20to%20discuss%20a%20Professional%20engagement%20for%20my%20society.',
                 desc:'Document readiness audit, stamped feasibility review, and a developer RFP prepared for your specific plot.',
                 features:['Everything in Assessment','Document gap audit with source guide','RFP preparation (Proforma-A aligned)','Developer offer evaluation matrix','One review cycle with our team'],
               },
               {
-                tier:'Advisory Retainer',price:'Ã¢â€šÂ¹ 75,000+',priceNote:'by scope',highlight:false,ctaLabel:'Schedule a Call',ctaAction:()=>window.location.href='mailto:nik.tengle167@gmail.com?subject=PlotIQ%20Advisory%20Retainer&body=I%20would%20like%20to%20discuss%20a%20full-cycle%20advisory%20retainer%20for%20my%20society.',
-                desc:'Full-cycle advisory from GB resolution through MCGM filing Ã¢â‚¬â€ including DA review and construction milestone tracking.',
+                tier:'Advisory Retainer',price:'₹ 75,000+',priceNote:'by scope',highlight:false,ctaLabel:'Schedule a Call',ctaAction:()=>window.location.href='mailto:nik.tengle167@gmail.com?subject=PlotIQ%20Advisory%20Retainer&body=I%20would%20like%20to%20discuss%20a%20full-cycle%20advisory%20retainer%20for%20my%20society.',
+                desc:'Full-cycle advisory from GB resolution through MCGM filing — including DA review and construction milestone tracking.',
                 features:['Everything in Professional','GB resolution drafting support','DA clause-by-clause review','MCGM filing tracking','Construction milestone & OC checklist'],
               },
             ].map((t,i)=>(
@@ -1181,7 +1181,7 @@ const LandingPage = ({ onStart }) => {
                 <div style={{display:'grid',gap:9,marginBottom:24}}>
                   {t.features.map((ft,j)=>(
                     <div key={j} style={{display:'flex',gap:9,alignItems:'flex-start'}}>
-                      <span style={{color:t.highlight?gold:textMuted,fontSize:11,marginTop:2,flexShrink:0}}>Ã¢Å“â€œ</span>
+                      <span style={{color:t.highlight?gold:textMuted,fontSize:11,marginTop:2,flexShrink:0}}>✓</span>
                       <span style={{fontSize:12,color:textMuted,lineHeight:1.45}}>{ft}</span>
                     </div>
                   ))}
@@ -1201,6 +1201,3 @@ const LandingPage = ({ onStart }) => {
     </div>
   );
 };
-
-
-
