@@ -20,7 +20,29 @@
       "PowerShell(Set-Location \"C:\\\\Users\\\\Nikhil\\\\plotiq\\\\frontend\"; $env:CI = \"false\"; npm run build)",
       "PowerShell(Set-Location \"C:\\\\Users\\\\Nikhil\\\\plotiq\\\\frontend\"; $env:CI = \"false\"; npm run build 2>&1)",
       "PowerShell(cd \"C:\\\\Users\\\\Nikhil\\\\plotiq\\\\frontend\"; $env:CI = \"false\"; npm run build 2>&1 | Select-Object -Last 20)",
-      "PowerShell(Set-Location \"C:\\\\Users\\\\Nikhil\\\\plotiq\\\\frontend\"; $env:CI = \"false\"; npm run build 2>&1 | Select-Object -Last 30)"
+      "PowerShell(Set-Location \"C:\\\\Users\\\\Nikhil\\\\plotiq\\\\frontend\"; $env:CI = \"false\"; npm run build 2>&1 | Select-Object -Last 30)",
+      "Skill(run)",
+      "Skill(run:*)",
+      "PowerShell(Set-Location \"C:\\\\Users\\\\Nikhil\\\\plotiq\\\\frontend\"; $env:CI = \"false\"; Start-Process npm -ArgumentList \"start\" -WindowStyle Hidden)",
+      "PowerShell(Start-Sleep -Seconds 8; try { $r = Invoke-WebRequest -Uri \"http://localhost:3000\" -TimeoutSec 5 -UseBasicParsing; \"Status: $\\($r.StatusCode\\)\" } catch { \"Not ready yet: $_\" })",
+      "PowerShell(Start-Sleep -Seconds 12; try { $r = Invoke-WebRequest -Uri \"http://localhost:3000\" -TimeoutSec 8 -UseBasicParsing; \"Status: $\\($r.StatusCode\\)\" } catch { \"Not ready: $_\" })",
+      "PowerShell(Get-Process -Name \"node\" -ErrorAction SilentlyContinue)",
+      "PowerShell(Set-Location \"C:\\\\Users\\\\Nikhil\\\\plotiq\\\\frontend\"; $env:CI = \"false\"; $env:BROWSER = \"none\"; Start-Job -ScriptBlock { Set-Location \"C:\\\\Users\\\\Nikhil\\\\plotiq\\\\frontend\"; $env:CI = \"false\"; $env:BROWSER = \"none\"; npm start } | Out-Null; \"Job started\")",
+      "PowerShell($timeout = 60; $elapsed = 0; while \\($elapsed -lt $timeout\\) { Start-Sleep -Seconds 3; $elapsed += 3; try { $r = Invoke-WebRequest -Uri \"http://localhost:3000\" -TimeoutSec 3 -UseBasicParsing -ErrorAction Stop; \"Ready after ${elapsed}s — Status $\\($r.StatusCode\\)\"; break } catch { \"Waiting... ${elapsed}s\" } })",
+      "PowerShell(Receive-Job -Keep)",
+      "Bash(BROWSER=none npm start)",
+      "PowerShell(Start-Process \"http://localhost:3000\")",
+      "Bash(npm list *)",
+      "Bash(npx playwright *)",
+      "Bash(grep -v \"hero\\\\|gradient\\\\|vignette\\\\|overlay\\\\|bloom\\\\|Shadow\\\\|textShadow\\\\|h1 \\\\|h2 \\\\|margin:'0\\\\|landing\\\\|LandingPage\\\\|About\\\\|Services\\\\|usecases\\\\|pricing\\\\|feature\\\\|mobile\\\\|piq-lp\\\\|sidebar\\\\|navItem\\\\|0D0F14\\\\|isDay\\\\|toggleDay\\\\|phase\\\\|colour\\\\|//\\\\|hero-content\")",
+      "PowerShell(git config --global credential.helper)",
+      "PowerShell(git credential-manager github list 2>&1)",
+      "PowerShell(git config user.email)",
+      "PowerShell(git remote remove origin)",
+      "PowerShell(git config --local credential.https://github.com.username empoweredaiin)",
+      "PowerShell(git config --local user.email \"nik.tengle167@gmail.com\")",
+      "PowerShell(cd C:\\\\Users\\\\Nikhil\\\\plotiq\\\\frontend; $env:CI = \"false\"; npm run build 2>&1 | Select-String -Pattern \"error|warning|compiled|failed\" | Select-Object -Last 15)",
+      "Bash(node -e ' *)"
     ]
   }
 }

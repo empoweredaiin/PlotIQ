@@ -4,23 +4,23 @@ import { WARD_INFO } from '../../../datasets/geography/ward-info';
 import { detectWardFromCoords, parseGoogleMapsPlace, parseGoogleMapsCoords } from '../../../datasets/geography/ward-detection';
 
 const _G   = '#C9A96E';
-const _BD  = 'rgba(255,255,255,0.08)';
-const _MU  = 'rgba(237,240,247,0.50)';
-const _FA  = 'rgba(237,240,247,0.26)';
-const _INK = '#EDF0F7';
-const _SU  = '#141720';
-const _BG  = '#111520';
+const _BD  = '#D7D2C7';
+const _MU  = '#5F6775';
+const _FA  = '#8D95A3';
+const _INK = '#20242C';
+const _SU  = '#FFFFFF';
+const _BG  = '#F5F4F0';
 
 function Label({ children }) {
   return (
-    <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: _FA, marginBottom: 5 }}>
+    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: _FA, marginBottom: 5 }}>
       {children}
     </div>
   );
 }
 
 function Hint({ children }) {
-  return <div style={{ fontSize: 10.5, color: _MU, marginTop: 4, lineHeight: 1.55 }}>{children}</div>;
+  return <div style={{ fontSize: 12.5, color: _MU, marginTop: 4, lineHeight: 1.55 }}>{children}</div>;
 }
 
 function FieldInput({ value, onChange, type = 'text', placeholder }) {
@@ -32,8 +32,8 @@ function FieldInput({ value, onChange, type = 'text', placeholder }) {
       placeholder={placeholder}
       style={{
         width: '100%', boxSizing: 'border-box',
-        padding: '9px 11px', fontSize: 13,
-        background: '#0E1118', border: `1px solid ${_BD}`,
+        padding: '9px 11px', fontSize: 15,
+        background: '#FFFFFF', border: `1px solid ${_BD}`,
         color: _INK, borderRadius: 3, outline: 'none',
         fontFamily: 'inherit',
       }}
@@ -47,7 +47,7 @@ function OptionCard({ active, onClick, children }) {
       onClick={onClick}
       style={{
         width: '100%', textAlign: 'left', padding: '10px 12px',
-        background: active ? 'rgba(201,169,110,0.08)' : 'rgba(255,255,255,0.02)',
+        background: active ? 'rgba(201,169,110,0.08)' : '#FFFFFF',
         border: `1px solid ${active ? 'rgba(201,169,110,0.35)' : _BD}`,
         borderRadius: 3, cursor: 'pointer', color: _INK, fontFamily: 'inherit',
         display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6,
@@ -55,11 +55,11 @@ function OptionCard({ active, onClick, children }) {
     >
       <div style={{
         width: 14, height: 14, borderRadius: '50%', flexShrink: 0,
-        border: `2px solid ${active ? _G : 'rgba(255,255,255,0.2)'}`,
+        border: `2px solid ${active ? _G : '#D7D2C7'}`,
         background: active ? _G : 'transparent',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        {active && <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#0E1118' }} />}
+        {active && <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#FFFFFF' }} />}
       </div>
       <div style={{ flex: 1 }}>{children}</div>
     </button>
@@ -73,20 +73,20 @@ function Toggle({ checked, onChange, label, sub }) {
         onClick={() => onChange(!checked)}
         style={{
           width: 32, height: 18, borderRadius: 9, flexShrink: 0, marginTop: 1,
-          background: checked ? _G : 'rgba(255,255,255,0.12)',
+          background: checked ? _G : '#E7E2D8',
           position: 'relative', cursor: 'pointer', transition: 'background 0.2s',
         }}
       >
         <div style={{
           position: 'absolute', top: 2, left: checked ? 16 : 2,
           width: 14, height: 14, borderRadius: '50%',
-          background: checked ? '#0E1118' : 'rgba(255,255,255,0.5)',
+          background: checked ? '#FFFFFF' : '#FFFFFF',
           transition: 'left 0.2s',
         }} />
       </div>
       <div>
-        <div style={{ fontSize: 12, fontWeight: 600, color: _INK, lineHeight: 1.4 }}>{label}</div>
-        {sub && <div style={{ fontSize: 10.5, color: _MU, marginTop: 2, lineHeight: 1.4 }}>{sub}</div>}
+        <div style={{ fontSize: 14, fontWeight: 600, color: _INK, lineHeight: 1.4 }}>{label}</div>
+        {sub && <div style={{ fontSize: 12.5, color: _MU, marginTop: 2, lineHeight: 1.4 }}>{sub}</div>}
       </div>
     </label>
   );
@@ -98,9 +98,9 @@ function NextButton({ onClick, label = 'Continue', disabled }) {
       onClick={onClick}
       disabled={disabled}
       style={{
-        width: '100%', padding: '11px', fontSize: 12, fontWeight: 700,
+        width: '100%', padding: '11px', fontSize: 14, fontWeight: 700,
         background: disabled ? 'rgba(201,169,110,0.2)' : _G,
-        color: disabled ? 'rgba(201,169,110,0.4)' : '#0E1118',
+        color: disabled ? 'rgba(201,169,110,0.4)' : '#FFFFFF',
         border: 'none', borderRadius: 3, cursor: disabled ? 'not-allowed' : 'pointer',
         fontFamily: 'inherit', letterSpacing: '0.04em',
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
@@ -116,11 +116,11 @@ function StepDot({ n, active, done }) {
   return (
     <div style={{
       width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
-      background: done ? _G : active ? 'rgba(201,169,110,0.2)' : 'rgba(255,255,255,0.05)',
+      background: done ? _G : active ? 'rgba(201,169,110,0.12)' : '#F5F4F0',
       border: `1px solid ${done ? _G : active ? _G : _BD}`,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontSize: 10, fontWeight: 700,
-      color: done ? '#0E1118' : active ? _G : _FA,
+      fontSize: 12, fontWeight: 700,
+      color: done ? '#FFFFFF' : active ? _G : _FA,
     }}>
       {done ? <Check size={11} /> : n}
     </div>
@@ -179,10 +179,10 @@ function StepLocation({ input, update, wardDetect, setWardDetect, onNext }) {
 
   return (
     <div>
-      <div style={{ fontSize: 16, fontWeight: 700, color: _INK, marginBottom: 4, lineHeight: 1.3 }}>
+      <div style={{ fontSize: 18, fontWeight: 700, color: _INK, marginBottom: 4, lineHeight: 1.3 }}>
         Where is your society?
       </div>
-      <div style={{ fontSize: 11.5, color: _MU, marginBottom: 18, lineHeight: 1.5 }}>
+      <div style={{ fontSize: 13.5, color: _MU, marginBottom: 18, lineHeight: 1.5 }}>
         Paste a Google Maps link and we'll fill in the location details automatically.
       </div>
 
@@ -197,38 +197,38 @@ function StepLocation({ input, update, wardDetect, setWardDetect, onNext }) {
               onChange={e => setGmLink(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleDetect()}
               style={{
-                flex: 1, padding: '9px 11px', fontSize: 12,
-                background: '#0E1118', border: `1px solid ${_BD}`,
+                flex: 1, padding: '9px 11px', fontSize: 14,
+                background: '#FFFFFF', border: `1px solid ${_BD}`,
                 color: _INK, borderRadius: 3, outline: 'none', fontFamily: 'inherit',
               }}
             />
             <button onClick={handleDetect} style={{
-              padding: '9px 13px', fontSize: 11, fontWeight: 700,
-              background: _G, color: '#0E1118', border: 'none',
+              padding: '9px 13px', fontSize: 13, fontWeight: 700,
+              background: _G, color: '#FFFFFF', border: 'none',
               borderRadius: 3, cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit',
               opacity: wardDetect.status === 'loading' ? 0.6 : 1,
             }}>
               {wardDetect.status === 'loading' ? '…' : <MapPin size={13} />}
             </button>
           </div>
-          <div style={{ fontSize: 10, color: _FA, lineHeight: 1.5 }}>
+          <div style={{ fontSize: 12, color: _FA, lineHeight: 1.5 }}>
             Google Maps → right-click plot → <strong style={{ color: _MU }}>"What's here?"</strong> → copy address bar URL
           </div>
           {wardDetect.status === 'error' && (
-            <div style={{ marginTop: 8, padding: '8px 10px', background: 'rgba(192,60,40,0.08)', border: '1px solid rgba(192,60,40,0.25)', borderRadius: 3, fontSize: 10.5, color: 'rgba(255,140,120,0.9)', lineHeight: 1.5 }}>
+            <div style={{ marginTop: 8, padding: '8px 10px', background: 'rgba(192,60,40,0.08)', border: '1px solid rgba(192,60,40,0.25)', borderRadius: 3, fontSize: 12.5, color: 'rgba(255,140,120,0.9)', lineHeight: 1.5 }}>
               {wardDetect.error}
             </div>
           )}
-          <div style={{ marginTop: 14, borderTop: `1px dashed ${_BD}`, paddingTop: 14, fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _FA, marginBottom: 10 }}>
+          <div style={{ marginTop: 14, borderTop: `1px dashed ${_BD}`, paddingTop: 14, fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _FA, marginBottom: 10 }}>
             Or select manually
           </div>
           <OptionCard active={input.location === 'suburbsExtended'} onClick={() => update('location', 'suburbsExtended')}>
-            <div style={{ fontSize: 12, fontWeight: 600 }}>Suburbs / Extended Suburbs</div>
-            <div style={{ fontSize: 10.5, color: _MU, marginTop: 2 }}>Andheri, Borivali, Thane belt, etc.</div>
+            <div style={{ fontSize: 14, fontWeight: 600 }}>Suburbs / Extended Suburbs</div>
+            <div style={{ fontSize: 12.5, color: _MU, marginTop: 2 }}>Andheri, Borivali, Thane belt, etc.</div>
           </OptionCard>
           <OptionCard active={input.location === 'islandCity'} onClick={() => update('location', 'islandCity')}>
-            <div style={{ fontSize: 12, fontWeight: 600 }}>Island City</div>
-            <div style={{ fontSize: 10.5, color: _MU, marginTop: 2 }}>South of Mahim / Sion creek</div>
+            <div style={{ fontSize: 14, fontWeight: 600 }}>Island City</div>
+            <div style={{ fontSize: 12.5, color: _MU, marginTop: 2 }}>South of Mahim / Sion creek</div>
           </OptionCard>
         </div>
       )}
@@ -237,18 +237,18 @@ function StepLocation({ input, update, wardDetect, setWardDetect, onNext }) {
       {wardFound && (
         <div style={{ padding: '12px 14px', background: 'rgba(74,156,110,0.08)', border: '1px solid rgba(74,156,110,0.3)', borderRadius: 4, marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-            <div style={{ padding: '2px 9px', borderRadius: 10, fontSize: 11, fontWeight: 700, background: '#4A9C6E', color: '#fff' }}>
+            <div style={{ padding: '2px 9px', borderRadius: 10, fontSize: 13, fontWeight: 700, background: '#4A9C6E', color: '#fff' }}>
               Ward {wardDetect.ward}
             </div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: '#4A9C6E' }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#4A9C6E' }}>
               {wardDetect.info?.islandCity ? 'Island City' : 'Suburbs'}
             </div>
             <button onClick={() => { setWardDetect({ status: 'idle', ward: null, error: null }); setGmLink(''); }}
-              style={{ marginLeft: 'auto', fontSize: 10, color: _MU, background: 'none', border: `1px solid ${_BD}`, borderRadius: 3, padding: '3px 8px', cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ marginLeft: 'auto', fontSize: 12, color: _MU, background: 'none', border: `1px solid ${_BD}`, borderRadius: 3, padding: '3px 8px', cursor: 'pointer', fontFamily: 'inherit' }}>
               Change
             </button>
           </div>
-          <div style={{ fontSize: 11, color: _MU }}>{wardDetect.info?.localities}</div>
+          <div style={{ fontSize: 13, color: _MU }}>{wardDetect.info?.localities}</div>
         </div>
       )}
 
@@ -271,10 +271,10 @@ function StepLocation({ input, update, wardDetect, setWardDetect, onNext }) {
 function StepBuilding({ input, update, onNext, onBack }) {
   return (
     <div>
-      <div style={{ fontSize: 16, fontWeight: 700, color: _INK, marginBottom: 4, lineHeight: 1.3 }}>
+      <div style={{ fontSize: 18, fontWeight: 700, color: _INK, marginBottom: 4, lineHeight: 1.3 }}>
         How old is the building?
       </div>
-      <div style={{ fontSize: 11.5, color: _MU, marginBottom: 20, lineHeight: 1.5 }}>
+      <div style={{ fontSize: 13.5, color: _MU, marginBottom: 20, lineHeight: 1.5 }}>
         Buildings 30 years or older can apply for redevelopment under the cooperative housing scheme.
       </div>
 
@@ -286,14 +286,14 @@ function StepBuilding({ input, update, onNext, onBack }) {
             value={input.buildingAge}
             onChange={e => update('buildingAge', parseInt(e.target.value) || 0)}
             style={{
-              width: 90, padding: '10px 12px', fontSize: 20, fontWeight: 700,
-              background: '#0E1118', border: `1px solid ${_BD}`,
+              width: 90, padding: '10px 12px', fontSize: 22, fontWeight: 700,
+              background: '#FFFFFF', border: `1px solid ${_BD}`,
               color: input.buildingAge >= 30 ? _G : '#C05050',
               borderRadius: 3, outline: 'none', fontFamily: '"JetBrains Mono",monospace',
               textAlign: 'center',
             }}
           />
-          <div style={{ fontSize: 12, color: input.buildingAge >= 30 ? '#4A9C6E' : '#C05050', fontWeight: 600 }}>
+          <div style={{ fontSize: 14, color: input.buildingAge >= 30 ? '#4A9C6E' : '#C05050', fontWeight: 600 }}>
             {input.buildingAge >= 30 ? '✓ Eligible for redevelopment' : '✗ Must be at least 30 years old'}
           </div>
         </div>
@@ -309,7 +309,7 @@ function StepBuilding({ input, update, onNext, onBack }) {
           { id: 'none',      label: 'No formal documents' },
         ].map(opt => (
           <OptionCard key={opt.id} active={input.authorisationStatus === opt.id} onClick={() => update('authorisationStatus', opt.id)}>
-            <div style={{ fontSize: 12, fontWeight: 500 }}>{opt.label}</div>
+            <div style={{ fontSize: 14, fontWeight: 500 }}>{opt.label}</div>
           </OptionCard>
         ))}
       </div>
@@ -325,7 +325,7 @@ function StepBuilding({ input, update, onNext, onBack }) {
       </div>
 
       <NextButton onClick={onNext} label="Next — Plot dimensions" />
-      <button onClick={onBack} style={{ width: '100%', marginTop: 8, padding: '8px', fontSize: 11, fontWeight: 500, background: 'none', border: `1px solid ${_BD}`, borderRadius: 3, color: _MU, cursor: 'pointer', fontFamily: 'inherit' }}>
+      <button onClick={onBack} style={{ width: '100%', marginTop: 8, padding: '8px', fontSize: 13, fontWeight: 500, background: 'none', border: `1px solid ${_BD}`, borderRadius: 3, color: _MU, cursor: 'pointer', fontFamily: 'inherit' }}>
         ← Back
       </button>
     </div>
@@ -338,10 +338,10 @@ function StepPlot({ input, update, onNext, onBack }) {
 
   return (
     <div>
-      <div style={{ fontSize: 16, fontWeight: 700, color: _INK, marginBottom: 4, lineHeight: 1.3 }}>
+      <div style={{ fontSize: 18, fontWeight: 700, color: _INK, marginBottom: 4, lineHeight: 1.3 }}>
         How big is the plot?
       </div>
-      <div style={{ fontSize: 11.5, color: _MU, marginBottom: 20, lineHeight: 1.5 }}>
+      <div style={{ fontSize: 13.5, color: _MU, marginBottom: 20, lineHeight: 1.5 }}>
         These two numbers determine how much your society can build. Use the DP (Development Plan) measurements, not the old sale deed.
       </div>
 
@@ -362,19 +362,19 @@ function StepPlot({ input, update, onNext, onBack }) {
           <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer' }}>
             <input type="checkbox" checked={!!input.roadWideningProposed} onChange={e => update('roadWideningProposed', e.target.checked)} style={{ marginTop: 2, accentColor: _G }} />
             <div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: _INK }}>Is this road being widened to 9m under the DP?</div>
-              <div style={{ fontSize: 10.5, color: _MU, marginTop: 2, lineHeight: 1.5 }}>If yes, your plot may qualify for more buildable area.</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: _INK }}>Is this road being widened to 9m under the DP?</div>
+              <div style={{ fontSize: 12.5, color: _MU, marginTop: 2, lineHeight: 1.5 }}>If yes, your plot may qualify for more buildable area.</div>
             </div>
           </label>
         </div>
       )}
 
       <div style={{ marginTop: 16 }}>
-        <button onClick={() => setShowDeductions(s => !s)} style={{ fontSize: 11, color: showDeductions ? _G : _MU, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 5 }}>
+        <button onClick={() => setShowDeductions(s => !s)} style={{ fontSize: 13, color: showDeductions ? _G : _MU, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 5 }}>
           {showDeductions ? '▾' : '▸'} Is any part of the plot reserved for a road or public use?
         </button>
         {showDeductions && (
-          <div style={{ marginTop: 10, padding: 12, background: '#0E1118', border: `1px solid ${_BD}`, borderRadius: 3 }}>
+          <div style={{ marginTop: 10, padding: 12, background: '#FFFFFF', border: `1px solid ${_BD}`, borderRadius: 3 }}>
             <div style={{ marginBottom: 10 }}>
               <Label>Area under DP road (sqm) — enter 0 if none</Label>
               <FieldInput type="number" value={input.dpRoadDeduction} onChange={e => update('dpRoadDeduction', parseFloat(e.target.value) || 0)} placeholder="0" />
@@ -385,7 +385,7 @@ function StepPlot({ input, update, onNext, onBack }) {
       </div>
 
       <NextButton onClick={onNext} label="Next — Existing flats" />
-      <button onClick={onBack} style={{ width: '100%', marginTop: 8, padding: '8px', fontSize: 11, fontWeight: 500, background: 'none', border: `1px solid ${_BD}`, borderRadius: 3, color: _MU, cursor: 'pointer', fontFamily: 'inherit' }}>
+      <button onClick={onBack} style={{ width: '100%', marginTop: 8, padding: '8px', fontSize: 13, fontWeight: 500, background: 'none', border: `1px solid ${_BD}`, borderRadius: 3, color: _MU, cursor: 'pointer', fontFamily: 'inherit' }}>
         ← Back
       </button>
     </div>
@@ -409,10 +409,10 @@ function StepUnits({ input, update, updateFlat, addFlat, removeFlat, onDone, onB
 
   return (
     <div>
-      <div style={{ fontSize: 16, fontWeight: 700, color: _INK, marginBottom: 4, lineHeight: 1.3 }}>
+      <div style={{ fontSize: 18, fontWeight: 700, color: _INK, marginBottom: 4, lineHeight: 1.3 }}>
         How many flats does the society have?
       </div>
-      <div style={{ fontSize: 11.5, color: _MU, marginBottom: 20, lineHeight: 1.5 }}>
+      <div style={{ fontSize: 13.5, color: _MU, marginBottom: 20, lineHeight: 1.5 }}>
         The total built area and flat count determine your members' entitlement in the new building.
       </div>
 
@@ -433,50 +433,36 @@ function StepUnits({ input, update, updateFlat, addFlat, removeFlat, onDone, onB
       ) : (
         <div style={{ marginBottom: 16 }}>
           {input.flats.map((flat, idx) => (
-            <div key={idx} style={{ padding: 10, border: `1px solid ${_BD}`, borderRadius: 3, marginBottom: 8, background: '#0E1118' }}>
+            <div key={idx} style={{ padding: 10, border: `1px solid ${_BD}`, borderRadius: 3, marginBottom: 8, background: '#FAF8F4' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '56px 1fr 1fr 26px', gap: 6, alignItems: 'end' }}>
                 <div>
                   <Label>Type</Label>
-                  <input type="text" value={flat.label} onChange={e => updateFlat(idx, 'label', e.target.value)} style={{ width: '100%', padding: '7px 8px', fontSize: 12, background: '#111520', border: `1px solid ${_BD}`, color: _INK, borderRadius: 3, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                  <input type="text" value={flat.label} onChange={e => updateFlat(idx, 'label', e.target.value)} style={{ width: '100%', padding: '7px 8px', fontSize: 14, background: '#FFFFFF', border: `1px solid ${_BD}`, color: _INK, borderRadius: 4, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
                 </div>
                 <div>
                   <Label>Carpet (sqm)</Label>
-                  <input type="number" value={flat.carpet} onChange={e => updateFlat(idx, 'carpet', parseFloat(e.target.value) || 0)} style={{ width: '100%', padding: '7px 8px', fontSize: 12, background: '#111520', border: `1px solid ${_BD}`, color: _INK, borderRadius: 3, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                  <input type="number" value={flat.carpet} onChange={e => updateFlat(idx, 'carpet', parseFloat(e.target.value) || 0)} style={{ width: '100%', padding: '7px 8px', fontSize: 14, background: '#FFFFFF', border: `1px solid ${_BD}`, color: _INK, borderRadius: 4, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
                 </div>
                 <div>
                   <Label>Count</Label>
-                  <input type="number" value={flat.count} onChange={e => updateFlat(idx, 'count', parseInt(e.target.value) || 0)} style={{ width: '100%', padding: '7px 8px', fontSize: 12, background: '#111520', border: `1px solid ${_BD}`, color: _INK, borderRadius: 3, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                  <input type="number" value={flat.count} onChange={e => updateFlat(idx, 'count', parseInt(e.target.value) || 0)} style={{ width: '100%', padding: '7px 8px', fontSize: 14, background: '#FFFFFF', border: `1px solid ${_BD}`, color: _INK, borderRadius: 4, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
                 </div>
                 <button onClick={() => removeFlat(idx)} style={{ padding: 6, background: 'none', border: `1px solid ${_BD}`, borderRadius: 3, cursor: 'pointer', color: _FA, marginBottom: 1, alignSelf: 'end' }}>✕</button>
               </div>
             </div>
           ))}
-          <button onClick={addFlat} style={{ width: '100%', padding: '7px', fontSize: 11, background: 'none', border: `1px dashed rgba(255,255,255,0.12)`, borderRadius: 3, cursor: 'pointer', color: _G, fontFamily: 'inherit', marginBottom: 4 }}>
+          <button onClick={addFlat} style={{ width: '100%', padding: '7px', fontSize: 13, background: 'none', border: `1px dashed #D7D2C7`, borderRadius: 3, cursor: 'pointer', color: _G, fontFamily: 'inherit', marginBottom: 4 }}>
             + Add flat type
           </button>
         </div>
       )}
 
-      <button onClick={toggleMode} style={{ fontSize: 11, color: _MU, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: 'inherit', textDecoration: 'underline', marginBottom: 16 }}>
+      <button onClick={toggleMode} style={{ fontSize: 13, color: _MU, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: 'inherit', textDecoration: 'underline', marginBottom: 16 }}>
         {showBreakdown ? 'I only have the totals' : 'I have a flat-type breakdown'}
       </button>
 
-      <div style={{ paddingTop: 16, borderTop: `1px solid ${_BD}`, marginBottom: 4 }}>
-        <Label>What do you want to calculate?</Label>
-        {[
-          { id: 'entitlement', label: 'How much can we build?',      sub: 'Maximum area, scheme eligibility, building entitlement' },
-          { id: 'costsParking', label: 'What will it cost?',         sub: 'Adds government premium costs and parking requirements' },
-          { id: 'full', label: 'Full report for negotiations',        sub: 'Everything — compare what the developer is offering you' },
-        ].map(opt => (
-          <OptionCard key={opt.id} active={input.reportScope === opt.id} onClick={() => update('reportScope', opt.id)}>
-            <div style={{ fontSize: 12, fontWeight: 600 }}>{opt.label}</div>
-            <div style={{ fontSize: 10.5, color: _MU, marginTop: 2 }}>{opt.sub}</div>
-          </OptionCard>
-        ))}
-      </div>
-
       <NextButton onClick={onDone} disabled={!canContinue} label="Calculate" />
-      <button onClick={onBack} style={{ width: '100%', marginTop: 8, padding: '8px', fontSize: 11, fontWeight: 500, background: 'none', border: `1px solid ${_BD}`, borderRadius: 3, color: _MU, cursor: 'pointer', fontFamily: 'inherit' }}>
+      <button onClick={onBack} style={{ width: '100%', marginTop: 8, padding: '8px', fontSize: 13, fontWeight: 500, background: 'none', border: `1px solid ${_BD}`, borderRadius: 3, color: _MU, cursor: 'pointer', fontFamily: 'inherit' }}>
         ← Back
       </button>
     </div>
@@ -499,7 +485,7 @@ function SummaryView({ input, wardDetect, onEditStep }) {
 
   return (
     <div>
-      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _FA, marginBottom: 14 }}>
+      <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _FA, marginBottom: 14 }}>
         {input.societyName || 'Site assessment'}
       </div>
 
@@ -507,8 +493,8 @@ function SummaryView({ input, wardDetect, onEditStep }) {
         <div key={row.step} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: `1px solid ${_BD}` }}>
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: _G, flexShrink: 0 }} />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _FA }}>{row.label}</div>
-            <div style={{ fontSize: 11.5, color: _INK, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.value}</div>
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _FA }}>{row.label}</div>
+            <div style={{ fontSize: 13.5, color: _INK, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.value}</div>
           </div>
           <button onClick={() => onEditStep(row.step)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: _MU, padding: 4, display: 'flex', flexShrink: 0 }}>
             <Edit2 size={11} />
@@ -552,7 +538,7 @@ export default function InputPanel({ input, update, updateFlat, addFlat, removeF
             <div key={i} style={{ display: 'flex', alignItems: 'center', flex: i < progressSteps.length - 1 ? 1 : 0 }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                 <StepDot n={i + 1} active={i === step} done={i < step} />
-                <div style={{ fontSize: 8, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: i === step ? _G : i < step ? _MU : _FA, whiteSpace: 'nowrap' }}>{label}</div>
+                <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: i === step ? _G : i < step ? _MU : _FA, whiteSpace: 'nowrap' }}>{label}</div>
               </div>
               {i < progressSteps.length - 1 && (
                 <div style={{ flex: 1, height: 1, background: i < step ? _G : _BD, margin: '0 6px', marginBottom: 14 }} />
@@ -573,9 +559,9 @@ export default function InputPanel({ input, update, updateFlat, addFlat, removeF
   return (
     <div>
       {/* Society name header */}
-      <div style={{ fontSize: 13, fontWeight: 700, color: _INK, paddingBottom: 14, marginBottom: 14, borderBottom: `1px solid ${_BD}`, display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+      <div style={{ fontSize: 15, fontWeight: 700, color: _INK, paddingBottom: 14, marginBottom: 14, borderBottom: `1px solid ${_BD}`, display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
         <span>{input.societyName || 'Site assessment'}</span>
-        {wardDetect.ward && <span style={{ fontSize: 10, color: _FA, fontWeight: 400 }}>Ward {wardDetect.ward}</span>}
+        {wardDetect.ward && <span style={{ fontSize: 12, color: _FA, fontWeight: 400 }}>Ward {wardDetect.ward}</span>}
       </div>
 
       {/* Compact rows */}
@@ -585,11 +571,11 @@ export default function InputPanel({ input, update, updateFlat, addFlat, removeF
         { step: 2, label: 'Plot', value: `${input.plotArea} sqm · ${input.roadWidth}m road` },
         { step: 3, label: 'Units', value: input.buaInputMode === 'total' ? `${input.totalExistingBua || '—'} sqm · ${input.tenementCount || '—'} flats` : `${input.flats.length} types · ${input.flats.reduce((s, f) => s + (parseInt(f.count) || 0), 0)} flats` },
       ].map(row => (
-        <div key={row.step} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 0', borderBottom: `1px solid rgba(255,255,255,0.04)` }}>
+        <div key={row.step} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 0', borderBottom: `1px solid ${_BD}` }}>
           <Check size={10} color={_G} style={{ flexShrink: 0 }} />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 8.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _FA }}>{row.label}</div>
-            <div style={{ fontSize: 11.5, color: _INK, marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.value}</div>
+            <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _FA }}>{row.label}</div>
+            <div style={{ fontSize: 13.5, color: _INK, marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.value}</div>
           </div>
           <button onClick={() => goTo(row.step)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: _FA, padding: 4, flexShrink: 0, display: 'flex' }}>
             <Edit2 size={11} />
@@ -599,22 +585,22 @@ export default function InputPanel({ input, update, updateFlat, addFlat, removeF
 
       {/* Advanced toggle */}
       <button onClick={() => setAdvancedOpen(s => !s)} style={{
-        width: '100%', marginTop: 16, padding: '7px 10px', fontSize: 10.5, fontWeight: 600,
-        background: advancedOpen ? 'rgba(201,169,110,0.05)' : 'rgba(255,255,255,0.02)',
+        width: '100%', marginTop: 16, padding: '7px 10px', fontSize: 12.5, fontWeight: 600,
+        background: advancedOpen ? 'rgba(201,169,110,0.06)' : '#FAF8F4',
         border: `1px solid ${advancedOpen ? 'rgba(201,169,110,0.2)' : _BD}`,
         borderRadius: 3, cursor: 'pointer', color: advancedOpen ? _G : _MU,
         fontFamily: 'inherit', textAlign: 'left', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
         Advanced settings
-        <span style={{ fontSize: 10, color: _FA }}>{advancedOpen ? '▲' : '▼'}</span>
+        <span style={{ fontSize: 12, color: _FA }}>{advancedOpen ? '▲' : '▼'}</span>
       </button>
 
       {advancedOpen && (
-        <div style={{ marginTop: 10, padding: 14, background: '#0E1118', border: `1px solid ${_BD}`, borderRadius: 3 }}>
+        <div style={{ marginTop: 10, padding: 14, background: '#FFFFFF', border: `1px solid ${_BD}`, borderRadius: 3 }}>
 
           <div style={{ marginBottom: 14 }}>
             <Label>What is this plot used for?</Label>
-            <select value={input.zone} onChange={e => update('zone', e.target.value)} style={{ width: '100%', padding: '8px 10px', fontSize: 12, background: '#111520', border: `1px solid ${_BD}`, color: _INK, borderRadius: 3, fontFamily: 'inherit' }}>
+            <select value={input.zone} onChange={e => update('zone', e.target.value)} style={{ width: '100%', padding: '8px 10px', fontSize: 14, background: '#FFFFFF', border: `1px solid ${_BD}`, color: _INK, borderRadius: 4, fontFamily: 'inherit' }}>
               <option value="residential">Homes only (residential)</option>
               <option value="commercial">Shops / offices (commercial)</option>
               <option value="mixed">Homes + shops (mixed use)</option>
@@ -639,8 +625,8 @@ export default function InputPanel({ input, update, updateFlat, addFlat, removeF
             <Hint>Land the municipality has marked for a public use (school, garden, etc.). Enter 0 if none.</Hint>
           </div>
 
-          <div style={{ marginBottom: 14, padding: 10, background: '#111520', border: `1px solid ${_BD}`, borderRadius: 3 }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12 }}>
+          <div style={{ marginBottom: 14, padding: 10, background: '#FAF8F4', border: `1px solid ${_BD}`, borderRadius: 3 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14 }}>
               <input type="checkbox" checked={!!input.isAmalgamated} onChange={e => update('isAmalgamated', e.target.checked)} style={{ accentColor: _G }} />
               <span style={{ fontWeight: 600, color: _INK }}>Plot was formed by merging two or more smaller plots</span>
             </label>
@@ -654,7 +640,7 @@ export default function InputPanel({ input, update, updateFlat, addFlat, removeF
 
           <div style={{ marginBottom: 14 }}>
             <Label>Is the plot near a sensitive area?</Label>
-            <select value={input.specialLocation} onChange={e => update('specialLocation', e.target.value)} style={{ width: '100%', padding: '8px 10px', fontSize: 12, background: '#111520', border: `1px solid ${_BD}`, color: _INK, borderRadius: 3, fontFamily: 'inherit' }}>
+            <select value={input.specialLocation} onChange={e => update('specialLocation', e.target.value)} style={{ width: '100%', padding: '8px 10px', fontSize: 14, background: '#FFFFFF', border: `1px solid ${_BD}`, color: _INK, borderRadius: 4, fontFamily: 'inherit' }}>
               <option value="none">No — standard rules apply</option>
               <option value="barc">Near BARC (Trombay / M Ward)</option>
               <option value="crz">Near the coast (Aksa, Marve, Erangal)</option>
@@ -698,7 +684,7 @@ export default function InputPanel({ input, update, updateFlat, addFlat, removeF
 
       {/* Recalculate with fresh data */}
       <button onClick={() => goTo(0)} style={{
-        width: '100%', marginTop: 14, padding: '7px', fontSize: 10.5, fontWeight: 600,
+        width: '100%', marginTop: 14, padding: '7px', fontSize: 12.5, fontWeight: 600,
         background: 'none', border: `1px solid ${_BD}`, borderRadius: 3,
         color: _FA, cursor: 'pointer', fontFamily: 'inherit',
       }}>

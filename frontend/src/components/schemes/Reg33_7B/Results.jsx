@@ -25,40 +25,40 @@ export function InteractiveResult({ result, input, update, schemeId }) {
 
       <div className="stat-grid">
         <div className="stat-card stat-card-accent">
-          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#C9A96E', marginBottom: 6 }}>Total permissible</div>
-          <div className="num serif" style={{ fontSize: 36, fontWeight: 700, color: 'var(--ink)', lineHeight: 1, letterSpacing: '-0.02em' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#C9A96E', marginBottom: 6 }}>Total permissible</div>
+          <div className="num serif" style={{ fontSize: 38, fontWeight: 700, color: 'var(--ink)', lineHeight: 1, letterSpacing: '-0.02em' }}>
             {fmt(r.permissibleBua)}
           </div>
-          <div className="num" style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 4 }}>sqm · {fmtSqft(r.permissibleBua)} sqft</div>
-          <div className="num" style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 3 }}>FSI {r.effFsi.toFixed(2)} effective</div>
+          <div className="num" style={{ fontSize: 14, color: 'var(--ink-soft)', marginTop: 4 }}>sqm · {fmtSqft(r.permissibleBua)} sqft</div>
+          <div className="num" style={{ fontSize: 13, color: 'var(--ink-faint)', marginTop: 3 }}>FSI {r.effFsi.toFixed(2)} effective</div>
           {!isFullyLoaded && (
-            <div style={{ marginTop: 8, fontSize: 10.5, color: '#C9A96E', background: 'rgba(192,140,48,0.08)', padding: '4px 8px', borderRadius: 3 }}>
+            <div style={{ marginTop: 8, fontSize: 12.5, color: '#C9A96E', background: 'rgba(192,140,48,0.08)', padding: '4px 8px', borderRadius: 3 }}>
               Max: {fmt(r.permissibleBuaMax)} sqm ({utilisationPct.toFixed(0)}% loaded)
             </div>
           )}
         </div>
 
         <div className="stat-card">
-          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#3d5a4d', marginBottom: 6 }}>Rehab → members</div>
-          <div className="num serif" style={{ fontSize: 36, fontWeight: 700, color: 'var(--ink)', lineHeight: 1, letterSpacing: '-0.02em' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#3d5a4d', marginBottom: 6 }}>Rehab → members</div>
+          <div className="num serif" style={{ fontSize: 38, fontWeight: 700, color: 'var(--ink)', lineHeight: 1, letterSpacing: '-0.02em' }}>
             {fmt(r.memberSideRehabBua)}
           </div>
-          <div className="num" style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 4 }}>sqm · {fmtSqft(r.memberSideRehabBua)} sqft</div>
-          <div className="num" style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 3 }}>{rehabPct.toFixed(0)}% of total</div>
+          <div className="num" style={{ fontSize: 14, color: 'var(--ink-soft)', marginTop: 4 }}>sqm · {fmtSqft(r.memberSideRehabBua)} sqft</div>
+          <div className="num" style={{ fontSize: 13, color: 'var(--ink-faint)', marginTop: 3 }}>{rehabPct.toFixed(0)}% of total</div>
         </div>
 
         <div className="stat-card">
-          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ink-soft)', marginBottom: 6 }}>Sale → developer</div>
-          <div className="num serif" style={{ fontSize: 36, fontWeight: 700, color: '#C9A96E', lineHeight: 1, letterSpacing: '-0.02em' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ink-soft)', marginBottom: 6 }}>Sale → developer</div>
+          <div className="num serif" style={{ fontSize: 38, fontWeight: 700, color: '#C9A96E', lineHeight: 1, letterSpacing: '-0.02em' }}>
             {fmt(r.saleBua)}
           </div>
-          <div className="num" style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 4 }}>sqm · {fmtSqft(r.saleBua)} sqft</div>
-          <div className="num" style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 3 }}>Ratio {r.viabilityRatio.toFixed(2)} sale : rehab</div>
+          <div className="num" style={{ fontSize: 14, color: 'var(--ink-soft)', marginTop: 4 }}>sqm · {fmtSqft(r.saleBua)} sqft</div>
+          <div className="num" style={{ fontSize: 13, color: 'var(--ink-faint)', marginTop: 3 }}>Ratio {r.viabilityRatio.toFixed(2)} sale : rehab</div>
         </div>
       </div>
 
       <div style={{ marginBottom: 20 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--ink-soft)', marginBottom: 5, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--ink-soft)', marginBottom: 5, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
           <span>◼ Members ({rehabPct.toFixed(0)}%)</span>
           <span>◼ Developer ({salePct.toFixed(0)}%)</span>
         </div>
@@ -68,25 +68,20 @@ export function InteractiveResult({ result, input, update, schemeId }) {
             <div className="bua-split-sale" style={{ width: `${salePct}%` }} />
           </>}
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 5, fontSize: 10.5 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 5, fontSize: 12.5 }}>
           <span className="num" style={{ color: '#3d5a4d', fontWeight: 600 }}>{fmt(r.memberSideRehabBua)} sqm</span>
           <span className="num" style={{ color: '#C9A96E', fontWeight: 600 }}>{fmt(r.saleBua)} sqm</span>
         </div>
       </div>
 
-      <div style={{ background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 6, padding: 20, marginBottom: 16 }}>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: schemeId === 'reg33_7B' ? 14 : 0 }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: viabilityColour, marginTop: 6, flexShrink: 0 }} />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: viabilityColour }}>
-              {r.viabilityRating}
-            </div>
-            <div style={{ fontSize: 13, color: 'var(--ink)', marginTop: 3, lineHeight: 1.55 }}>{r.viabilityNote}</div>
-          </div>
+      <div style={{ borderLeft: `3px solid ${viabilityColour}`, padding: '12px 16px', background: 'rgba(201,169,110,0.04)', marginBottom: 16, borderRadius: '0 3px 3px 0' }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: viabilityColour, marginBottom: 4 }}>
+          {r.viabilityRating}
         </div>
+        <div style={{ fontSize: 14, color: '#20242C', lineHeight: 1.55 }}>{r.viabilityNote}</div>
         {schemeId === 'reg33_7B' && (
-          <div style={{ paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.07)', fontSize: 11.5, color: 'var(--ink-soft)', lineHeight: 1.6 }}>
-            <strong style={{ color: 'var(--ink)' }}>Governing path:</strong>{' '}
+          <div style={{ paddingTop: 10, marginTop: 10, borderTop: '1px solid #D7D2C7', fontSize: 13, color: '#5F6775', lineHeight: 1.6 }}>
+            <strong style={{ color: '#20242C' }}>Governing path:</strong>{' '}
             {r.rehabPathGoverns
               ? `Rehab + Incentive (${fmt(r.rehabBasePath)} sqm) exceeds Reg 30 ceiling at current loadings.`
               : `Reg 30 ceiling (${fmt(r.reg30PathLoaded)} sqm) governs. Incentive of ${fmt(r.incentiveBua)} sqm is absorbed within this.`}
@@ -94,27 +89,24 @@ export function InteractiveResult({ result, input, update, schemeId }) {
         )}
       </div>
 
-      <div style={{ background: '#111318', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 6, padding: '14px 18px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
-          <div style={{ fontSize: 11, color: 'var(--ink-soft)', lineHeight: 1.5 }}>
-            Adjust <strong>Premium FSI</strong>, <strong>TDR</strong> and <strong>Fungible</strong> sliders in the
-            {' '}<button onClick={() => {}} style={{ background: 'none', border: 'none', padding: 0, color: '#C9A96E', fontWeight: 600, cursor: 'default', fontSize: 11 }}>Area Statement</button> tab.
-          </div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button onClick={() => { update('premiumFsiLoad', 1); update('tdrLoad', 1); update('fungibleLoad', 1); }}
-              style={{ padding: '6px 12px', fontSize: 11, fontWeight: 600, background: 'rgba(255,255,255,0.06)', color: 'var(--ink)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 4, cursor: 'pointer' }}>
-              Reset max
-            </button>
-            <button onClick={() => { update('premiumFsiLoad', 0); update('tdrLoad', 0); update('fungibleLoad', 1); }}
-              style={{ padding: '6px 12px', fontSize: 11, fontWeight: 600, background: 'transparent', color: '#C9A96E', border: '1px solid rgba(201,169,110,0.35)', borderRadius: 4, cursor: 'pointer' }}>
-              Basic only
-            </button>
-            {r.premiumPayable > 0 && (
-              <div style={{ fontSize: 11.5, color: 'var(--ink-soft)', alignSelf: 'center' }}>
-                Premium: <span className="num" style={{ fontWeight: 700, color: '#C9A96E' }}>{fmtCurrency(r.premiumPayable)}</span>
-              </div>
-            )}
-          </div>
+      <div style={{ borderTop: '1px solid #D7D2C7', paddingTop: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+        <div style={{ fontSize: 12, color: '#8D95A3' }}>
+          Adjust Premium FSI, TDR and Fungible sliders on the Area tab
+        </div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <button onClick={() => { update('premiumFsiLoad', 1); update('tdrLoad', 1); update('fungibleLoad', 1); }}
+            style={{ padding: '5px 11px', fontSize: 12, fontWeight: 600, background: 'transparent', color: '#20242C', border: '1px solid #D7D2C7', borderRadius: 3, cursor: 'pointer' }}>
+            Full loading
+          </button>
+          <button onClick={() => { update('premiumFsiLoad', 0); update('tdrLoad', 0); update('fungibleLoad', 1); }}
+            style={{ padding: '5px 11px', fontSize: 12, fontWeight: 600, background: 'transparent', color: '#C9A96E', border: '1px solid rgba(201,169,110,0.35)', borderRadius: 3, cursor: 'pointer' }}>
+            Basic FSI only
+          </button>
+          {r.premiumPayable > 0 && (
+            <div style={{ fontSize: 13, color: '#5F6775', alignSelf: 'center' }}>
+              Premium: <span className="num" style={{ fontWeight: 700, color: '#C9A96E' }}>{fmtCurrency(r.premiumPayable)}</span>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -338,25 +330,25 @@ export function AreaStatement({ result, input, update, readOnly = false }) {
       {verifyMode && (
         <div className="no-print" style={{ marginBottom: 12, padding: '10px 14px',
                                             background: 'rgba(201,169,110,0.08)', border: '1px solid rgba(201,169,110,0.3)',
-                                            borderRadius: 4, fontSize: 12, color: '#C9A96E',
+                                            borderRadius: 4, fontSize: 14, color: '#C9A96E',
                                             display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span>
             <strong>Verification mode active.</strong> Type expected values from your approved area statement into the Expected column.
             Δ% &gt; 1.0 will flag in red. Values persist in localStorage.
           </span>
           <button onClick={clearVerifyStore}
-                  style={{ padding: '4px 10px', fontSize: 11, background: '#13161D',
-                           border: '1px solid rgba(201,169,110,0.3)', borderRadius: 3, cursor: 'pointer',
+                  style={{ padding: '4px 10px', fontSize: 13, background: '#FFFFFF',
+                           border: '1px solid rgba(201,169,110,0.4)', borderRadius: 3, cursor: 'pointer',
                            color: '#C9A96E' }}>
             Clear all
           </button>
         </div>
       )}
 
-      <div style={{ background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4, overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+      <div style={{ border: '1px solid #D7D2C7', borderRadius: 4, overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 15 }}>
           <thead>
-            <tr style={{ background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+            <tr style={{ background: '#FAF8F4', borderBottom: '1px solid #D7D2C7' }}>
               <th style={th}>#</th>
               <th style={{ ...th, textAlign: 'left' }}>Item</th>
               <th style={{ ...th, textAlign: 'right' }}>Value</th>
@@ -371,8 +363,8 @@ export function AreaStatement({ result, input, update, readOnly = false }) {
               const colCount = verifyMode ? 7 : 5;
               if (row.isHeader) {
                 return (
-                  <tr key={i} style={{ background: 'rgba(201,169,110,0.08)' }}>
-                    <td colSpan={colCount} style={{ padding: '10px 18px', fontSize: 11,
+                  <tr key={i} style={{ background: 'rgba(201,169,110,0.07)', borderBottom: '1px solid #D7D2C7' }}>
+                    <td colSpan={colCount} style={{ padding: '8px 16px', fontSize: 11,
                                              letterSpacing: '0.12em', textTransform: 'uppercase',
                                              color: '#C9A96E', fontWeight: 700 }}>
                       {row.section} — {row.label}
@@ -386,21 +378,21 @@ export function AreaStatement({ result, input, update, readOnly = false }) {
                 const pct = Math.round(currentVal * 100);
                 const loadedSqm = (row.availableSqm || 0) * currentVal;
                 return (
-                  <tr key={i} className="no-print" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)',
-                                       background: 'rgba(192, 140, 48, 0.04)' }}>
-                    <td style={{ ...td, color: 'var(--ink-faint)', fontSize: 10 }} className="num">{i + 1}</td>
+                  <tr key={i} className="no-print" style={{ borderBottom: '1px solid #D7D2C7',
+                                       background: 'rgba(201,169,110,0.04)' }}>
+                    <td style={{ ...td, color: '#8D95A3', fontSize: 12 }} className="num">{i + 1}</td>
                     <td style={{ ...td }}>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: '#C9A96E', display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', background: '#C9A96E', color: '#0D0F14', padding: '2px 6px', borderRadius: 2 }}>SLIDER</span>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#C9A96E', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', background: '#C9A96E', color: '#FFFFFF', padding: '2px 6px', borderRadius: 2 }}>SLIDER</span>
                         {row.label}
                       </div>
                       {row.sublabel && (
-                        <div style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 3 }}>{row.sublabel}</div>
+                        <div style={{ fontSize: 13, color: '#5F6775', marginTop: 3 }}>{row.sublabel}</div>
                       )}
                     </td>
                     <td colSpan={verifyMode ? 5 : 3} style={{ ...td, paddingTop: 10, paddingBottom: 10 }}>
                       {row.disabled ? (
-                        <div style={{ fontSize: 11, color: 'var(--ink-faint)', fontStyle: 'italic' }}>
+                        <div style={{ fontSize: 13, color: '#8D95A3', fontStyle: 'italic' }}>
                           {row.disabledReason || 'Not available'}
                         </div>
                       ) : (
@@ -412,10 +404,10 @@ export function AreaStatement({ result, input, update, readOnly = false }) {
                             style={{ flex: 1, accentColor: '#C9A96E', minWidth: 200 }}
                           />
                           <div style={{ minWidth: 180, textAlign: 'right' }}>
-                            <div className="num" style={{ fontSize: 13, fontWeight: 700, color: '#C9A96E' }}>
-                              {fmt(loadedSqm)} <span style={{ fontSize: 10, fontWeight: 500, color: 'var(--ink-soft)' }}>/ {fmt(row.availableSqm)} sqm</span>
+                            <div className="num" style={{ fontSize: 15, fontWeight: 700, color: '#C9A96E' }}>
+                              {fmt(loadedSqm)} <span style={{ fontSize: 12, fontWeight: 500, color: '#5F6775' }}>/ {fmt(row.availableSqm)} sqm</span>
                             </div>
-                            <div className="num" style={{ fontSize: 10.5, color: 'var(--ink-soft)' }}>{pct}% loaded · Ref: {row.ref}</div>
+                            <div className="num" style={{ fontSize: 12.5, color: '#5F6775' }}>{pct}% loaded · Ref: {row.ref}</div>
                           </div>
                         </div>
                       )}
@@ -427,21 +419,20 @@ export function AreaStatement({ result, input, update, readOnly = false }) {
                 const rawVal = input[row.stateKey];
                 const displayVal = rawVal === undefined || rawVal === null ? '' : rawVal;
                 return (
-                  <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.07)',
-                                       background: 'rgba(192, 140, 48, 0.04)' }}>
-                    <td style={{ ...td, color: 'var(--ink-faint)', fontSize: 10 }} className="num">{i + 1}</td>
-                    <td style={{ ...td, fontWeight: 400, color: 'var(--ink-soft)' }}>
+                  <tr key={i} style={{ borderBottom: '1px solid #D7D2C7', background: 'rgba(201,169,110,0.04)' }}>
+                    <td style={{ ...td, color: '#8D95A3', fontSize: 12 }} className="num">{i + 1}</td>
+                    <td style={{ ...td, fontWeight: 400, color: '#5F6775' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', background: '#C9A96E', color: '#0D0F14', padding: '2px 6px', borderRadius: 2 }}>EDIT</span>
+                        <span style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', background: '#C9A96E', color: '#FFFFFF', padding: '2px 6px', borderRadius: 2 }}>EDIT</span>
                         <span>{row.label}</span>
                       </div>
                       {row.sublabel && (
-                        <div style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 4, lineHeight: 1.4 }}>{row.sublabel}</div>
+                        <div style={{ fontSize: 13, color: '#5F6775', marginTop: 4, lineHeight: 1.4 }}>{row.sublabel}</div>
                       )}
                     </td>
                     <td style={{ ...td, textAlign: 'right' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'flex-end' }}>
-                        <span className="num" style={{ fontSize: 13, color: '#a4493a', fontWeight: 500 }}>−</span>
+                        <span className="num" style={{ fontSize: 15, color: '#C05050', fontWeight: 500 }}>−</span>
                         <input
                           type="number"
                           value={displayVal}
@@ -451,14 +442,14 @@ export function AreaStatement({ result, input, update, readOnly = false }) {
                             update(row.stateKey, Number.isNaN(v) ? 0 : v);
                           }}
                           className="num"
-                          style={{ width: 110, padding: '5px 8px', fontSize: 13, fontWeight: 600,
-                                   background: '#13161D', border: '1px solid #c9b896', color: '#a4493a',
+                          style={{ width: 110, padding: '5px 8px', fontSize: 15, fontWeight: 600,
+                                   background: '#FFFFFF', border: '1px solid #D7D2C7', color: '#C05050',
                                    borderRadius: 3, textAlign: 'right' }}
                         />
                       </div>
                     </td>
-                    <td style={{ ...td, fontSize: 11, color: 'var(--ink-soft)' }} className="num">{row.unit || 'sqm'}</td>
-                    <td style={{ ...td, fontSize: 10.5, color: '#C9A96E' }} className="num">{row.ref}</td>
+                    <td style={{ ...td, fontSize: 13, color: '#5F6775' }} className="num">{row.unit || 'sqm'}</td>
+                    <td style={{ ...td, fontSize: 12.5, color: '#C9A96E' }} className="num">{row.ref}</td>
                     {verifyMode && (<><td style={{ ...td }}>—</td><td style={{ ...td }}>—</td></>)}
                   </tr>
                 );
@@ -474,30 +465,30 @@ export function AreaStatement({ result, input, update, readOnly = false }) {
               const flag = delta !== null && Math.abs(delta) > 1.0;
               const isNumericRow = typeof row.value === 'number';
               return (
-                <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.07)',
+                <tr key={i} style={{ borderBottom: '1px solid #D7D2C7',
                                      background: row.highlight ? 'rgba(201,169,110,0.06)' : 'transparent',
-                                     opacity: row.italic ? 0.8 : 1 }}>
-                  <td style={{ ...td, color: 'var(--ink-faint)', fontSize: 10 }} className="num">{i + 1}</td>
+                                     opacity: row.italic ? 0.75 : 1 }}>
+                  <td style={{ ...td, color: '#8D95A3', fontSize: 12 }} className="num">{i + 1}</td>
                   <td style={{ ...td, fontWeight: row.bold ? 600 : 400,
-                               color: row.bold ? 'var(--ink)' : 'var(--ink-soft)',
+                               color: row.bold ? '#20242C' : '#5F6775',
                                fontStyle: row.italic ? 'italic' : 'normal' }}>
                     {row.label}
                     {row.formula && (
-                      <div className="num" style={{ fontSize: 10.5, color: 'var(--ink-faint)', marginTop: 2, fontWeight: 400 }}>
+                      <div className="num" style={{ fontSize: 12.5, color: '#8D95A3', marginTop: 2, fontWeight: 400 }}>
                         = {row.formula}
                       </div>
                     )}
                   </td>
                   <td style={{ ...td, textAlign: 'right',
                                fontWeight: row.bold ? 700 : 500,
-                               color: row.highlight ? '#C9A96E' : isNeg ? '#a4493a' : 'var(--ink)' }}
+                               color: row.highlight ? '#C9A96E' : isNeg ? '#C05050' : '#20242C' }}
                       className="num">
                     {typeof row.value === 'number'
                       ? fmt(row.value, row.value < 10 && row.value > 0 ? 2 : 0)
                       : (row.value || '—')}
                   </td>
-                  <td style={{ ...td, fontSize: 11, color: 'var(--ink-soft)' }} className="num">{row.unit}</td>
-                  <td style={{ ...td, fontSize: 10.5, color: '#C9A96E' }} className="num">{row.ref}</td>
+                  <td style={{ ...td, fontSize: 13, color: '#5F6775' }} className="num">{row.unit}</td>
+                  <td style={{ ...td, fontSize: 12.5, color: '#C9A96E' }} className="num">{row.ref}</td>
                   {verifyMode && (
                     <td style={{ ...td, textAlign: 'right', padding: '4px 8px' }}>
                       {isNumericRow ? (
@@ -507,18 +498,18 @@ export function AreaStatement({ result, input, update, readOnly = false }) {
                           onChange={e => setVerifyField(rowKey, 'expected', e.target.value)}
                           placeholder="—"
                           className="num"
-                          style={{ width: 100, padding: '4px 6px', fontSize: 12,
-                                   background: '#13161D', border: '1px solid rgba(255,255,255,0.07)',
+                          style={{ width: 100, padding: '4px 6px', fontSize: 14,
+                                   background: '#FFFFFF', border: '1px solid #D7D2C7',
                                    borderRadius: 3, textAlign: 'right' }} />
-                      ) : <span style={{ color: 'var(--ink-faint)' }}>—</span>}
+                      ) : <span style={{ color: '#8D95A3' }}>—</span>}
                     </td>
                   )}
                   {verifyMode && (
-                    <td style={{ ...td, padding: '4px 8px', fontSize: 11 }}>
+                    <td style={{ ...td, padding: '4px 8px', fontSize: 13 }}>
                       {isNumericRow && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                           {delta !== null && (
-                            <div className="num" style={{ fontSize: 11, fontWeight: 600, color: flag ? '#a4493a' : '#3a7a4a' }}>
+                            <div className="num" style={{ fontSize: 13, fontWeight: 600, color: flag ? '#C05050' : '#4A9C6E' }}>
                               {flag ? '⚠ ' : '✓ '}
                               {delta > 0 ? '+' : ''}{delta.toFixed(2)}%
                             </div>
@@ -528,9 +519,9 @@ export function AreaStatement({ result, input, update, readOnly = false }) {
                             value={sourceRaw}
                             onChange={e => setVerifyField(rowKey, 'source', e.target.value)}
                             placeholder="source note"
-                            style={{ width: '100%', padding: '3px 6px', fontSize: 10.5,
-                                     background: '#13161D', border: '1px solid rgba(255,255,255,0.07)',
-                                     borderRadius: 3, fontStyle: 'italic', color: 'var(--ink-soft)' }} />
+                            style={{ width: '100%', padding: '3px 6px', fontSize: 12.5,
+                                     background: '#FFFFFF', border: '1px solid #D7D2C7',
+                                     borderRadius: 3, fontStyle: 'italic', color: '#5F6775' }} />
                         </div>
                       )}
                     </td>
@@ -555,7 +546,7 @@ export function MemberEntitlement({ breakdown, input, update }) {
 
       <div className="no-print" style={{ marginBottom: 16, padding: 16,
                                           background: 'rgba(201,169,110,0.06)',
-                                          border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4 }}>
+                                          border: '1px solid #D7D2C7', borderRadius: 4 }}>
         <label className="field-label">
           Member share of Incentive BUA — set this per your draft GB resolution
         </label>
@@ -564,7 +555,7 @@ export function MemberEntitlement({ breakdown, input, update }) {
                  value={input.memberIncentiveShare}
                  onChange={e => update('memberIncentiveShare', parseInt(e.target.value))}
                  style={{ flex: 1, accentColor: '#C9A96E' }} />
-          <div className="num" style={{ fontSize: 18, fontWeight: 700, color: '#C9A96E',
+          <div className="num" style={{ fontSize: 20, fontWeight: 700, color: '#C9A96E',
                                         minWidth: 60, textAlign: 'right' }}>
             {input.memberIncentiveShare}%
           </div>
@@ -575,10 +566,10 @@ export function MemberEntitlement({ breakdown, input, update }) {
         </div>
       </div>
 
-      <div style={{ background: '#13161D', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 4, overflow: 'hidden' }}>
+      <div style={{ border: '1px solid #D7D2C7', borderRadius: 4, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ background: 'rgba(255,255,255,0.04)' }}>
+            <tr style={{ background: '#FAF8F4', borderBottom: '1px solid #D7D2C7' }}>
               <th style={th}>Flat type</th>
               <th style={{ ...th, textAlign: 'right' }}>Count</th>
               <th style={{ ...th, textAlign: 'right' }}>Existing carpet</th>
@@ -588,26 +579,26 @@ export function MemberEntitlement({ breakdown, input, update }) {
           </thead>
           <tbody>
             {breakdown.map((b, i) => (
-              <tr key={i} style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+              <tr key={i} style={{ borderTop: '1px solid #D7D2C7' }}>
                 <td style={td}>
                   <div style={{ fontWeight: 600 }}>{b.label}</div>
-                  <div style={{ fontSize: 10, color: 'var(--ink-faint)', textTransform: 'uppercase',
+                  <div style={{ fontSize: 12, color: '#8D95A3', textTransform: 'uppercase',
                                 letterSpacing: '0.06em', marginTop: 2 }}>{b.use}</div>
                 </td>
                 <td style={{ ...td, textAlign: 'right' }} className="num">{b.count}</td>
                 <td style={{ ...td, textAlign: 'right' }} className="num">
                   {fmt(b.existingCarpet)} sqm
-                  <div style={{ fontSize: 10, color: 'var(--ink-faint)' }}>≈ {fmtSqft(b.existingCarpet)} sqft</div>
+                  <div style={{ fontSize: 12, color: '#8D95A3' }}>≈ {fmtSqft(b.existingCarpet)} sqft</div>
                 </td>
                 <td style={{ ...td, textAlign: 'right' }} className="num">
                   {fmt(b.minGuaranteed)} sqm
-                  <div style={{ fontSize: 10, color: 'var(--ink-faint)' }}>≈ {fmtSqft(b.minGuaranteed)} sqft</div>
+                  <div style={{ fontSize: 12, color: '#8D95A3' }}>≈ {fmtSqft(b.minGuaranteed)} sqft</div>
                 </td>
                 <td style={{ ...td, textAlign: 'right', background: 'rgba(201,169,110,0.06)' }} className="num">
                   <span style={{ fontWeight: 700, color: '#C9A96E' }}>
                     {fmt(b.realisticLow)}–{fmt(b.realisticHigh)} sqm
                   </span>
-                  <div style={{ fontSize: 10, color: 'var(--ink-faint)' }}>
+                  <div style={{ fontSize: 12, color: '#8D95A3' }}>
                     ≈ {fmtSqft(b.realisticLow)}–{fmtSqft(b.realisticHigh)} sqft
                   </div>
                 </td>

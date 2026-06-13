@@ -1,34 +1,43 @@
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  /* Deep navy base — warmer, more readable than near-black */
-  --bg:          #0E1118;
-  --surface:     #141720;
-  --surface-2:   #191D28;
-  --paper:       #141720;
-  --paper-warm:  #191D28;
-  --border:      rgba(255,255,255,0.08);
-  --border-soft: rgba(255,255,255,0.05);
+  /* Light theme — warm paper, not pure white */
+  --bg:               #F5F4F0;
+  --surface:          #FFFFFF;
+  --surface-elevated: #FAF8F4;
+  --surface-2:        #FAF8F4;
+  --paper:            #FFFFFF;
+  --paper-warm:       #FAF8F4;
+  --border:           #D7D2C7;
+  --border-soft:      #E7E2D8;
 
-  /* Warm ivory text — not harsh pure white */
-  --ink:        #EDF0F7;
-  --ink-soft:   rgba(237,240,247,0.52);
-  --ink-faint:  rgba(237,240,247,0.26);
+  /* Text */
+  --ink:        #20242C;
+  --ink-soft:   #5F6775;
+  --ink-faint:  #8D95A3;
 
-  /* Muted gold accent */
+  /* Gold accent */
   --gold:       #C9A96E;
   --gold-deep:  #A88A55;
-  --gold-dim:   rgba(201,169,110,0.15);
+  --gold-dim:   rgba(201,169,110,0.12);
+  --gold-tint:  rgba(201,169,110,0.12);
   --rust:       var(--gold);
   --rust-deep:  var(--gold-deep);
-  --signal-bg:  rgba(201,169,110,0.07);
+  --signal-bg:  rgba(201,169,110,0.08);
 
   /* Status */
   --success:    #4A9C6E;
+  --warning:    #C58C3D;
   --danger:     #C05050;
 
+  /* Fonts */
   --display: "Source Serif 4", Georgia, serif;
   --sans:    "Source Sans 3", -apple-system, sans-serif;
   --mono:    "JetBrains Mono", monospace;
-  --radius:  3px;
+
+  /* Layout */
+  --radius:  4px;
+
+  /* Base type scale — everything in the app inherits from this */
+  font-size: 17px;
 }
