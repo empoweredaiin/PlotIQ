@@ -8,8 +8,6 @@ const _BD  = '#D7D2C7';
 const _MU  = '#5F6775';
 const _FA  = '#8D95A3';
 const _INK = '#20242C';
-const _SU  = '#FFFFFF';
-const _BG  = '#F5F4F0';
 
 function Label({ children }) {
   return (
@@ -470,7 +468,7 @@ function StepUnits({ input, update, updateFlat, addFlat, removeFlat, onDone, onB
 }
 
 // ── COMPACT SUMMARY (post-wizard) ─────────────────────────────────────────────
-function SummaryView({ input, wardDetect, onEditStep }) {
+function SummaryView({ input, wardDetect, onEditStep }) { // eslint-disable-line no-unused-vars
   const showCostReport = input.reportScope !== 'entitlement';
   const buaDisplay = input.buaInputMode === 'total'
     ? `${input.totalExistingBua || '—'} sqm · ${input.tenementCount || '—'} flats`
@@ -510,7 +508,6 @@ function SummaryView({ input, wardDetect, onEditStep }) {
 
 // ── ADVANCED (collapse — shown only in summary view after wizard) ─────────────
 function AdvancedSection({ input, wardDetect, showCostReport }) {
-  const [open, setOpen] = useState(false);
   // We need update from the parent — re-use via context or prop drilling.
   // This component is always rendered inside InputPanel which has update.
   // We pass it via the outer closure through InputPanel's render.

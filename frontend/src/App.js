@@ -7,9 +7,8 @@ import { detectApplicableSchemes, pickPrimaryScheme, ALL_SCHEMES } from './core/
 import { Footer } from './components/shared/primitives';
 import SpecialLocationWarning from './components/shared/SpecialLocationWarning';
 import SlumFlag from './components/shared/SlumFlag';
-import SchemePicker from './components/shared/SchemePicker';
 import InputPanel from './components/schemes/Reg33_7B/InputPanel';
-import { InteractiveResult, AreaStatement, MemberEntitlement } from './components/schemes/Reg33_7B/Results';
+import { AreaStatement, MemberEntitlement } from './components/schemes/Reg33_7B/Results';
 import ClusterResult from './components/schemes/Reg33_9/Results';
 
 
@@ -76,7 +75,6 @@ export default function App() {
     reportScope: 'entitlement',
   });
 
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const [wardDetect, setWardDetect] = useState({ status: 'idle', ward: null, error: null });
   const [workspacePage, setWorkspacePage] = useState('overview');
   const [page, setPage] = useState('landing');
@@ -129,9 +127,6 @@ export default function App() {
   }
 
   const _gold = '#C9A96E';
-  const _border = '#D7D2C7';
-  const _muted = '#5F6775';
-  const _faint = '#8D95A3';
   const workspaceNav = [
     { id:'overview', label:'Overview',          icon:<LayoutGrid size={15}/> },
     { id:'area',     label:'Area & Feasibility', icon:<BarChart2 size={15}/> },
@@ -402,7 +397,6 @@ const _G  = '#C9A96E';                        // gold
 const _BD = '#D7D2C7';                        // border
 const _MU = '#5F6775';                         // muted text
 const _FA = '#8D95A3';                         // faint label
-const _SU = '#FFFFFF';                         // surface
 const _INK = '#20242C';                        // primary ink
 
 
@@ -1063,7 +1057,6 @@ const LandingPage = ({ onStart }) => {
     { id: 'usecases',     label: 'Who It\'s For' },
     { id: 'pricing',      label: 'Access' },
   ];
-  const [activeSection, setActiveSection] = useState('hero');
   const mainRef = useRef(null);
   const [isDay, setIsDay] = useState(() => {
     const h = new Date().getHours();
