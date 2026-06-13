@@ -121,7 +121,7 @@ export function InteractiveResult({ result, input, update, schemeId }) {
   );
 }
 
-export function AreaStatement({ result, input, update }) {
+export function AreaStatement({ result, input, update, readOnly = false }) {
   const verifyMode = isVerifyMode();
   const [verifyStore, setVerifyStore] = useState(() => loadVerifyStore());
 
@@ -381,6 +381,7 @@ export function AreaStatement({ result, input, update }) {
                 );
               }
               if (row.kind === 'slider') {
+                if (readOnly) return null;
                 const currentVal = input[row.stateKey] ?? 1;
                 const pct = Math.round(currentVal * 100);
                 const loadedSqm = (row.availableSqm || 0) * currentVal;

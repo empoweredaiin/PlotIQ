@@ -1,20 +1,34 @@
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  --paper: #13161D;
-  --paper-warm: #16191F;
-  --border: rgba(255,255,255,0.07);
-  --ink: #FFFFFF;
-  --ink-soft: rgba(255,255,255,0.50);
-  --ink-faint: rgba(255,255,255,0.25);
-  --gold: #C9A96E;
-  --gold-deep: #A88A55;
-  --rust: var(--gold);
-  --rust-deep: var(--gold-deep);
-  --signal-bg: rgba(201,169,110,0.06);
-  --success: #4A8C66;
+  /* Deep navy base — warmer, more readable than near-black */
+  --bg:          #0E1118;
+  --surface:     #141720;
+  --surface-2:   #191D28;
+  --paper:       #141720;
+  --paper-warm:  #191D28;
+  --border:      rgba(255,255,255,0.08);
+  --border-soft: rgba(255,255,255,0.05);
+
+  /* Warm ivory text — not harsh pure white */
+  --ink:        #EDF0F7;
+  --ink-soft:   rgba(237,240,247,0.52);
+  --ink-faint:  rgba(237,240,247,0.26);
+
+  /* Muted gold accent */
+  --gold:       #C9A96E;
+  --gold-deep:  #A88A55;
+  --gold-dim:   rgba(201,169,110,0.15);
+  --rust:       var(--gold);
+  --rust-deep:  var(--gold-deep);
+  --signal-bg:  rgba(201,169,110,0.07);
+
+  /* Status */
+  --success:    #4A9C6E;
+  --danger:     #C05050;
+
   --display: "Source Serif 4", Georgia, serif;
-  --sans: "Source Sans 3", -apple-system, sans-serif;
-  --mono: "JetBrains Mono", monospace;
-  --radius: 4px;
+  --sans:    "Source Sans 3", -apple-system, sans-serif;
+  --mono:    "JetBrains Mono", monospace;
+  --radius:  3px;
 }
