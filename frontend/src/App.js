@@ -5,19 +5,15 @@ import { computeBuildable } from './core/schemes';
 import { analyseEligibility } from './core/validators/eligibility';
 import { detectApplicableSchemes, pickPrimaryScheme } from './core/validators/schemes';
 import { Footer } from './components/shared/primitives';
-import SchemeComparison from './components/shared/SchemeComparison';
+import SpecialLocationWarning from './components/shared/SpecialLocationWarning';
+import SlumFlag from './components/shared/SlumFlag';
+import SchemePicker from './components/shared/SchemePicker';
 import CompareOffer from './components/shared/CompareOffer';
-import PremiumRecoveryPanel from './components/shared/PremiumRecoveryPanel';
 import ParkingPanel from './components/shared/ParkingPanel';
 import InputPanel from './components/schemes/Reg33_7B/InputPanel';
 import { InteractiveResult, AreaStatement, MemberEntitlement } from './components/schemes/Reg33_7B/Results';
 import ClusterResult from './components/schemes/Reg33_9/Results';
 
-const WORKSPACE_PAGES = [
-  { id: 'overview',     label: 'Overview',          title: 'Redevelopment position at a glance' },
-  { id: 'area',         label: 'Area & Feasibility', title: 'Entitlement, scenarios & negotiation intelligence' },
-  { id: 'costs',        label: 'Costs',              title: 'Government charges & premiums payable' },
-];
 
 // ============================================================================
 // MAIN APP COMPONENT
@@ -86,7 +82,6 @@ export default function App() {
   const [wardDetect, setWardDetect] = useState({ status: 'idle', ward: null, error: null });
   const [workspacePage, setWorkspacePage] = useState('overview');
   const [page, setPage] = useState('landing');
-  const [appTab, setAppTab] = useState('input');
 
   const update = (k, v) => setInput(prev => ({ ...prev, [k]: v }));
   const updateFlat = (idx, k, v) =>
@@ -100,13 +95,6 @@ export default function App() {
   const schemes = useMemo(() => detectApplicableSchemes(input), [input]);
   const primarySchemeId = useMemo(() => pickPrimaryScheme(schemes, input), [schemes, input]);
   const activeSchemeId = input.selectedScheme || primarySchemeId;
-  const showCostReport = input.reportScope !== 'entitlement';
-
-  useEffect(() => {
-    if (workspacePage === 'costs' && !showCostReport) {
-      setWorkspacePage('overview');
-    }
-  }, [workspacePage, showCostReport]);
 
   // Compute the active scheme + the auto-detected primary (for comparison)
   const result = useMemo(() => computeBuildable({ ...input, selectedScheme: activeSchemeId }), [input, activeSchemeId]);
@@ -119,15 +107,13 @@ export default function App() {
     return s?.eligible ? computeBuildable({ ...input, selectedScheme: 'reg33_9' }) : null;
   }, [input, schemes]);
 
-  const currentWorkspace = WORKSPACE_PAGES.find(p => p.id === workspacePage) || WORKSPACE_PAGES[0];
-
   const renderWorkspaceContent = () => {
     switch (workspacePage) {
 
       // ── TAB 1: OVERVIEW ──────────────────────────────────────────────────────
       case 'overview':
       default:
-        return <OverviewTab result={result} input={input} update={update} eligibility={eligibility} schemes={schemes} activeSchemeId={activeSchemeId} primarySchemeId={primarySchemeId} wardDetect={wardDetect} />;
+        return <OverviewTab result={result} input={input} update={update} eligibility={eligibility} schemes={schemes} activeSchemeId={activeSchemeId} primarySchemeId={primarySchemeId} wardDetect={wardDetect} onSchemeSelect={(id) => update('selectedScheme', id)} />;
 
       // ── TAB 2: AREA & FEASIBILITY ─────────────────────────────────────────────
       case 'area':
@@ -135,7 +121,7 @@ export default function App() {
 
       // ── TAB 3: COSTS ──────────────────────────────────────────────────────────
       case 'costs':
-        return <CostsTab result={result} input={input} />;
+        return <CostsTab result={result} input={input} update={update} />;
     }
   };
 
@@ -152,21 +138,29 @@ export default function App() {
     { id:'area',     label:'Area & Feasibility', icon:<BarChart2 size={15}/> },
     { id:'costs',    label:'Costs',              icon:<Receipt size={15}/> },
   ];
+
   return (
     <div style={{
       position:'fixed',inset:0,background:'#0D0F14',display:'flex',zIndex:1000,
       fontFamily:'"Source Sans 3",-apple-system,sans-serif',
     }}>
+      <Styles />
+      <GlobalStyles />
 
-      {/* ── SIDEBAR ── */}
-      <aside className="piq-tool-sidebar" style={{
-        width:218,flexShrink:0,background:'#0F1219',
+      {/* ── INPUT PANEL (left) ── */}
+      <aside className="piq-input-panel" style={{
+        width:300,flexShrink:0,background:'#0F1219',
         borderRight:`1px solid ${_border}`,
         display:'flex',flexDirection:'column',
-        padding:'28px 0 20px',
+        overflow:'hidden',
       }}>
-        <div style={{padding:'0 22px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-          <div style={{fontSize:15,fontWeight:700,letterSpacing:'0.04em',color:'#fff'}}>
+        {/* Input panel header */}
+        <div style={{
+          height:50,flexShrink:0,
+          display:'flex',alignItems:'center',justifyContent:'space-between',
+          padding:'0 18px',borderBottom:`1px solid ${_border}`,background:'#0F1219',
+        }}>
+          <div style={{fontSize:14,fontWeight:700,letterSpacing:'0.04em',color:'#fff'}}>
             PLOTI<span style={{color:_gold}}>Q</span>
           </div>
           <button onClick={()=>setPage('landing')} style={{
@@ -176,78 +170,52 @@ export default function App() {
           }}>← BACK</button>
         </div>
 
-        <div style={{padding:'0 22px 14px',borderBottom:`1px solid ${_border}`,marginBottom:8}}>
-          {input.societyName ? (
-            <>
-              <div style={{fontSize:9,letterSpacing:'0.14em',textTransform:'uppercase',color:_gold,marginBottom:4}}>ACTIVE ASSESSMENT</div>
-              <div style={{fontSize:12,fontWeight:600,color:'#fff',lineHeight:1.3,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{input.societyName}</div>
-              {input.address && <div style={{fontSize:10.5,color:_faint,marginTop:2,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{input.address}</div>}
-            </>
-          ) : (
-            <>
-              <div style={{fontSize:9,letterSpacing:'0.14em',textTransform:'uppercase',color:_faint,marginBottom:4}}>NEW ASSESSMENT</div>
-              <div style={{fontSize:11.5,color:_muted}}>Fill in plot details →</div>
-            </>
-          )}
-        </div>
-
-        <nav style={{flex:1}}>
-          {workspaceNav.map(item=>(
-            <div key={item.id} onClick={()=>setWorkspacePage(item.id)} style={{
-              display:'flex',alignItems:'center',gap:11,
-              padding:'10px 22px',
-              borderLeft:workspacePage===item.id?`2px solid ${_gold}`:'2px solid transparent',
-              background:workspacePage===item.id?'rgba(201,169,110,0.06)':'transparent',
-              color:workspacePage===item.id?'#fff':_muted,
-              fontSize:13,fontWeight:workspacePage===item.id?600:400,
-              cursor:'pointer',
-            }}>
-              <span style={{opacity:workspacePage===item.id?1:0.65,display:'flex'}}>{item.icon}</span>
-              {item.label}
-            </div>
-          ))}
-        </nav>
-
-        <div style={{padding:'14px 22px 0',borderTop:`1px solid ${_border}`}}>
-          <div style={{fontSize:9,letterSpacing:'0.14em',textTransform:'uppercase',color:_faint,marginBottom:4}}>PLOTIQ</div>
-          <div style={{fontSize:11,color:_muted,lineHeight:1.5}}>DCPR 2034 · Mumbai</div>
+        {/* Scrollable form */}
+        <div style={{flex:1,overflowY:'auto',padding:'20px 18px 32px'}}>
+          <InputPanel
+            input={input}
+            update={update}
+            updateFlat={updateFlat}
+            addFlat={addFlat}
+            removeFlat={removeFlat}
+            showAdvanced={showAdvanced}
+            setShowAdvanced={setShowAdvanced}
+            wardDetect={wardDetect}
+            setWardDetect={setWardDetect}
+          />
         </div>
       </aside>
 
-      {/* ── MAIN ── */}
+      {/* ── RESULTS AREA (right) ── */}
       <div style={{flex:1,minWidth:0,display:'flex',flexDirection:'column',overflow:'hidden'}}>
 
         {/* Topbar */}
         <div className="piq-topbar-padding" style={{
           height:50,flexShrink:0,borderBottom:`1px solid ${_border}`,
-          display:'flex',alignItems:'center',padding:'0 0 0 28px',gap:0,
+          display:'flex',alignItems:'center',gap:0,
           background:'#0F1219',
         }}>
-          {/* Tab buttons */}
-          <div style={{display:'flex',height:'100%',marginRight:20}}>
-            {[{id:'input',label:'Input'},{id:'results',label:'Results'}].map(tab=>(
-              <button key={tab.id} onClick={()=>setAppTab(tab.id)} style={{
-                padding:'0 22px',fontSize:11,fontWeight:appTab===tab.id?700:400,
+          {/* Workspace nav tabs */}
+          <div style={{display:'flex',height:'100%',paddingLeft:20}}>
+            {workspaceNav.map(tab=>(
+              <button key={tab.id} onClick={()=>setWorkspacePage(tab.id)} style={{
+                display:'flex',alignItems:'center',gap:7,
+                padding:'0 20px',fontSize:11,fontWeight:workspacePage===tab.id?700:400,
                 background:'none',border:'none',
-                borderBottom:appTab===tab.id?`2px solid ${_gold}`:'2px solid transparent',
-                color:appTab===tab.id?'#fff':_muted,
+                borderBottom:workspacePage===tab.id?`2px solid ${_gold}`:'2px solid transparent',
+                color:workspacePage===tab.id?'#fff':_muted,
                 cursor:'pointer',fontFamily:'inherit',
-                letterSpacing:'0.07em',textTransform:'uppercase',
-              }}>{tab.label}</button>
+                letterSpacing:'0.06em',textTransform:'uppercase',
+              }}>
+                <span style={{opacity:workspacePage===tab.id?1:0.5,display:'flex'}}>{tab.icon}</span>
+                {tab.label}
+              </button>
             ))}
           </div>
 
-          <div style={{flex:1,minWidth:0}}>
-            {appTab==='results' && (
-              <div style={{fontSize:10.5,letterSpacing:'0.14em',textTransform:'uppercase',color:_faint,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                {currentWorkspace.title}
-              </div>
-            )}
-          </div>
-
-          <div style={{display:'flex',alignItems:'center',gap:12,flexShrink:0,paddingRight:28}}>
-            {appTab==='results' && result.fsiSlab && (
-              <div className="piq-topbar-stats" style={{display:'flex',gap:18}}>
+          <div style={{flex:1,minWidth:0,padding:'0 16px'}}>
+            {result.fsiSlab && (
+              <div className="piq-topbar-stats" style={{display:'flex',gap:18,justifyContent:'flex-end'}}>
                 {[
                   {val:`${input.plotArea} m²`,label:'Plot'},
                   {val:result.fsiSlab.basic.toFixed(2),label:'Base FSI'},
@@ -260,15 +228,16 @@ export default function App() {
                 ))}
               </div>
             )}
-            {appTab==='results' && (
-              <button onClick={()=>window.print()} style={{
-                display:'flex',alignItems:'center',gap:6,
-                padding:'6px 12px',background:'transparent',
-                border:`1px solid ${_border}`,borderRadius:4,
-                color:_muted,fontSize:10,fontWeight:600,letterSpacing:'0.06em',
-                cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap',
-              }}><Download size={12}/>Export</button>
-            )}
+          </div>
+
+          <div style={{display:'flex',alignItems:'center',gap:10,flexShrink:0,paddingRight:20}}>
+            <button onClick={()=>window.print()} style={{
+              display:'flex',alignItems:'center',gap:6,
+              padding:'6px 12px',background:'transparent',
+              border:`1px solid ${_border}`,borderRadius:4,
+              color:_muted,fontSize:10,fontWeight:600,letterSpacing:'0.06em',
+              cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap',
+            }}><Download size={12}/>Export</button>
             <button onClick={()=>setPage('landing')} style={{
               padding:'6px 12px',background:'rgba(201,169,110,0.08)',
               border:`1px solid rgba(201,169,110,0.2)`,borderRadius:4,
@@ -278,68 +247,20 @@ export default function App() {
           </div>
         </div>
 
-        {/* Content */}
-        <div className="redev-app" style={{flex:1,minHeight:0,display:'flex',flexDirection:'column',overflow:'hidden'}}>
-          <Styles />
-          <GlobalStyles />
-          {/* Mobile workspace nav — shown only on small screens in Results tab */}
-          {appTab === 'results' && (
-            <div className="piq-mobile-workspace-nav">
-              {workspaceNav.map(item=>(
-                <button key={item.id} onClick={()=>setWorkspacePage(item.id)}
-                        className={workspacePage===item.id?'active':''}>
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          )}
-          {/* Inner content row */}
-          <div style={{flex:1,minHeight:0,display:'flex',overflow:'hidden'}}>
+        {/* Mobile workspace nav */}
+        <div className="piq-mobile-workspace-nav">
+          {workspaceNav.map(item=>(
+            <button key={item.id} onClick={()=>setWorkspacePage(item.id)}
+                    className={workspacePage===item.id?'active':''}>
+              {item.label}
+            </button>
+          ))}
+        </div>
 
-          {appTab === 'input' ? (
-            /* ── INPUT TAB — full-width form ── */
-            <main className="piq-input-tab-inner" style={{flex:1,overflowY:'auto',padding:'32px 40px',display:'flex',justifyContent:'center'}}>
-              <div className="piq-input-col" style={{width:'100%',maxWidth:660}}>
-                <InputPanel
-                  input={input}
-                  update={update}
-                  updateFlat={updateFlat}
-                  addFlat={addFlat}
-                  removeFlat={removeFlat}
-                  showAdvanced={showAdvanced}
-                  setShowAdvanced={setShowAdvanced}
-                  wardDetect={wardDetect}
-                  setWardDetect={setWardDetect}
-                />
-                <div style={{marginTop:36,paddingTop:28,borderTop:`1px solid ${_border}`,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                  <div style={{fontSize:11,color:_muted,lineHeight:1.5}}>
-                    All inputs are saved automatically between tabs.
-                  </div>
-                  <button onClick={()=>setAppTab('results')} style={{
-                    padding:'12px 32px',background:_gold,color:'#0D0F14',
-                    border:'none',borderRadius:4,fontSize:13,fontWeight:700,
-                    letterSpacing:'0.05em',cursor:'pointer',fontFamily:'inherit',
-                    display:'flex',alignItems:'center',gap:8,
-                  }}>Calculate <span style={{fontSize:16,lineHeight:1}}>→</span></button>
-                </div>
-              </div>
-            </main>
-          ) : (
-            /* ── RESULTS TAB — workspace modules ── */
-            <main className="piq-results-tab" style={{flex:1,overflowY:'auto',padding:'24px 28px',display:'grid',gap:20,alignContent:'start'}}>
-              <div style={{display:'flex',justifyContent:'flex-end'}}>
-                <button onClick={()=>setAppTab('input')} style={{
-                  padding:'6px 14px',background:'transparent',
-                  border:`1px solid ${_border}`,borderRadius:4,
-                  color:_muted,fontSize:10,fontWeight:600,letterSpacing:'0.07em',
-                  cursor:'pointer',fontFamily:'inherit',textTransform:'uppercase',
-                }}>← Edit inputs</button>
-              </div>
-              {renderWorkspaceContent()}
-              <Footer />
-            </main>
-          )}
-          </div>
+        {/* Content */}
+        <div className="redev-app" style={{flex:1,minHeight:0,overflowY:'auto',padding:'24px 28px'}}>
+          {renderWorkspaceContent()}
+          <Footer />
         </div>
       </div>
     </div>
@@ -355,366 +276,452 @@ const _G = '#C9A96E';
 const _BD = 'rgba(255,255,255,0.07)';
 const _MU = 'rgba(255,255,255,0.45)';
 const _FA = 'rgba(255,255,255,0.22)';
-const SURFACE  = '#191C24';   // slightly lifted card surface
-const SURFACE2 = '#1E2130';   // hover/secondary surface
+const SURFACE = '#191C24';
 
-function KPI({ label, value, sub, accent, large }) {
-  return (
-    <div style={{
-      padding: large ? '28px 24px' : '20px 20px',
-      background: SURFACE,
-      border: `1px solid ${accent ? accent : _BD}`,
-      borderTop: accent ? `3px solid ${accent}` : `1px solid ${_BD}`,
-      borderRadius: 8,
-    }}>
-      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: accent || _MU, marginBottom: 8 }}>{label}</div>
-      <div style={{ fontSize: large ? 42 : 32, fontWeight: 700, color: '#fff', lineHeight: 1, letterSpacing: '-0.02em', fontFamily: '"JetBrains Mono",monospace' }}>{value}</div>
-      {sub && <div style={{ fontSize: 11.5, color: _MU, marginTop: 6 }}>{sub}</div>}
-    </div>
-  );
-}
-
-function SectionHeader({ label, eyebrow }) {
-  return (
-    <div style={{ marginBottom: 16, paddingBottom: 10, borderBottom: `1px solid ${_BD}` }}>
-      {eyebrow && <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: _G, marginBottom: 4 }}>{eyebrow}</div>}
-      <div style={{ fontSize: 18, fontWeight: 700, color: '#fff' }}>{label}</div>
-    </div>
-  );
-}
-
-function MetaRow({ label, value, accent }) {
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '8px 0', borderBottom: `1px solid rgba(255,255,255,0.05)` }}>
-      <span style={{ fontSize: 12.5, color: _MU }}>{label}</span>
-      <span style={{ fontSize: 13, fontWeight: 600, color: accent ? _G : '#fff', fontFamily: '"JetBrains Mono",monospace' }}>{value || '—'}</span>
-    </div>
-  );
-}
-
-function ViabilityBadge({ rating, ratio }) {
-  const cfg = {
-    marginal:         { bg: 'rgba(164,73,58,0.15)',  border: '#a4493a', color: '#e07060', label: 'Marginal' },
-    viable:           { bg: 'rgba(201,169,110,0.12)', border: '#C9A96E', color: '#C9A96E', label: 'Viable' },
-    attractive:       { bg: 'rgba(74,140,102,0.12)', border: '#4a8c66', color: '#5aac80', label: 'Attractive' },
-    'highly attractive': { bg: 'rgba(74,140,102,0.18)', border: '#3d7a58', color: '#4fd490', label: 'Highly Attractive' },
-  };
-  const c = cfg[rating] || cfg['marginal'];
-  return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', background: c.bg, border: `1px solid ${c.border}`, borderRadius: 20 }}>
-      <div style={{ width: 7, height: 7, borderRadius: '50%', background: c.color }} />
-      <span style={{ fontSize: 12, fontWeight: 700, color: c.color, letterSpacing: '0.06em' }}>{c.label}</span>
-      {ratio > 0 && <span style={{ fontSize: 11, color: c.color, opacity: 0.7 }}>· {ratio.toFixed(2)}×</span>}
-    </div>
-  );
-}
-
-// ── TAB 1: OVERVIEW ──────────────────────────────────────────────────────────
-function OverviewTab({ result, input, update, eligibility, schemes, activeSchemeId, primarySchemeId, wardDetect }) {
+// ── TAB 1: OVERVIEW — Scorecard answering "What should I do?" ────────────────
+function OverviewTab({ result, input, eligibility, schemes, activeSchemeId, primarySchemeId, wardDetect, onSchemeSelect, update }) {
   const r = result;
-  const fmt = (v) => v == null ? '—' : Math.round(v).toLocaleString('en-IN');
-  const fmtSqft = (sqm) => sqm == null ? '—' : Math.round(sqm * 10.764).toLocaleString('en-IN');
+  const n = (v) => v == null ? '—' : Math.round(v).toLocaleString('en-IN');
+  const sqft = (v) => v == null ? '—' : Math.round(v * 10.764).toLocaleString('en-IN');
 
   const LOCATION_LABELS = { islandCity: 'Island City', suburbsExtended: 'Suburbs / Extended Suburbs' };
-  const ZONE_LABELS = { residential: 'Residential', commercial: 'Commercial', industrial: 'Industrial' };
   const AUTH_LABELS = { oc: 'OC Received', cc: 'CC Received', tolerated: 'Tolerated', none: 'Unauthorised' };
 
-  const wardLabel = wardDetect.ward || (input.address ? input.address : null);
+  const wardLabel = wardDetect.ward || input.address || null;
   const rehabPct = r.permissibleBua > 0 ? (r.memberSideRehabBua / r.permissibleBua) * 100 : 0;
   const salePct = 100 - rehabPct;
 
+  const VIABILITY_CFG = {
+    marginal:            { color: '#e07060', bg: 'rgba(164,73,58,0.12)', label: 'Marginal' },
+    viable:              { color: _G,        bg: 'rgba(201,169,110,0.10)', label: 'Viable' },
+    attractive:          { color: '#5aac80', bg: 'rgba(74,140,102,0.12)', label: 'Attractive' },
+    'highly attractive': { color: '#4fd490', bg: 'rgba(74,140,102,0.18)', label: 'Highly Attractive' },
+  };
+  const vc = VIABILITY_CFG[r.viabilityRating] || VIABILITY_CFG.marginal;
+
+  // Scorecard rows — each a yes/no/warn check the chairman needs to see
+  const SCORECARD = [
+    {
+      question: 'Is the building old enough?',
+      status: input.buildingAge >= 30 ? 'pass' : 'fail',
+      value: `${input.buildingAge} yrs`,
+      note: input.buildingAge >= 30 ? 'Qualifies (≥ 30 years)' : 'Needs 30+ years for Reg 33(7)(B)',
+    },
+    {
+      question: 'Authorisation on record?',
+      status: ['oc','cc','tolerated'].includes(input.authorisationStatus) ? 'pass' : 'fail',
+      value: AUTH_LABELS[input.authorisationStatus],
+      note: input.authorisationStatus === 'none' ? 'No OC/CC — incentive BUA at risk' : 'On record',
+    },
+    {
+      question: 'Members staying on same plot?',
+      status: input.membersOnSamePlot ? 'pass' : 'fail',
+      value: input.membersOnSamePlot ? 'Yes' : 'No',
+      note: input.membersOnSamePlot ? 'Required condition met' : 'Required for Reg 33(7)(B)',
+    },
+    {
+      question: 'GB resolution passed?',
+      status: input.gbResolution ? 'pass' : 'warn',
+      value: input.gbResolution ? 'Yes' : 'Pending',
+      note: input.gbResolution ? 'Ready to proceed' : 'Required before proposal submission',
+    },
+    {
+      question: 'Is the project commercially viable?',
+      status: r.viabilityRating === 'marginal' ? 'warn' : r.viabilityRating ? 'pass' : 'warn',
+      value: vc.label,
+      note: r.viabilityNote,
+    },
+    ...(eligibility.issues.filter(i => i.level === 'fail').map(iss => ({
+      question: iss.title,
+      status: 'fail',
+      value: 'Blocker',
+      note: iss.detail,
+    }))),
+  ];
+
+  const STATUS_ICON = {
+    pass: <Check size={14} color="#5aac80" />,
+    warn: <AlertTriangle size={14} color={_G} />,
+    fail: <X size={14} color="#e07060" />,
+  };
+
   return (
-    <div style={{ display: 'grid', gap: 24 }}>
+    <div style={{ display: 'grid', gap: 32 }}>
 
-      {/* Section A — Executive Summary */}
-      <div>
-        <SectionHeader eyebrow="Executive Summary" label="Your redevelopment position" />
+      <SchemePicker schemes={schemes} activeSchemeId={activeSchemeId} primarySchemeId={primarySchemeId} onSelect={onSchemeSelect} input={input} update={update} />
+      <SpecialLocationWarning specialLocation={input.specialLocation} />
 
-        {/* Hero KPI row */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 16 }}>
-          <KPI large label="Permissible BUA" value={`${fmt(r.permissibleBua)} sqm`} sub={`${fmtSqft(r.permissibleBua)} sqft · FSI ${r.effFsi?.toFixed(2)}`} accent={_G} />
-          <KPI label="Rehab → Members" value={`${fmt(r.memberSideRehabBua)} sqm`} sub={`${fmtSqft(r.memberSideRehabBua)} sqft · ${rehabPct.toFixed(0)}% of total`} accent="rgba(74,140,102,0.9)" />
-          <KPI label="Sale → Developer" value={`${fmt(r.saleBua)} sqm`} sub={`${fmtSqft(r.saleBua)} sqft · ${salePct.toFixed(0)}% of total`} accent="rgba(201,169,110,0.6)" />
-        </div>
-
-        {/* BUA split bar */}
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: _MU, marginBottom: 6, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-            <span style={{ color: '#5aac80' }}>◼ Members ({rehabPct.toFixed(0)}%) · {fmt(r.memberSideRehabBua)} sqm</span>
-            <span style={{ color: _G }}>◼ Developer ({salePct.toFixed(0)}%) · {fmt(r.saleBua)} sqm</span>
+      {/* ── HERO: single number that answers everything ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 2, borderRadius: 8, overflow: 'hidden', border: `1px solid ${_BD}` }}>
+        {/* Left — permissible BUA, big */}
+        <div style={{ padding: '32px 32px', background: SURFACE }}>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: _G, marginBottom: 12 }}>Total permissible BUA</div>
+          <div style={{ fontSize: 56, fontWeight: 800, color: '#fff', lineHeight: 1, letterSpacing: '-0.03em', fontFamily: '"JetBrains Mono",monospace' }}>
+            {n(r.permissibleBua)}
           </div>
-          <div style={{ height: 8, borderRadius: 4, overflow: 'hidden', display: 'flex', background: 'rgba(255,255,255,0.06)' }}>
-            <div style={{ width: `${rehabPct}%`, background: '#4a8c66', transition: 'width .5s ease' }} />
-            <div style={{ width: `${salePct}%`, background: _G,       transition: 'width .5s ease' }} />
-          </div>
-        </div>
+          <div style={{ fontSize: 16, color: _MU, marginTop: 6, fontFamily: '"JetBrains Mono",monospace' }}>sqm &nbsp;·&nbsp; {sqft(r.permissibleBua)} sqft</div>
+          <div style={{ fontSize: 13, color: _MU, marginTop: 4 }}>Effective FSI {r.effFsi?.toFixed(2)} &nbsp;·&nbsp; {r.schemeName}</div>
 
-        {/* Scheme + Viability row */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 8 }}>
-          <div style={{ padding: '18px 20px', background: SURFACE, border: `1px solid ${_BD}`, borderRadius: 8 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: _MU, marginBottom: 8 }}>Applicable Scheme</div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 6 }}>{r.schemeName || activeSchemeId}</div>
-            <div style={{ fontSize: 11.5, color: eligibility.eligible ? '#5aac80' : '#e07060', display: 'flex', alignItems: 'center', gap: 6 }}>
-              {eligibility.eligible
-                ? <><Check size={13} color="#5aac80" /> Eligible — all conditions met</>
-                : <><X size={13} color="#e07060" /> {eligibility.issues.length} issue{eligibility.issues.length > 1 ? 's' : ''} to resolve</>}
+          {/* BUA split bar */}
+          <div style={{ marginTop: 24 }}>
+            <div style={{ height: 6, borderRadius: 3, overflow: 'hidden', display: 'flex', background: 'rgba(255,255,255,0.06)', marginBottom: 8 }}>
+              <div style={{ width: `${rehabPct}%`, background: '#4a8c66', transition: 'width .5s ease' }} />
+              <div style={{ width: `${salePct}%`, background: _G, transition: 'width .5s ease' }} />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
+              <span style={{ color: '#5aac80', fontFamily: '"JetBrains Mono",monospace' }}>Members {n(r.memberSideRehabBua)} sqm ({rehabPct.toFixed(0)}%)</span>
+              <span style={{ color: _G, fontFamily: '"JetBrains Mono",monospace' }}>Developer {n(r.saleBua)} sqm ({salePct.toFixed(0)}%)</span>
             </div>
           </div>
-          <div style={{ padding: '18px 20px', background: SURFACE, border: `1px solid ${_BD}`, borderRadius: 8 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: _MU, marginBottom: 8 }}>Project Viability</div>
-            <ViabilityBadge rating={r.viabilityRating} ratio={r.viabilityRatio} />
-            <div style={{ fontSize: 11.5, color: _MU, marginTop: 10, lineHeight: 1.55 }}>{r.viabilityNote}</div>
+        </div>
+
+        {/* Right — viability verdict */}
+        <div style={{ padding: '32px 24px', background: vc.bg, display: 'flex', flexDirection: 'column', justifyContent: 'center', borderLeft: `1px solid ${_BD}` }}>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: vc.color, marginBottom: 10 }}>Project viability</div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: vc.color, lineHeight: 1.1, marginBottom: 8 }}>{vc.label}</div>
+          <div style={{ fontSize: 12, color: _MU, lineHeight: 1.6 }}>{r.viabilityNote}</div>
+          <div style={{ marginTop: 14, fontSize: 11, fontFamily: '"JetBrains Mono",monospace', color: vc.color }}>
+            Sale : Rehab = {r.viabilityRatio?.toFixed(2)}×
           </div>
         </div>
       </div>
 
-      {/* Section B — Site Intelligence */}
+      {/* ── SCORECARD ── */}
       <div>
-        <SectionHeader eyebrow="Site Intelligence" label="Plot & location details" />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <div style={{ padding: '18px 20px', background: SURFACE, border: `1px solid ${_BD}`, borderRadius: 8 }}>
-            <MetaRow label="Gross Plot Area" value={`${fmt(input.plotArea)} sqm`} />
-            <MetaRow label="Net Plot Area (FSI)" value={`${fmt(r.netPlot)} sqm`} />
-            <MetaRow label="Road Width" value={`${input.roadWidth} m`} />
-            <MetaRow label="Location Belt" value={LOCATION_LABELS[input.location]} />
-            <MetaRow label="Zone" value={ZONE_LABELS[input.zone]} />
-          </div>
-          <div style={{ padding: '18px 20px', background: SURFACE, border: `1px solid ${_BD}`, borderRadius: 8 }}>
-            {wardLabel && <MetaRow label="Ward / Locality" value={wardLabel} accent />}
-            <MetaRow label="Building Age" value={`${input.buildingAge} years`} />
-            <MetaRow label="Authorisation" value={AUTH_LABELS[input.authorisationStatus]} />
-            <MetaRow label="Existing BUA" value={`${fmt(r.existingBua)} sqm`} />
-            <MetaRow label="Total Tenements" value={r.totalFlats ? `${r.totalFlats} flats` : null} />
-          </div>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: _MU, marginBottom: 12 }}>Redevelopment Scorecard</div>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ borderBottom: `2px solid ${_BD}` }}>
+              <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _FA, width: '40%' }}>Check</th>
+              <th style={{ textAlign: 'center', padding: '8px 12px', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _FA, width: '15%' }}>Status</th>
+              <th style={{ textAlign: 'right', padding: '8px 12px', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _FA, width: '15%' }}>Value</th>
+              <th style={{ textAlign: 'left', padding: '8px 12px', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _FA }}>Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            {SCORECARD.map((row, i) => (
+              <tr key={i} style={{ borderBottom: `1px solid ${_BD}`, background: row.status === 'fail' ? 'rgba(164,73,58,0.05)' : 'transparent' }}>
+                <td style={{ padding: '11px 12px', fontSize: 13, color: '#fff', fontWeight: 500 }}>{row.question}</td>
+                <td style={{ padding: '11px 12px', textAlign: 'center' }}>{STATUS_ICON[row.status]}</td>
+                <td style={{ padding: '11px 12px', textAlign: 'right', fontSize: 12, fontWeight: 700, fontFamily: '"JetBrains Mono",monospace', color: row.status === 'pass' ? '#fff' : row.status === 'warn' ? _G : '#e07060' }}>{row.value}</td>
+                <td style={{ padding: '11px 12px', fontSize: 12, color: _MU, lineHeight: 1.5 }}>{row.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* ── SITE FACTS — horizontal strip, no cards ── */}
+      <div style={{ borderTop: `1px solid ${_BD}`, paddingTop: 20 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: _MU, marginBottom: 14 }}>Site Facts</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 0, borderLeft: `1px solid ${_BD}` }}>
+          {[
+            { label: 'Gross Plot', value: `${n(input.plotArea)} sqm` },
+            { label: 'Net Plot (FSI)', value: `${n(r.netPlot)} sqm` },
+            { label: 'Road Width', value: `${input.roadWidth} m` },
+            { label: 'Location', value: LOCATION_LABELS[input.location] },
+            { label: wardLabel ? 'Ward' : 'Existing BUA', value: wardLabel || `${n(r.existingBua)} sqm` },
+          ].map((f, i) => (
+            <div key={i} style={{ padding: '14px 16px', borderRight: `1px solid ${_BD}`, borderBottom: `1px solid ${_BD}` }}>
+              <div style={{ fontSize: 10, color: _FA, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 5 }}>{f.label}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', fontFamily: '"JetBrains Mono",monospace' }}>{f.value}</div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Section C — Key Findings */}
+      {input.slumOnPlot && <SlumFlag />}
+    </div>
+  );
+}
+
+// ── TAB 2: AREA & FEASIBILITY — table-driven, answering "What can be built?" ─
+function AreaFeasibilityTab({ result, result_33_7B, result_33_9, input, update, eligibility, activeSchemeId }) {
+  const r = result;
+  const n = (v) => v == null ? '—' : Math.round(v).toLocaleString('en-IN');
+
+  const WATCH_ITEMS = [
+    { tag: 'Area claim', title: 'Developer claims you can only get "1.2× existing carpet"', body: `Under 33(7)(B), the incentive BUA is at minimum 15% of total existing BUA, OR 10 sqm per residential flat — that's free. Beyond that, premium FSI and TDR up to Table 12 ceiling apply. A flat 1.2× offer is their negotiation position, not the regulation.` },
+    { tag: 'TDR', title: 'Developer says "TDR is not available" or "TDR is too expensive"', body: `TDR is available and actively traded in Mumbai. Whether it makes sense depends on TDR market price vs. ASR rates. If a developer rules it out, ask for the TDR market quote they used.` },
+    { tag: 'Premium', title: 'Developer asks the society to pay any premium', body: `Under 33(7)(B), the incentive BUA portion is free of premium. Premium goes to MCGM, not the developer, and applies only to the Premium FSI portion. Standard practice: developer pays from sale-component proceeds. Any request for the society to pay is a major red flag.` },
+    { tag: 'Transparency', title: "Developer offers area X but won't show the area statement", body: `Always ask for a written area statement showing: existing BUA, incentive BUA, FSI build-up, fungible, rehab to members, sale to developer. Reputable developers produce this routinely. Refusal to share is itself information.` },
+    { tag: 'Corpus', title: 'Developer commits to corpus of ₹X lakhs without showing the maths', body: `Corpus, rent, and monetary payments are negotiated, not regulated by DCPR. Reasonable benchmarks come from comparable society redevs in your micro-market. Get at least 3 offers and compare corpus + rent + carpet + finishing schedule together.` },
+    { tag: 'Double count', title: 'Past FSI claims on the same plot (Reg 30(A)(2) Note 2)', body: `If FSI/TDR benefit was already claimed for any road/DP-road/reservation area in a prior development proposal, that area is still deducted now — you cannot double-claim it. Ask your architect to check past sanctioned proposals on the property card.` },
+    r.viabilityRatio < 0.4 ? { tag: 'Viability', title: 'No developer interest or all want money from society', body: `Your sale-to-rehab ratio is low — this is a real constraint. Options: (a) wait for higher FSI policy, (b) explore Reg 33(9) cluster with neighbouring societies, (c) check if 33(7)(A) applies, (d) consider self-redevelopment with a society loan.` } : null,
+  ].filter(Boolean);
+
+  const [openWatch, setOpenWatch] = useState(null);
+
+  return (
+    <div style={{ display: 'grid', gap: 36 }}>
+
+      {/* ── ELIGIBILITY CHECKLIST — not cards, a tight list with ref tags ── */}
       <div>
-        <SectionHeader eyebrow="Key Findings" label="What you need to know" />
-        <div style={{ display: 'grid', gap: 8 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: _MU, marginBottom: 2 }}>Eligibility</div>
+        <div style={{ fontSize: 22, fontWeight: 700, color: '#fff', marginBottom: 16 }}>Why this scheme qualifies</div>
+        <div style={{ borderTop: `1px solid ${_BD}` }}>
           {eligibility.passed.map((p, i) => (
-            <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '12px 16px', background: 'rgba(74,140,102,0.06)', border: '1px solid rgba(74,140,102,0.18)', borderRadius: 6 }}>
-              <Check size={14} color="#5aac80" style={{ flexShrink: 0, marginTop: 2 }} />
-              <div style={{ flex: 1 }}>
-                <span style={{ fontSize: 13, color: '#d0f0dc', fontWeight: 500 }}>{p.title}</span>
-                <span style={{ fontSize: 10.5, color: '#5aac80', marginLeft: 8, opacity: 0.7 }}>[{p.ref}]</span>
-              </div>
+            <div key={i} style={{ display: 'flex', alignItems: 'baseline', gap: 12, padding: '10px 0', borderBottom: `1px solid ${_BD}` }}>
+              <Check size={13} color="#5aac80" style={{ flexShrink: 0, marginTop: 2 }} />
+              <span style={{ flex: 1, fontSize: 13, color: '#d8f0e0' }}>{p.title}</span>
+              <span style={{ fontSize: 10, color: '#5aac80', fontFamily: '"JetBrains Mono",monospace', flexShrink: 0 }}>{p.ref}</span>
             </div>
           ))}
           {eligibility.issues.map((iss, i) => (
-            <div key={i} style={{ padding: '12px 16px', background: iss.level === 'fail' ? 'rgba(164,73,58,0.08)' : 'rgba(201,169,110,0.06)', border: `1px solid ${iss.level === 'fail' ? 'rgba(164,73,58,0.3)' : 'rgba(201,169,110,0.25)'}`, borderLeft: `3px solid ${iss.level === 'fail' ? '#a4493a' : _G}`, borderRadius: 6 }}>
-              <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                {iss.level === 'fail'
-                  ? <X size={14} color="#e07060" style={{ flexShrink: 0, marginTop: 2 }} />
-                  : <AlertTriangle size={14} color={_G} style={{ flexShrink: 0, marginTop: 2 }} />}
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#fff', marginBottom: 4 }}>{iss.title}</div>
-                  <div style={{ fontSize: 12, color: _MU, lineHeight: 1.55 }}>{iss.detail}</div>
-                  <div style={{ fontSize: 10, color: _G, marginTop: 6, fontFamily: '"JetBrains Mono",monospace' }}>[{iss.ref}]</div>
-                </div>
+            <div key={i} style={{ display: 'flex', alignItems: 'baseline', gap: 12, padding: '10px 0', borderBottom: `1px solid ${_BD}`, borderLeft: `3px solid ${iss.level === 'fail' ? '#a4493a' : _G}`, paddingLeft: 10 }}>
+              {iss.level === 'fail' ? <X size={13} color="#e07060" style={{ flexShrink: 0 }} /> : <AlertTriangle size={13} color={_G} style={{ flexShrink: 0 }} />}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{iss.title}</div>
+                <div style={{ fontSize: 11.5, color: _MU, marginTop: 3 }}>{iss.detail}</div>
               </div>
+              <span style={{ fontSize: 10, color: _G, fontFamily: '"JetBrains Mono",monospace', flexShrink: 0 }}>{iss.ref}</span>
             </div>
           ))}
-          {input.slumOnPlot && (
-            <div style={{ padding: '12px 16px', background: 'rgba(164,73,58,0.08)', border: '1px solid rgba(164,73,58,0.3)', borderRadius: 6, fontSize: 13, color: '#e07060' }}>
-              <AlertTriangle size={14} style={{ display: 'inline', marginRight: 8 }} />
-              Slum presence detected on plot — MCGM clearance required before redevelopment.
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── TAB 2: AREA & FEASIBILITY ─────────────────────────────────────────────────
-function AreaFeasibilityTab({ result, result_33_7B, result_33_9, input, update, eligibility, activeSchemeId }) {
-  const [devSection, setDevSection] = useState(null);
-
-  const WATCH_ITEMS = [
-    { title: 'Developer claims you can only get "1.2× existing carpet"', body: `Under 33(7)(B), the incentive BUA is at minimum 15% of total existing BUA, OR 10 sqm per residential flat — that's free. Beyond that, premium FSI and TDR up to Table 12 ceiling apply. A flat 1.2× offer is their negotiation position, not the regulation.` },
-    { title: 'Developer says "TDR is not available" or "TDR is too expensive"', body: `TDR is available and actively traded in Mumbai. Whether it makes sense depends on TDR market price vs. ASR rates. If a developer rules it out, ask for the TDR market quote they used.` },
-    { title: 'Developer asks the society to pay any premium', body: `Under 33(7)(B), the incentive BUA portion is free of premium. Premium goes to MCGM, not the developer, and applies only to the Premium FSI portion. Standard practice: developer pays from sale-component proceeds. Any request for the society to pay is a major red flag.` },
-    { title: "Developer offers area X but won't show the area statement", body: `Always ask for a written area statement showing: existing BUA, incentive BUA, FSI build-up, fungible, rehab to members, sale to developer. Reputable developers produce this routinely. Refusal to share is itself information.` },
-    { title: 'Developer commits to corpus of ₹X lakhs without showing the maths', body: `Corpus, rent, and monetary payments are negotiated, not regulated by DCPR. Reasonable benchmarks come from comparable society redevs in your micro-market. Get at least 3 offers and compare corpus + rent + carpet + finishing schedule together.` },
-    { title: 'Past FSI claims on the same plot (Reg 30(A)(2) Note 2)', body: `If FSI/TDR benefit was already claimed for any road/DP-road/reservation area in a prior development proposal, that area is still deducted now — you cannot double-claim it. Ask your architect to check past sanctioned proposals on the property card.` },
-    result.viabilityRatio < 0.4 ? { title: 'No developer interest or all want money from society', body: `Your sale-to-rehab ratio is low — this is a real constraint. Options: (a) wait for higher FSI policy, (b) explore Reg 33(9) cluster with neighbouring societies, (c) check if 33(7)(A) applies, (d) consider self-redevelopment with a society loan.` } : null,
-  ].filter(Boolean);
-
-  return (
-    <div style={{ display: 'grid', gap: 28 }}>
-
-      {/* Section A — Eligibility Logic */}
-      <div>
-        <SectionHeader eyebrow="Section A — Eligibility" label="Why this scheme qualifies" />
-        <div style={{ display: 'grid', gap: 8 }}>
-          {eligibility.passed.map((p, i) => (
-            <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '10px 14px', background: SURFACE, border: '1px solid rgba(74,140,102,0.2)', borderRadius: 6 }}>
-              <Check size={13} color="#5aac80" style={{ flexShrink: 0, marginTop: 2 }} />
-              <div style={{ flex: 1, fontSize: 13, color: '#d8f0e0' }}>
-                {p.title}
-                <span style={{ marginLeft: 8, fontSize: 10, color: '#5aac80', fontFamily: '"JetBrains Mono",monospace', opacity: 0.8 }}>[{p.ref}]</span>
-              </div>
-            </div>
-          ))}
-          {eligibility.issues.length === 0 && eligibility.passed.length === 0 && (
-            <div style={{ padding: '14px 18px', background: SURFACE, border: `1px solid ${_BD}`, borderRadius: 6, color: _MU, fontSize: 13 }}>
-              Fill in plot details in the Input tab to run eligibility checks.
-            </div>
+          {eligibility.passed.length === 0 && eligibility.issues.length === 0 && (
+            <div style={{ padding: '14px 0', fontSize: 13, color: _MU }}>Fill in plot details to run eligibility checks.</div>
           )}
         </div>
       </div>
 
-      {/* Section B — Area Statement */}
+      {/* ── AREA STATEMENT — the full regulation table ── */}
       <div>
-        <SectionHeader eyebrow="Section B — Area Statement" label="Full FSI computation" />
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: _MU, marginBottom: 2 }}>Area Statement</div>
+        <div style={{ fontSize: 22, fontWeight: 700, color: '#fff', marginBottom: 16 }}>Full FSI computation</div>
         <AreaStatement result={result} input={input} update={update} schemeId={activeSchemeId} />
       </div>
 
-      {/* Section C — Scenario Sliders (inside AreaStatement, but also offer scheme comparison) */}
+      {/* ── SCHEME COMPARISON — only when cluster is eligible ── */}
       {result_33_7B && result_33_9 && (
         <div>
-          <SectionHeader eyebrow="Section C — Scheme Comparison" label="33(7)(B) vs 33(9) cluster" />
-          <SchemeComparison r1={result_33_7B} r2={result_33_9} />
-        </div>
-      )}
-
-      {/* Section D — Buildability & Viability */}
-      <div>
-        <SectionHeader eyebrow="Section D — Buildability & Viability" label="Area allocation & developer attractiveness" />
-        {activeSchemeId === 'reg33_9'
-          ? <ClusterResult result={result} input={input} />
-          : <InteractiveResult result={result} input={input} update={update} schemeId={activeSchemeId} />}
-
-        {/* Developer offer comparison */}
-        <div style={{ marginTop: 20 }}>
-          <CompareOffer result={result} input={input} update={update} />
-        </div>
-
-        {/* Member entitlement */}
-        {result.flatBreakdown && result.flatBreakdown.length > 0 && (
-          <div style={{ marginTop: 20 }}>
-            <MemberEntitlement breakdown={result.flatBreakdown} input={input} update={update} />
-          </div>
-        )}
-
-        {/* Parking */}
-        <div style={{ marginTop: 20 }}>
-          <ParkingPanel result={result} input={input} />
-        </div>
-      </div>
-
-      {/* Section E — Developer Intelligence */}
-      <div>
-        <SectionHeader eyebrow="Section E — Developer Intelligence" label="What to watch for in developer conversations" />
-        <div style={{ display: 'grid', gap: 8 }}>
-          {WATCH_ITEMS.map((item, i) => (
-            <div key={i} style={{ background: SURFACE, border: `1px solid ${_BD}`, borderRadius: 6, overflow: 'hidden' }}>
-              <button
-                onClick={() => setDevSection(devSection === i ? null : i)}
-                style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
-              >
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center', flex: 1 }}>
-                  <AlertTriangle size={15} color={_G} style={{ flexShrink: 0 }} />
-                  <span style={{ fontSize: 13.5, fontWeight: 500, color: '#fff' }}>{item.title}</span>
-                </div>
-                <ChevronDown size={14} color={_FA} style={{ flexShrink: 0, transform: devSection === i ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }} />
-              </button>
-              {devSection === i && (
-                <div style={{ padding: '0 16px 16px 44px', fontSize: 13, color: _MU, lineHeight: 1.65, borderTop: `1px solid ${_BD}`, paddingTop: 12 }}>
-                  {item.body}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── TAB 3: COSTS ──────────────────────────────────────────────────────────────
-function CostsTab({ result, input }) {
-  const ps = result.premiumSheet;
-  const { fmtCurrency, fmt } = (() => {
-    const f = (v) => v == null ? '—' : `₹${Math.round(v).toLocaleString('en-IN')}`;
-    const n = (v) => v == null ? '—' : Math.round(v).toLocaleString('en-IN');
-    return { fmtCurrency: f, fmt: n };
-  })();
-  const asrRate = parseFloat(input.asrLandRate) || 0;
-
-  if (!ps || asrRate === 0) {
-    return (
-      <div style={{ padding: '32px 28px', background: SURFACE, border: `1px solid ${_BD}`, borderRadius: 8, color: _MU, lineHeight: 1.7 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#fff', marginBottom: 8 }}>Enter ASR Land Rate to compute costs</div>
-        Go to the <strong style={{ color: _G }}>Input</strong> tab → scroll to Financial Parameters → enter your ward's ASR Land Rate (₹/sqm).
-      </div>
-    );
-  }
-
-  const grandTotal = ps.grandTotal || 0;
-  const totalPremium = ps.totalPremium || 0;
-  const totalAutoDCR = ps.totalAutoDCR || 0;
-
-  return (
-    <div style={{ display: 'grid', gap: 24 }}>
-
-      {/* Hero total */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-        <KPI large label="Total Government Payable" value={fmtCurrency(grandTotal)} sub="Rough estimate — architect recovery sheet is authoritative" accent={_G} />
-        <KPI label="Reg 30/31 Premiums" value={fmtCurrency(totalPremium)} sub="Premium FSI + Fungible + OSD" accent="rgba(201,169,110,0.5)" />
-        <KPI label="AutoDCR Statutory Fees" value={fmtCurrency(totalAutoDCR)} sub="Scrutiny, IOD, dev charges, labour cess, TDR infra" accent="rgba(255,255,255,0.2)" />
-      </div>
-
-      {/* Premium breakdown */}
-      <div>
-        <SectionHeader eyebrow="Premium Breakdown — Reg 30 / 31" label="FSI premiums payable to MCGM / Government" />
-        <div style={{ background: SURFACE, border: `1px solid ${_BD}`, borderRadius: 8, overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: _MU, marginBottom: 2 }}>Scheme Comparison</div>
+          <div style={{ fontSize: 22, fontWeight: 700, color: '#fff', marginBottom: 16 }}>Standalone vs Cluster</div>
+          {/* Comparison as a side-by-side data table, not cards */}
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ background: SURFACE2 }}>
-                <th style={{ padding: '12px 18px', textAlign: 'left', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _MU }}>Premium Head</th>
-                <th style={{ padding: '12px 18px', textAlign: 'left', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _MU }}>Basis</th>
-                <th style={{ padding: '12px 18px', textAlign: 'right', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _MU }}>Amount</th>
-                <th style={{ padding: '12px 18px', textAlign: 'center', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _MU }}>Ref</th>
+              <tr style={{ borderBottom: `2px solid ${_BD}` }}>
+                <th style={{ padding: '10px 14px', textAlign: 'left', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _FA }}>Metric</th>
+                <th style={{ padding: '10px 14px', textAlign: 'right', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _FA }}>33(7)(B) Standalone</th>
+                <th style={{ padding: '10px 14px', textAlign: 'right', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _G }}>33(9) Cluster</th>
               </tr>
             </thead>
             <tbody>
               {[
-                { label: 'Premium FSI', sub: `${fmt(result.premiumFsiBuaLoaded)} sqm × ASR × 50%`, value: ps.premiumFsiPayable, ref: 'Reg 30(A)(6)' },
-                { label: 'Fungible Premium (sale component)', sub: `${fmt(result.fungibleSaleBua)} sqm × ASR × 50%`, value: ps.fungiblePremium, ref: 'Reg 31(3)' },
-                { label: '  MCGM share (50%)', sub: '', value: ps.fungibleMCGM, ref: '', indent: true },
-                { label: '  State Govt share (30%)', sub: '', value: ps.fungibleGovt, ref: '', indent: true },
-                { label: '  MSRDC Sea Link share (20%)', sub: '', value: ps.fungibleMSRDC, ref: '', indent: true },
-                ...(ps.osdPremium > 0 ? [{ label: 'Open Space Deficiency (OSD)', sub: `${fmt(result.rosDeficiency)} sqm × ASR × 25%`, value: ps.osdPremium, ref: 'Reg 27' }] : []),
-                { label: 'Sub-total — Premiums', sub: '', value: ps.totalPremium, ref: '', bold: true },
-              ].map((row, i) => (
-                <tr key={i} style={{ borderBottom: `1px solid ${_BD}`, background: row.bold ? 'rgba(201,169,110,0.07)' : 'transparent' }}>
-                  <td style={{ padding: '10px 18px', paddingLeft: row.indent ? 36 : 18, fontWeight: row.bold ? 700 : row.indent ? 400 : 500, fontSize: row.indent ? 11.5 : 13, color: row.bold ? _G : row.indent ? _MU : '#fff' }}>{row.label}</td>
-                  <td style={{ padding: '10px 18px', fontSize: 11, color: _MU, fontStyle: 'italic' }}>{row.sub}</td>
-                  <td style={{ padding: '10px 18px', textAlign: 'right', fontWeight: row.bold ? 700 : 500, color: row.bold ? _G : '#fff', fontFamily: '"JetBrains Mono",monospace' }}>{fmtCurrency(row.value)}</td>
-                  <td style={{ padding: '10px 18px', textAlign: 'center', fontSize: 10.5, color: _G, fontFamily: '"JetBrains Mono",monospace' }}>{row.ref}</td>
-                </tr>
-              ))}
+                { label: 'Permissible BUA', v1: `${n(result_33_7B.permissibleBua)} sqm`, v2: `${n(result_33_9.permissibleBua)} sqm` },
+                { label: 'Rehab to Members', v1: `${n(result_33_7B.memberSideRehabBua)} sqm`, v2: `${n(result_33_9.rehabBase)} sqm` },
+                { label: 'Sale to Developer', v1: `${n(result_33_7B.saleBua)} sqm`, v2: `${n(result_33_9.saleBua)} sqm` },
+                { label: 'Effective FSI', v1: result_33_7B.effFsi?.toFixed(2), v2: result_33_9.effFsi?.toFixed(2) },
+                { label: 'Viability', v1: result_33_7B.viabilityRating, v2: result_33_9.viabilityRating },
+              ].map((row, i) => {
+                const clusterWins = i < 3 && result_33_9.permissibleBua > result_33_7B.permissibleBua;
+                return (
+                  <tr key={i} style={{ borderBottom: `1px solid ${_BD}` }}>
+                    <td style={{ padding: '10px 14px', fontSize: 13, color: _MU }}>{row.label}</td>
+                    <td style={{ padding: '10px 14px', textAlign: 'right', fontSize: 13, color: '#fff', fontFamily: '"JetBrains Mono",monospace' }}>{row.v1}</td>
+                    <td style={{ padding: '10px 14px', textAlign: 'right', fontSize: 13, fontWeight: clusterWins ? 700 : 400, color: clusterWins ? _G : '#fff', fontFamily: '"JetBrains Mono",monospace' }}>{row.v2}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
-      </div>
+      )}
 
-      {/* AutoDCR fees */}
+      {/* ── BUILDABILITY — interactive result + offer compare ── */}
       <div>
-        <SectionHeader eyebrow="Statutory Charges — AutoDCR" label="Government processing fees" />
-        <div style={{ background: SURFACE, border: `1px solid ${_BD}`, borderRadius: 8, overflow: 'hidden' }}>
-          <PremiumRecoveryPanel result={result} input={input} />
-        </div>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: _MU, marginBottom: 2 }}>Buildability & Viability</div>
+        <div style={{ fontSize: 22, fontWeight: 700, color: '#fff', marginBottom: 16 }}>Area allocation & developer attractiveness</div>
+        {activeSchemeId === 'reg33_9'
+          ? <ClusterResult result={result} input={input} />
+          : <InteractiveResult result={result} input={input} update={update} schemeId={activeSchemeId} />}
+        <div style={{ marginTop: 20 }}><CompareOffer result={result} input={input} update={update} /></div>
+        {result.flatBreakdown?.length > 0 && (
+          <div style={{ marginTop: 20 }}><MemberEntitlement breakdown={result.flatBreakdown} input={input} update={update} /></div>
+        )}
+        <div style={{ marginTop: 20 }}><ParkingPanel result={result} input={input} /></div>
       </div>
 
-      <div style={{ padding: '12px 18px', background: 'rgba(201,169,110,0.05)', border: `1px solid rgba(201,169,110,0.18)`, borderRadius: 6, fontSize: 12, color: _MU, lineHeight: 1.6 }}>
-        ASR rate used: ₹{fmt(asrRate)}/sqm · Construction rate: ₹{fmt(parseFloat(input.constructionRate) || 27500)}/sqm (SDRR).
-        These are rough estimates only — your architect's Proforma-A recovery sheet will be authoritative.
-        Fungible on rehab portion is <strong style={{ color: '#fff' }}>free of premium</strong> per Reg 31(3).
+      {/* ── DEVELOPER INTELLIGENCE — tagged risk table ── */}
+      <div>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: _MU, marginBottom: 2 }}>Developer Intelligence</div>
+        <div style={{ fontSize: 22, fontWeight: 700, color: '#fff', marginBottom: 16 }}>What to watch for</div>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ borderBottom: `2px solid ${_BD}` }}>
+              <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _FA, width: 90 }}>Topic</th>
+              <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _FA }}>Red flag</th>
+              <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _FA, width: 60 }}>Detail</th>
+            </tr>
+          </thead>
+          <tbody>
+            {WATCH_ITEMS.map((item, i) => (
+              <>
+                <tr key={`row-${i}`} style={{ borderBottom: openWatch === i ? 'none' : `1px solid ${_BD}`, background: openWatch === i ? 'rgba(201,169,110,0.04)' : 'transparent', cursor: 'pointer' }} onClick={() => setOpenWatch(openWatch === i ? null : i)}>
+                  <td style={{ padding: '12px 12px', verticalAlign: 'top' }}>
+                    <span style={{ display: 'inline-block', padding: '2px 8px', background: 'rgba(201,169,110,0.12)', border: `1px solid rgba(201,169,110,0.25)`, borderRadius: 3, fontSize: 10, fontWeight: 700, color: _G, whiteSpace: 'nowrap' }}>{item.tag}</span>
+                  </td>
+                  <td style={{ padding: '12px 12px', fontSize: 13, color: '#fff', verticalAlign: 'top' }}>{item.title}</td>
+                  <td style={{ padding: '12px 12px', textAlign: 'center', verticalAlign: 'top' }}>
+                    <ChevronDown size={13} color={_FA} style={{ transform: openWatch === i ? 'rotate(180deg)' : 'none', transition: 'transform .18s' }} />
+                  </td>
+                </tr>
+                {openWatch === i && (
+                  <tr key={`detail-${i}`} style={{ borderBottom: `1px solid ${_BD}`, background: 'rgba(201,169,110,0.04)' }}>
+                    <td />
+                    <td colSpan={2} style={{ padding: '0 12px 14px', fontSize: 13, color: _MU, lineHeight: 1.65 }}>{item.body}</td>
+                  </tr>
+                )}
+              </>
+            ))}
+          </tbody>
+        </table>
       </div>
+    </div>
+  );
+}
+
+// ── TAB 3: COSTS — ledger layout answering "How much money is involved?" ──────
+function CostsTab({ result, input, update }) {
+  const ps = result.premiumSheet;
+  const cr = (v) => v == null ? '—' : `₹${Math.round(v).toLocaleString('en-IN')}`;
+  const n = (v) => v == null ? '—' : Math.round(v).toLocaleString('en-IN');
+  const asrRate = parseFloat(input.asrLandRate) || 0;
+  const cRate = parseFloat(input.constructionRate) || 27500;
+
+  const LEDGER_SECTIONS = ps ? [
+    {
+      group: 'Reg 30 / 31 — FSI Premiums',
+      ref: '',
+      rows: [
+        { label: 'Premium FSI', basis: `${n(result.premiumFsiBuaLoaded)} sqm × ASR × 50%`, amount: ps.premiumFsiPayable, ref: 'Reg 30(A)(6)' },
+        { label: 'Fungible — sale component', basis: `${n(result.fungibleSaleBua)} sqm × ASR × 50%`, amount: ps.fungiblePremium, ref: 'Reg 31(3)' },
+        { label: '  → MCGM (50%)', basis: '', amount: ps.fungibleMCGM, ref: '', sub: true },
+        { label: '  → State Govt (30%)', basis: '', amount: ps.fungibleGovt, ref: '', sub: true },
+        { label: '  → MSRDC (20%)', basis: '', amount: ps.fungibleMSRDC, ref: '', sub: true },
+        ...(ps.osdPremium > 0 ? [{ label: 'Open Space Deficiency', basis: `${n(result.rosDeficiency)} sqm × ASR × 25%`, amount: ps.osdPremium, ref: 'Reg 27' }] : []),
+      ],
+      subtotal: ps.totalPremium,
+    },
+    {
+      group: 'AutoDCR — Statutory Processing Fees',
+      ref: 'FY 2025-26',
+      rows: [
+        { label: 'Scrutiny Fee', basis: `${n(result.permissibleBua)} sqm × ₹70.7`, amount: ps.scrutinyFee, ref: 'AutoDCR' },
+        { label: 'IOD Deposit', basis: `${n(result.permissibleBua)} sqm × ₹10.76/sqft`, amount: ps.iodDeposit, ref: 'AutoDCR' },
+        { label: 'Debris Removal Deposit', basis: 'Min(BUA × ₹2/sqft, ₹45k cap)', amount: ps.debrisDeposit, ref: 'AutoDCR' },
+        { label: 'Labour Welfare Cess', basis: `BUA × ₹${n(cRate)} × 1%`, amount: ps.labourWelfareCess, ref: 'BOCW Act' },
+        { label: 'Development Charges — Land', basis: `Base FSI × plot × ASR × 1%`, amount: ps.devChargesLand, ref: 'MR&TP 124E' },
+        { label: 'Development Charges — BUA', basis: `BUA × ASR × 4%`, amount: ps.devChargesBua, ref: 'MR&TP 124E' },
+        { label: 'Layout Scrutiny Fee', basis: `${n(result.netPlot)} sqm × ₹11.13`, amount: ps.layoutScrutinyFee, ref: 'AutoDCR' },
+        ...(ps.tdrScrutinyFee > 0 ? [
+          { label: 'TDR Utilisation Scrutiny', basis: 'TDR BUA × ₹59', amount: ps.tdrScrutinyFee, ref: 'AutoDCR' },
+          { label: 'TDR Infrastructure Charge', basis: `TDR BUA × ₹${n(cRate)} × 5%`, amount: ps.tdrInfraCharge, ref: 'Reg 32' },
+        ] : []),
+      ],
+      subtotal: ps.totalAutoDCR,
+    },
+  ] : [];
+
+  return (
+    <div style={{ display: 'grid', gap: 0 }}>
+
+      {/* ── RATE PARAMETERS — compact inline, not a card ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 0, borderBottom: `2px solid ${_BD}`, marginBottom: 28 }}>
+        {[
+          {
+            label: 'ASR Land Rate', unit: '₹/sqm',
+            input: <input type="number" value={input.asrLandRate} onChange={e => update('asrLandRate', parseFloat(e.target.value) || 0)}
+              style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: `1px solid ${_BD}`, color: '#fff', padding: '4px 0', fontSize: 18, fontFamily: '"JetBrains Mono",monospace', outline: 'none' }} />,
+          },
+          {
+            label: 'Construction Rate', unit: '₹/sqm BUA',
+            input: <input type="number" value={input.constructionRate} onChange={e => update('constructionRate', parseFloat(e.target.value) || 0)}
+              style={{ width: '100%', background: 'transparent', border: 'none', borderBottom: `1px solid ${_BD}`, color: '#fff', padding: '4px 0', fontSize: 18, fontFamily: '"JetBrains Mono",monospace', outline: 'none' }} />,
+          },
+          {
+            label: 'Active loadings', unit: '',
+            display: (
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', paddingTop: 4 }}>
+                {[['Prem', input.premiumFsiLoad], ['TDR', input.tdrLoad], ['Fung', input.fungibleLoad]].map(([lbl, v]) => (
+                  <span key={lbl} style={{ fontSize: 12, fontFamily: '"JetBrains Mono",monospace', color: (v ?? 1) === 1 ? _MU : _G }}>
+                    {lbl} {((v ?? 1) * 100).toFixed(0)}%
+                  </span>
+                ))}
+                <span style={{ fontSize: 10, color: _FA, alignSelf: 'flex-end' }}>sliders on Area tab</span>
+              </div>
+            ),
+          },
+        ].map((col, i) => (
+          <div key={i} style={{ padding: '16px 20px', borderRight: i < 2 ? `1px solid ${_BD}` : 'none' }}>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: _FA, marginBottom: 8 }}>{col.label}{col.unit ? ` (${col.unit})` : ''}</div>
+            {col.input || col.display}
+          </div>
+        ))}
+      </div>
+
+      {asrRate === 0 && (
+        <div style={{ marginBottom: 24, fontSize: 13, color: _G }}>
+          → Enter ASR Land Rate above to compute government charges.
+        </div>
+      )}
+
+      {ps && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 32, alignItems: 'start' }}>
+
+          {/* LEFT — full ledger */}
+          <div>
+            {LEDGER_SECTIONS.map((section, si) => (
+              <div key={si} style={{ marginBottom: 28 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 10, paddingBottom: 6, borderBottom: `2px solid ${_BD}` }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: _MU }}>{section.group}</span>
+                  {section.ref && <span style={{ fontSize: 10, color: _FA, fontFamily: '"JetBrains Mono",monospace' }}>{section.ref}</span>}
+                </div>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <tbody>
+                    {section.rows.map((row, ri) => (
+                      <tr key={ri} style={{ borderBottom: `1px solid ${_BD}` }}>
+                        <td style={{ padding: '9px 0', paddingLeft: row.sub ? 20 : 0, fontSize: row.sub ? 11.5 : 13, color: row.sub ? _MU : '#fff', width: '38%' }}>{row.label}</td>
+                        <td style={{ padding: '9px 10px', fontSize: 11, color: _FA, fontStyle: 'italic' }}>{row.basis}</td>
+                        <td style={{ padding: '9px 0 9px 10px', textAlign: 'right', fontSize: row.sub ? 11.5 : 13, fontFamily: '"JetBrains Mono",monospace', color: row.sub ? _MU : '#fff', whiteSpace: 'nowrap' }}>{cr(row.amount)}</td>
+                        <td style={{ padding: '9px 0 9px 8px', textAlign: 'right', fontSize: 10, color: _G, fontFamily: '"JetBrains Mono",monospace', whiteSpace: 'nowrap', width: 80 }}>{row.ref}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr style={{ borderTop: `1px solid ${_BD}` }}>
+                      <td colSpan={2} style={{ padding: '10px 0', fontSize: 12, fontWeight: 700, color: _MU, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Subtotal</td>
+                      <td style={{ padding: '10px 0 10px 10px', textAlign: 'right', fontSize: 14, fontWeight: 700, fontFamily: '"JetBrains Mono",monospace', color: '#fff' }}>{cr(section.subtotal)}</td>
+                      <td />
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            ))}
+          </div>
+
+          {/* RIGHT — running total / summary column */}
+          <div style={{ position: 'sticky', top: 0 }}>
+            <div style={{ borderLeft: `3px solid ${_G}`, paddingLeft: 20 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: _G, marginBottom: 16 }}>Total Payable</div>
+              {[
+                { label: 'Reg 30/31 Premiums', value: cr(ps.totalPremium) },
+                { label: 'AutoDCR Fees', value: cr(ps.totalAutoDCR) },
+              ].map((r, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: `1px solid ${_BD}` }}>
+                  <span style={{ fontSize: 12, color: _MU }}>{r.label}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#fff', fontFamily: '"JetBrains Mono",monospace' }}>{r.value}</span>
+                </div>
+              ))}
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '14px 0', marginTop: 4, borderTop: `2px solid ${_G}` }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Grand Total</span>
+                <span style={{ fontSize: 18, fontWeight: 800, color: _G, fontFamily: '"JetBrains Mono",monospace' }}>{cr(ps.grandTotal)}</span>
+              </div>
+              <div style={{ fontSize: 11, color: _FA, lineHeight: 1.6, marginTop: 12 }}>
+                Rough estimate only. Fungible on rehab BUA ({n(result.fungibleRehabBua)} sqm) is free per Reg 31(3). Architect's Proforma-A is authoritative.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -914,8 +921,8 @@ const GlobalStyles = () => (
       flex-shrink: 0;
     }
 
-    /* ── Tool sidebar ── */
-    .piq-tool-sidebar { display: flex !important; }
+    /* ── Tool input panel ── */
+    .piq-input-panel { display: flex !important; }
     .piq-mobile-workspace-nav {
       display: none;
       overflow-x: auto; -webkit-overflow-scrolling: touch;
@@ -952,13 +959,10 @@ const GlobalStyles = () => (
       .piq-services-card-body { padding: 16px 16px !important; }
 
       /* Tool */
-      .piq-tool-sidebar { display: none !important; }
+      .piq-input-panel { display: none !important; }
       .piq-topbar-stats { display: none !important; }
       .piq-mobile-workspace-nav { display: flex !important; }
-      .piq-topbar-padding { padding-left: 12px !important; }
-      .piq-input-tab-inner { padding: 20px 16px !important; }
-      .piq-input-col { max-width: 100% !important; }
-      .piq-results-tab { padding: 16px !important; }
+      .piq-topbar-padding { padding-left: 8px !important; }
     }
 
     @media (max-width: 480px) {
