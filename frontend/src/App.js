@@ -1078,11 +1078,9 @@ const LandingPage = ({ onStart }) => {
       for (let i = ids.length - 1; i >= 0; i--) {
         const el = document.getElementById(`lp-${ids[i]}`);
         if (el && el.offsetTop - 80 <= mainEl.scrollTop) {
-          setActiveSection(ids[i]);
           return;
         }
       }
-      setActiveSection('hero');
     };
     mainEl.addEventListener('scroll', handleScroll);
     return () => mainEl.removeEventListener('scroll', handleScroll);
