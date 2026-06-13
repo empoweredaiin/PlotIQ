@@ -283,7 +283,7 @@ export default function App() {
       </aside>
 
       {/* ── RESULTS AREA (right) ── */}
-      <div style={{flex:1,minWidth:0,display:'flex',flexDirection:'column',overflow:'hidden'}}>
+      <div style={{flex:1,minWidth:0,display:'flex',flexDirection:'column',overflow:'hidden',position:'relative'}}>
 
         {/* Topbar — 48px */}
         <div className="piq-topbar-padding" style={{
@@ -351,10 +351,40 @@ export default function App() {
               {item.label}
             </button>
           ))}
+          <button
+            onClick={()=>setEditingInputs(true)}
+            className="piq-mobile-edit-btn"
+            style={{marginLeft:'auto',padding:'11px 14px',fontSize:11,fontWeight:600,
+              background:'none',border:'none',borderBottom:'2px solid transparent',
+              color:'#C9A96E',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap',
+              letterSpacing:'0.04em',flexShrink:0}}>
+            Edit ✎
+          </button>
         </div>
 
+        {/* Mobile input overlay */}
+        {editingInputs && (
+          <div className="piq-mobile-input-overlay">
+            <div style={{background:'#FFFFFF',height:'100%',display:'flex',flexDirection:'column',overflow:'hidden'}}>
+              <div style={{height:48,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'space-between',
+                padding:'0 16px',borderBottom:'1px solid #D7D2C7'}}>
+                <div style={{fontSize:13,fontWeight:700,color:'#20242C'}}>Inputs</div>
+                <button onClick={()=>setEditingInputs(false)} style={{
+                  background:'#C9A96E',border:'none',borderRadius:4,
+                  color:'#FFFFFF',fontSize:12,fontWeight:700,padding:'6px 14px',
+                  cursor:'pointer',fontFamily:'inherit',letterSpacing:'0.06em'}}>Done</button>
+              </div>
+              <div style={{flex:1,overflowY:'auto',padding:'16px 18px 48px',background:'#F5F4F0'}}>
+                <InputPanel input={input} update={update} updateFlat={updateFlat}
+                  addFlat={addFlat} removeFlat={removeFlat}
+                  wardDetect={wardDetect} setWardDetect={setWardDetect} />
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Content — single dominant scroll */}
-        <div className="redev-app" style={{flex:1,minHeight:0,overflowY:'auto',padding:'24px 32px 48px',display:'block',background:'#F5F4F0'}}>
+        <div className="redev-app piq-content-area" style={{flex:1,minHeight:0,overflowY:'auto',padding:'24px 32px 48px',display:'block',background:'#F5F4F0'}}>
           {renderWorkspaceContent()}
           <Footer />
         </div>
@@ -560,7 +590,7 @@ function AreaFeasibilityTab({ result, result_33_7B, result_33_9, input, update, 
       <div style={{ marginBottom: 32 }}>
         <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: _FA, marginBottom: 16 }}>Buildable Outcome</div>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginBottom: 6 }}>
-          <span style={{ fontSize: 56, fontWeight: 800, fontFamily: '"JetBrains Mono",monospace', color: _INK, lineHeight: 1, letterSpacing: '-0.03em' }}>{n(r.permissibleBua)}</span>
+          <span className="piq-hero-num" style={{ fontSize: 56, fontWeight: 800, fontFamily: '"JetBrains Mono",monospace', color: _INK, lineHeight: 1, letterSpacing: '-0.03em' }}>{n(r.permissibleBua)}</span>
           <span style={{ fontSize: 16, color: _MU, paddingBottom: 10 }}>sqm</span>
         </div>
         <div style={{ fontSize: 13, color: _MU, marginBottom: 20 }}>
@@ -568,13 +598,13 @@ function AreaFeasibilityTab({ result, result_33_7B, result_33_9, input, update, 
         </div>
 
         {/* Entitlement summary — 3 inline stats */}
-        <div style={{ display: 'flex', gap: 0, borderTop: `1px solid ${_BD}`, borderLeft: `1px solid ${_BD}` }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 0, borderTop: `1px solid ${_BD}`, borderLeft: `1px solid ${_BD}` }}>
           {[
             { label: 'Member Rehab',    value: n(r.memberSideRehabBua), sub: `sqm · ${sqft(r.memberSideRehabBua)} sqft`, color: '#4A9C6E' },
             { label: 'Developer Sale',  value: n(r.saleBua),            sub: `sqm · viability ${r.viabilityRatio?.toFixed(2) ?? '—'}×` },
             { label: 'Incentive BUA',   value: n(r.incentiveBua),       sub: `sqm · free of premium` },
           ].map((c, i) => (
-            <div key={i} style={{ flex: 1, padding: '14px 16px', borderRight: `1px solid ${_BD}`, borderBottom: `1px solid ${_BD}` }}>
+            <div key={i} style={{ flex: '1 1 120px', padding: '14px 16px', borderRight: `1px solid ${_BD}`, borderBottom: `1px solid ${_BD}` }}>
               <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: c.color || _FA, marginBottom: 5 }}>{c.label}</div>
               <div style={{ fontSize: 22, fontWeight: 800, fontFamily: '"JetBrains Mono",monospace', color: c.color || _INK, lineHeight: 1 }}>{c.value}</div>
               <div style={{ fontSize: 10, color: _MU, marginTop: 4 }}>{c.sub}</div>
@@ -726,7 +756,7 @@ function CostsTab({ result, input, update }) {
         ) : (
           <>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, marginBottom: 6 }}>
-              <span style={{ fontSize: 52, fontWeight: 800, fontFamily: '"JetBrains Mono",monospace', color: _G, lineHeight: 1, letterSpacing: '-0.03em' }}>{ps ? cr(ps.grandTotal) : '—'}</span>
+              <span className="piq-hero-num" style={{ fontSize: 52, fontWeight: 800, fontFamily: '"JetBrains Mono",monospace', color: _G, lineHeight: 1, letterSpacing: '-0.03em' }}>{ps ? cr(ps.grandTotal) : '—'}</span>
             </div>
             <div style={{ fontSize: 13, color: _MU, marginBottom: 20 }}>
               Rough estimate · Premiums + Statutory Fees
@@ -736,12 +766,12 @@ function CostsTab({ result, input, update }) {
         )}
 
         {/* Cost breakdown — 2 inline stats */}
-        <div style={{ display: 'flex', gap: 0, borderTop: `1px solid ${_BD}`, borderLeft: `1px solid ${_BD}` }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 0, borderTop: `1px solid ${_BD}`, borderLeft: `1px solid ${_BD}` }}>
           {[
             { label: 'Government Premiums', value: ps ? cr(ps.totalPremium) : '—',  sub: 'Reg 30 / 31 · FSI & fungible' },
             { label: 'Statutory Fees',      value: ps ? cr(ps.totalAutoDCR) : '—',  sub: 'AutoDCR processing · FY 2025-26' },
           ].map((c, i) => (
-            <div key={i} style={{ flex: 1, padding: '14px 16px', borderRight: `1px solid ${_BD}`, borderBottom: `1px solid ${_BD}` }}>
+            <div key={i} style={{ flex: '1 1 150px', padding: '14px 16px', borderRight: `1px solid ${_BD}`, borderBottom: `1px solid ${_BD}` }}>
               <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: _FA, marginBottom: 5 }}>{c.label}</div>
               <div style={{ fontSize: 20, fontWeight: 800, fontFamily: '"JetBrains Mono",monospace', color: _INK, lineHeight: 1 }}>{c.value}</div>
               <div style={{ fontSize: 10, color: _MU, marginTop: 4 }}>{c.sub}</div>
@@ -753,20 +783,20 @@ function CostsTab({ result, input, update }) {
       {/* ── RATE INPUTS ── */}
       <div style={{ marginBottom: 32 }}>
         <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: _FA, marginBottom: 12 }}>Rate Inputs</div>
-        <div style={{ display: 'flex', gap: 32 }}>
-          <div style={{ flex: 1 }}>
+        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 160px' }}>
             <div style={{ fontSize: 11, color: _MU, marginBottom: 6 }}>ASR Land Rate — ₹/sqm</div>
             <input type="number" value={input.asrLandRate}
               onChange={e => update('asrLandRate', parseFloat(e.target.value) || 0)}
               style={{ width: '100%', background: '#FFFFFF', border: `1px solid ${_BD}`, color: _INK, padding: '8px 12px', fontSize: 15, fontFamily: '"JetBrains Mono",monospace', borderRadius: 3, outline: 'none' }} />
           </div>
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: '1 1 160px' }}>
             <div style={{ fontSize: 11, color: _MU, marginBottom: 6 }}>Construction Rate — ₹/sqm BUA</div>
             <input type="number" value={input.constructionRate}
               onChange={e => update('constructionRate', parseFloat(e.target.value) || 0)}
               style={{ width: '100%', background: '#FFFFFF', border: `1px solid ${_BD}`, color: _INK, padding: '8px 12px', fontSize: 15, fontFamily: '"JetBrains Mono",monospace', borderRadius: 3, outline: 'none' }} />
           </div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+          <div style={{ flex: '1 1 160px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
             <div style={{ fontSize: 11, color: _MU, marginBottom: 6 }}>FSI Loading</div>
             <div style={{ display: 'flex', gap: 12 }}>
               {[['Premium', input.premiumFsiLoad], ['TDR', input.tdrLoad], ['Fungible', input.fungibleLoad]].map(([lbl, v]) => (
@@ -990,16 +1020,29 @@ const GlobalStyles = () => (
       color: #C9A96E; border-bottom-color: #C9A96E;
     }
 
+    /* Mobile input overlay — fullscreen sheet over the results area */
+    .piq-mobile-input-overlay {
+      display: none;
+      position: absolute; inset: 0; z-index: 200;
+    }
+    /* Hide the Edit button in the mobile nav when on desktop */
+    .piq-mobile-edit-btn { display: none !important; }
+
     @media (max-width: 768px) {
       .piq-input-panel { display: none !important; }
       .piq-topbar-stats { display: none !important; }
       .piq-mobile-workspace-nav { display: flex !important; }
       .piq-topbar-padding { padding-left: 8px !important; }
+      .piq-content-area { padding: 16px 16px 48px !important; }
+      .piq-mobile-edit-btn { display: flex !important; }
+      .piq-mobile-input-overlay { display: block !important; }
     }
 
     @media (max-width: 480px) {
       .piq-lp-cta-row { flex-direction: column !important; align-items: flex-start !important; }
       .piq-topbar-new { font-size: 9px !important; padding: 5px 8px !important; }
+      .piq-content-area { padding: 12px 12px 48px !important; }
+      .piq-hero-num { font-size: 38px !important; }
     }
   `}</style>
 );
