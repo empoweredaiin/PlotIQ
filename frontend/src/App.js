@@ -790,17 +790,24 @@ function CostsTab({ result, input, update }) {
               onChange={e => update('constructionRate', parseFloat(e.target.value) || 0)}
               style={{ width: '100%', background: '#FFFFFF', border: `1px solid ${_BD}`, color: _INK, padding: '8px 12px', fontSize: 15, fontFamily: '"JetBrains Mono",monospace', borderRadius: 3, outline: 'none' }} />
           </div>
-          <div style={{ flex: '1 1 160px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-            <div style={{ fontSize: 11, color: _MU, marginBottom: 6 }}>FSI Loading</div>
-            <div style={{ display: 'flex', gap: 12 }}>
-              {[['Premium', input.premiumFsiLoad], ['TDR', input.tdrLoad], ['Fungible', input.fungibleLoad]].map(([lbl, v]) => (
-                <div key={lbl}>
-                  <div style={{ fontSize: 9, color: _FA, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lbl}</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, fontFamily: '"JetBrains Mono",monospace', color: (v ?? 1) < 1 ? _G : _INK }}>{((v ?? 1) * 100).toFixed(0)}%</div>
+          <div style={{ flex: '2 1 300px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ fontSize: 11, color: _MU }}>FSI Loading</div>
+            {[
+              { label: 'Premium FSI', key: 'premiumFsiLoad', val: input.premiumFsiLoad },
+              { label: 'TDR',         key: 'tdrLoad',        val: input.tdrLoad },
+              { label: 'Fungible',    key: 'fungibleLoad',   val: input.fungibleLoad },
+            ].map(({ label, key, val }) => (
+              <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ fontSize: 11, color: _MU, width: 90, flexShrink: 0 }}>{label}</div>
+                <input type="range" min={0} max={1} step={0.05} value={val ?? 1}
+                  onChange={e => update(key, parseFloat(e.target.value))}
+                  style={{ flex: 1, accentColor: _G, cursor: 'pointer' }} />
+                <div style={{ fontSize: 13, fontWeight: 700, fontFamily: '"JetBrains Mono",monospace',
+                  color: (val ?? 1) < 1 ? _G : _INK, width: 36, textAlign: 'right', flexShrink: 0 }}>
+                  {((val ?? 1) * 100).toFixed(0)}%
                 </div>
-              ))}
-              <div style={{ fontSize: 9, color: _FA, alignSelf: 'flex-end', paddingBottom: 2 }}>adjust on Area tab</div>
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
